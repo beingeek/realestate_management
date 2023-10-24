@@ -1,0 +1,220 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"mTQ_6P_5S9\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Real Estate</span>\",\"col\":12}},{\"id\":\"GSggP1cN3i\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"t57lYYDvt7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Plot Booking\",\"col\":3}},{\"id\":\"ZoARlesrbO\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Project Wise Remaing\",\"col\":3}},{\"id\":\"Q0TDMOonAZ\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Customer Payment\",\"col\":3}},{\"id\":\"f5lxFhWF0M\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":3}},{\"id\":\"MqpwTN6Ip-\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"TAOvZC9K7y\",\"type\":\"card\",\"data\":{\"card_name\":\"Master Data Form\",\"col\":4}},{\"id\":\"940jCf7Y-Z\",\"type\":\"card\",\"data\":{\"card_name\":\"Data Entry Form\",\"col\":4}},{\"id\":\"jBAoBjRxzg\",\"type\":\"card\",\"data\":{\"card_name\":\"Real Estate Report\",\"col\":4}},{\"id\":\"58AvDt1rk0\",\"type\":\"card\",\"data\":{\"card_name\":\"Broker Report\",\"col\":4}}]",
+ "creation": "2023-10-19 23:06:03.491144",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "folder-normal-large",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Real Estate",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Master Data Form",
+   "link_count": 4,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Project",
+   "link_count": 0,
+   "link_to": "Project",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Plot Inventory",
+   "link_count": 0,
+   "link_to": "Plot List",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Customer",
+   "link_count": 0,
+   "link_to": "Customer",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Supplier",
+   "link_count": 0,
+   "link_to": "Supplier",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Data Entry Form",
+   "link_count": 4,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Plot Booking",
+   "link_count": 0,
+   "link_to": "Plot Booking",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Customer Payment",
+   "link_count": 0,
+   "link_to": "Customer Payment",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Plot Transfer ",
+   "link_count": 0,
+   "link_to": "Property Transfer",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Plot Cancel",
+   "link_count": 0,
+   "link_to": "Cancellation Property",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Real Estate Report",
+   "link_count": 1,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Customer Payment Datail",
+   "link_count": 0,
+   "link_to": "Customer Payment Detail",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Project wise Installment Detail",
+   "link_count": 0,
+   "link_to": "Project wise Installment Detail",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Project Wise Detail",
+   "link_count": 0,
+   "link_to": "Remaining Amount Project Wise",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Broker Report",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Broker Outstanding Detail",
+   "link_count": 0,
+   "link_to": "Broker Outstanding Detail",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Broker Oustanding Summary",
+   "link_count": 0,
+   "link_to": "Broker Oustanding Summary",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2023-10-21 23:46:57.619317",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Real Estate",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 23.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Project Wise Remaing",
+   "link_to": "Remaining Amount Project Wise",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Plot Booking",
+   "link_to": "Plot Booking",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "label": "Customer Payment",
+   "link_to": "Customer Payment",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Dashboard",
+   "link_to": "Realestate Recovery",
+   "type": "Dashboard"
+  }
+ ],
+ "title": "Real Estate"
+}

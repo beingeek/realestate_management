@@ -1,0 +1,107 @@
+{
+ "add_total_row": 1,
+ "columns": [
+  {
+   "fieldname": "payment_date",
+   "fieldtype": "Date",
+   "label": "Payment Date",
+   "width": 0
+  },
+  {
+   "fieldname": "name",
+   "fieldtype": "Link",
+   "label": "System Doc. No.",
+   "options": "Customer Payment",
+   "width": 0
+  },
+  {
+   "fieldname": "book_number",
+   "fieldtype": "Data",
+   "label": "Book Number",
+   "width": 0
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Link",
+   "label": "Customer Name",
+   "options": "Customer",
+   "width": 250
+  },
+  {
+   "fieldname": "plot_no",
+   "fieldtype": "Link",
+   "label": "Plot Number",
+   "options": "Plot List",
+   "width": 0
+  },
+  {
+   "fieldname": "installment",
+   "fieldtype": "Data",
+   "label": "installment Type",
+   "width": 0
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Installment Date",
+   "width": 0
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount",
+   "width": 150
+  }
+ ],
+ "creation": "2023-10-21 13:42:18.117419",
+ "disable_prepared_report": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "mandatory": 1,
+   "options": "Project",
+   "wildcard_filter": 0
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From Date",
+   "mandatory": 1,
+   "wildcard_filter": 0
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To Date",
+   "mandatory": 1,
+   "wildcard_filter": 0
+  }
+ ],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": "CE Construction",
+ "modified": "2023-10-21 23:09:38.659510",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Customer Payment Detail",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "query": "SELECT\n    a.payment_date,\n    a.name,\n    a.book_number,\n    a.customer_name,\n    a.plot_no,\n    b.installment,\n    b.date,\n    b.paid_amount\nFROM\n    `tabCustomer Payment` AS a\nINNER JOIN\n    `tabCustomer Payment Installment` AS b ON a.name = b.parent\nWHERE\n    a.docstatus = 1\n    AND a.project_name = %(project)s\n    AND a.payment_date BETWEEN %(from_date)s AND %(to_date)s\nOrder BY\n\ta.payment_date;",
+ "ref_doctype": "Customer Payment",
+ "report_name": "Customer Payment Detail",
+ "report_script": "",
+ "report_type": "Query Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Realestate Account Manager"
+  }
+ ]
+}

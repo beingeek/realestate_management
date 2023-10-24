@@ -1,0 +1,34 @@
+{
+ "cards": [
+  {
+   "card": "Realestate Projects"
+  },
+  {
+   "card": "Plot Count"
+  },
+  {
+   "card": "Total Sales Amount"
+  },
+  {
+   "card": "Total Realestate Payment"
+  }
+ ],
+ "charts": [
+  {
+   "chart": "Payment Collection",
+   "width": "Half"
+  }
+ ],
+ "creation": "2023-03-14 17:08:03.152628",
+ "dashboard_name": "Realestate Recovery",
+ "docstatus": 0,
+ "doctype": "Dashboard",
+ "idx": 0,
+ "is_default": 0,
+ "is_standard": 1,
+ "modified": "2023-10-19 18:53:12.034612",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Realestate Recovery",
+ "owner": "Administrator"
+}

@@ -1,0 +1,267 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:CPV-{#######}",
+ "creation": "2023-10-14 21:54:00.304659",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "project_name",
+  "get_insallment_information",
+  "column_break_pgopo",
+  "plot_no",
+  "total_paid_amount",
+  "document_type",
+  "column_break_yzarc",
+  "customer_name",
+  "book_number",
+  "column_break_grwe5",
+  "document_number",
+  "payment_date",
+  "installment_division_section",
+  "installment",
+  "section_break_dxx3v",
+  "payment_type",
+  "section_break_krtxv",
+  "grand_total",
+  "column_break_i1bgb",
+  "column_break_g9jop",
+  "column_break_l64qv",
+  "payment_type_total_amount",
+  "total_remaining_balance",
+  "section_break_tdr1d",
+  "remarks",
+  "column_break_l8lln",
+  "company",
+  "amended_from",
+  "column_break_zhlva"
+ ],
+ "fields": [
+  {
+   "fieldname": "project_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Project Name",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fieldname": "plot_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Plot No",
+   "options": "Plot List",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Customer Payment",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Payment Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "total_paid_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total Paid Amount",
+   "reqd": 1
+  },
+  {
+   "fieldname": "installment_division_section",
+   "fieldtype": "Section Break",
+   "label": "Paid Installment Detail"
+  },
+  {
+   "fieldname": "installment",
+   "fieldtype": "Table",
+   "label": "installment",
+   "options": "Customer Payment Installment",
+   "reqd": 1
+  },
+  {
+   "fieldname": "total_remaining_balance",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "total_remaining_balance",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "grand_total",
+   "fieldtype": "Currency",
+   "label": "Installment Total",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "document_type",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "document_number",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Document Number",
+   "options": "document_type",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "get_insallment_information",
+   "fieldtype": "Button",
+   "label": "Get insallment Detail"
+  },
+  {
+   "fieldname": "column_break_pgopo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_yzarc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_dxx3v",
+   "fieldtype": "Section Break",
+   "label": "Payment Type"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_tdr1d",
+   "fieldtype": "Section Break",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_l8lln",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_zhlva",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Customer Name",
+   "options": "Customer",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "payment_type",
+   "fieldtype": "Table",
+   "label": "Payment Type",
+   "options": "Payment Type"
+  },
+  {
+   "fieldname": "section_break_krtxv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "payment_type_total_amount",
+   "fieldtype": "Currency",
+   "label": "Payment Type Total Amount",
+   "non_negative": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_grwe5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "book_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Book Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_l64qv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_i1bgb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_g9jop",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "TDB",
+   "fetch_from": "project_name.company",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1,
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2023-10-21 00:31:34.118591",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Customer Payment",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Realestate Account Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1
+}

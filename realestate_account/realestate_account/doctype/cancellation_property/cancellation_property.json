@@ -1,0 +1,284 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-10-17 13:57:52.640329",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "property_information_tab",
+  "property_information_section",
+  "doc_date",
+  "document_type",
+  "base_doc_date",
+  "column_break_2ef7h",
+  "project",
+  "document_number",
+  "column_break_snpnl",
+  "plot_no",
+  "base_doc_total",
+  "customer_information_section",
+  "customer",
+  "address",
+  "column_break_7hki4",
+  "father_name",
+  "contact_no",
+  "column_break_dzefc",
+  "cnic",
+  "sales_broker",
+  "payment_information_section",
+  "total_paid_amount",
+  "column_break_c3l3c",
+  "deduction",
+  "column_break_sa0aq",
+  "final_payment",
+  "section_break_3psyl",
+  "payment_type",
+  "remarks_section",
+  "remarks",
+  "company",
+  "column_break_0nsw8",
+  "column_break_nszkl",
+  "connection",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "property_information_tab",
+   "fieldtype": "Tab Break",
+   "label": " Property Information"
+  },
+  {
+   "fieldname": "doc_date",
+   "fieldtype": "Date",
+   "label": "Doc Date"
+  },
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Document Type",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "base_doc_date",
+   "fieldtype": "Date",
+   "label": "Previous Doc. Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2ef7h",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fieldname": "document_number",
+   "fieldtype": "Dynamic Link",
+   "label": "Doc Number",
+   "options": "document_type",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_snpnl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "plot_no",
+   "fieldtype": "Link",
+   "label": "Plot No",
+   "options": "Plot List",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "base_doc_total",
+   "fieldtype": "Currency",
+   "label": "Previous Doc Total",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "customer_information_section",
+   "fieldtype": "Section Break",
+   "label": "Customer Information"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": " Customer",
+   "options": "Customer",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "customer.custom_address",
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_7hki4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "customer.custom_cnic",
+   "fieldname": "cnic",
+   "fieldtype": "Data",
+   "label": "CNIC",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "customer.custom__contact_no",
+   "fieldname": "contact_no",
+   "fieldtype": "Data",
+   "label": "Contact No.",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "customer.custom_father_name",
+   "fieldname": "father_name",
+   "fieldtype": "Data",
+   "label": "Father Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales_broker",
+   "fieldtype": "Link",
+   "label": "Sales Broker",
+   "options": "Supplier",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_information_section",
+   "fieldtype": "Section Break",
+   "label": "Payment Information"
+  },
+  {
+   "fieldname": "total_paid_amount",
+   "fieldtype": "Currency",
+   "label": "Total Paid Amount",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_c3l3c",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:(doc.total_paid_amount !== 0)",
+   "fieldname": "deduction",
+   "fieldtype": "Currency",
+   "label": "Deduction"
+  },
+  {
+   "fieldname": "column_break_sa0aq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "final_payment",
+   "fieldtype": "Currency",
+   "label": "Final Payment",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_3psyl",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "payment_type",
+   "fieldtype": "Table",
+   "options": "Payment Type"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "remarks_section",
+   "fieldtype": "Section Break",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": " Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "column_break_0nsw8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "connection",
+   "fieldtype": "Tab Break",
+   "label": "Connection",
+   "show_dashboard": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Cancellation Property",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_dzefc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "property_information_section",
+   "fieldtype": "Section Break",
+   "label": " Property Information"
+  },
+  {
+   "fieldname": "column_break_nszkl",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2023-10-18 12:22:24.658625",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Cancellation Property",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1
+}

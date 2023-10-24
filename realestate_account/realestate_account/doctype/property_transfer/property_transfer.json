@@ -1,0 +1,582 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:PT-{######}",
+ "creation": "2023-10-13 16:10:58.249146",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "property_information_tab",
+  "section_break_sw5bd",
+  "doc_date",
+  "document_type",
+  "base_doc_date",
+  "paid_amount",
+  "column_break_b5ps8",
+  "project",
+  "document_number",
+  "column_break_udnoi",
+  "plot_no",
+  "base_doc_total",
+  "transfer_amount",
+  "transfer_from_customer",
+  "from_customer",
+  "from_address",
+  "column_break_pwise",
+  "from_father_name",
+  "from_cnic",
+  "column_break_mzmx1",
+  "from_mobile_no",
+  "from_sales_broker",
+  "transfer_to_customer_section",
+  "to_customer",
+  "to_address",
+  "column_break_mkzq5",
+  "to_father_name",
+  "to_cnic",
+  "column_break_poc4d",
+  "to_mobile_no",
+  "column_break_f7lhu",
+  "section_break_dykmb",
+  "transfer_type",
+  "column_break_bhrcb",
+  "transfer_charge",
+  "payment_type_total_amount",
+  "column_break_hedy7",
+  "sales_broker",
+  "section_break_pbxz5",
+  "payment_type",
+  "remarks_section",
+  "remarks",
+  "column_break_zppuq",
+  "status",
+  "company",
+  "column_break_6il7m",
+  "amended_from",
+  "payment_schedule_tab",
+  "payment_plan_data_input_section",
+  "installment_starting_date",
+  "no_of_month_plan",
+  "installment_ending_date",
+  "column_break_fd3g8",
+  "total_transfer_amount",
+  "booking_amount",
+  "possession_amount",
+  "column_break_wic5h",
+  "monthly_installment_amount",
+  "quarterly_installment_amount",
+  "column_break_qa3ly",
+  "half_yearly_installment_amount",
+  "yearly_installment_amount",
+  "generate_installment",
+  "payment_schedule_section",
+  "payment_schedule",
+  "payment_plan_reconcilition_section",
+  "total_monthly_installment",
+  "total_booking_amount",
+  "column_break_eqv0b",
+  "total_quarterly_installment",
+  "total_installment_amount",
+  "column_break_lq5je",
+  "total_half_yearly_installment",
+  "total_possession_amount",
+  "column_break_wl9fx",
+  "total_yearly_installment",
+  "difference",
+  "connection"
+ ],
+ "fields": [
+  {
+   "fieldname": "property_information_tab",
+   "fieldtype": "Tab Break",
+   "label": "Property Information"
+  },
+  {
+   "fieldname": "section_break_sw5bd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "doc_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Doc Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": " Document ID",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "document_number",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": " Document No",
+   "options": "document_type",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_b5ps8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fieldname": "base_doc_date",
+   "fieldtype": "Date",
+   "label": " Previous Document Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_udnoi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "plot_no",
+   "fieldtype": "Link",
+   "label": " Plot No",
+   "options": "Plot List",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "base_doc_total",
+   "fieldtype": "Currency",
+   "label": " Previous Document Total",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_dykmb",
+   "fieldtype": "Section Break",
+   "label": "Transfer Charge Detail"
+  },
+  {
+   "fieldname": "transfer_type",
+   "fieldtype": "Select",
+   "label": "Transfer Type",
+   "options": "Internal Transfer\nBorker Transfer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_bhrcb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transfer_charge",
+   "fieldtype": "Currency",
+   "label": " Transfer Charge"
+  },
+  {
+   "fieldname": "column_break_hedy7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sales_broker",
+   "fieldtype": "Link",
+   "label": "Sales Broker",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "transfer_from_customer",
+   "fieldtype": "Section Break",
+   "label": " Transfer From Customer"
+  },
+  {
+   "fieldname": "from_customer",
+   "fieldtype": "Link",
+   "label": "From Customer",
+   "options": "Customer",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "from_customer.custom_address",
+   "fieldname": "from_address",
+   "fieldtype": "Small Text",
+   "label": " Address",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_pwise",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "from_customer.custom_father_name",
+   "fieldname": "from_father_name",
+   "fieldtype": "Data",
+   "label": "Father Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "from_customer.custom_cnic",
+   "fieldname": "from_cnic",
+   "fieldtype": "Data",
+   "label": " CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_mzmx1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "from_customer.custom__contact_no",
+   "fieldname": "from_mobile_no",
+   "fieldtype": "Data",
+   "label": " Contact No.",
+   "read_only": 1
+  },
+  {
+   "fieldname": "from_sales_broker",
+   "fieldtype": "Link",
+   "label": " Sales Broker",
+   "options": "Supplier",
+   "read_only": 1
+  },
+  {
+   "fieldname": "transfer_to_customer_section",
+   "fieldtype": "Section Break",
+   "label": " Transfer To Customer"
+  },
+  {
+   "fieldname": "to_customer",
+   "fieldtype": "Link",
+   "label": " Transfer To Customer",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "to_customer.custom_address",
+   "fieldname": "to_address",
+   "fieldtype": "Small Text",
+   "label": "Address",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_mkzq5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "to_customer.custom_father_name",
+   "fieldname": "to_father_name",
+   "fieldtype": "Data",
+   "label": " Father Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "to_customer.custom_cnic",
+   "fieldname": "to_cnic",
+   "fieldtype": "Data",
+   "label": " CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_poc4d",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "to_customer.custom__contact_no",
+   "fieldname": "to_mobile_no",
+   "fieldtype": "Data",
+   "label": " Contact No.",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "remarks_section",
+   "fieldtype": "Section Break",
+   "label": " Remarks"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": " Remaks"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Active\nFurther Transferred\nCancel",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_zppuq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_f7lhu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_schedule_tab",
+   "fieldtype": "Tab Break",
+   "label": " Payment Schedule"
+  },
+  {
+   "fetch_from": "project.company",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Property Transfer",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_plan_data_input_section",
+   "fieldtype": "Section Break",
+   "label": " Payment Plan Data Input"
+  },
+  {
+   "fieldname": "installment_starting_date",
+   "fieldtype": "Date",
+   "label": "installment Starting Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "no_of_month_plan",
+   "fieldtype": "Int",
+   "label": " No. of Month Plan",
+   "reqd": 1
+  },
+  {
+   "fieldname": "installment_ending_date",
+   "fieldtype": "Date",
+   "label": " Installment Ending Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_fd3g8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_transfer_amount",
+   "fieldtype": "Currency",
+   "label": " Total Transfer Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "possession_amount",
+   "fieldtype": "Currency",
+   "label": "Possession Amount"
+  },
+  {
+   "fieldname": "column_break_wic5h",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "monthly_installment_amount",
+   "fieldtype": "Currency",
+   "label": " Monthly Installments Amount"
+  },
+  {
+   "fieldname": "quarterly_installment_amount",
+   "fieldtype": "Currency",
+   "label": " Quarterly Instalment Amount"
+  },
+  {
+   "fieldname": "column_break_qa3ly",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "half_yearly_installment_amount",
+   "fieldtype": "Currency",
+   "label": "Half Yearly installments Amount"
+  },
+  {
+   "fieldname": "yearly_installment_amount",
+   "fieldtype": "Currency",
+   "label": " Yearly installments Amount"
+  },
+  {
+   "fieldname": "generate_installment",
+   "fieldtype": "Button",
+   "label": " Generate Installment Plan"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "payment_schedule_section",
+   "fieldtype": "Section Break",
+   "label": " Payment Schedule"
+  },
+  {
+   "fieldname": "payment_schedule",
+   "fieldtype": "Table",
+   "label": " Payment Schedule",
+   "options": "Installment Payment Plan - Transfer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payment_plan_reconcilition_section",
+   "fieldtype": "Section Break",
+   "label": "Payment Plan Reconcilition"
+  },
+  {
+   "fieldname": "total_monthly_installment",
+   "fieldtype": "Currency",
+   "label": " Total Monthly Installment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_eqv0b",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_quarterly_installment",
+   "fieldtype": "Currency",
+   "label": " Total Quarterly Installment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_installment_amount",
+   "fieldtype": "Currency",
+   "label": " Total Installment Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_lq5je",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_half_yearly_installment",
+   "fieldtype": "Currency",
+   "label": " Total Half Yearly Installment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_possession_amount",
+   "fieldtype": "Currency",
+   "label": " Total Possession Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_wl9fx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_yearly_installment",
+   "fieldtype": "Currency",
+   "label": "Total Yearly Installment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "difference",
+   "fieldtype": "Currency",
+   "label": "Difference (Total Transfer Amount- Total Payment Schdule Amount)",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "connection",
+   "fieldtype": "Tab Break",
+   "label": "Connection",
+   "show_dashboard": 1
+  },
+  {
+   "fieldname": "booking_amount",
+   "fieldtype": "Currency",
+   "label": "Advance Amount"
+  },
+  {
+   "fieldname": "total_booking_amount",
+   "fieldtype": "Currency",
+   "label": " Total Advance Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount",
+   "non_negative": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "transfer_amount",
+   "fieldtype": "Currency",
+   "label": "Transfer Amount Total",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_pbxz5",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "payment_type",
+   "fieldtype": "Table",
+   "label": "Payment Type",
+   "options": "Payment Type"
+  },
+  {
+   "fieldname": "column_break_6il7m",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_type_total_amount",
+   "fieldtype": "Currency",
+   "label": "Payment Type Total"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_calendar_and_gantt": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Journal Entry",
+   "link_fieldname": "custom_document_number"
+  },
+  {
+   "link_doctype": "Customer Payment",
+   "link_fieldname": "document_number"
+  },
+  {
+   "link_doctype": "Property Transfer",
+   "link_fieldname": "document_number"
+  }
+ ],
+ "modified": "2023-10-22 12:21:23.290801",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Property Transfer",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1
+}

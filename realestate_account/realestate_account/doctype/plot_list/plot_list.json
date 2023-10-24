@@ -1,0 +1,295 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:plot_name",
+ "creation": "2023-10-17 21:46:44.170771",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "property_information_tab",
+  "project_name",
+  "column_break_y1nhq",
+  "plot_detail",
+  "column_break_hxyju",
+  "plot_name",
+  "section_break_us9uz",
+  "land_price",
+  "plot_feature",
+  "hold_for_sale",
+  "status",
+  "column_break_3bbzj",
+  "land_area",
+  "uom",
+  "reason_for_hold",
+  "column_break_7g6t7",
+  "total",
+  "company",
+  "current_owner_detail_tab",
+  "client_name",
+  "address",
+  "column_break_ayjoz",
+  "father_name",
+  "cnic",
+  "column_break_5xzlh",
+  "mobile_no",
+  "sales_agent",
+  "connection",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "property_information_tab",
+   "fieldtype": "Tab Break",
+   "label": "Property Information"
+  },
+  {
+   "fieldname": "project_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Project Name",
+   "options": "Project",
+   "read_only_depends_on": "eval:(doc.status === \"Booked\");",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_y1nhq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Plot",
+   "fieldname": "plot_detail",
+   "fieldtype": "Select",
+   "label": "Property Detail ( Type )",
+   "options": "Plot\nHousing\nApartment\nShop"
+  },
+  {
+   "fieldname": "column_break_hxyju",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "plot_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Plot / Unit Name ",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "section_break_us9uz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "land_price",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Plot Price",
+   "read_only_depends_on": "eval:(doc.status === \"Booked\");",
+   "reqd": 1
+  },
+  {
+   "fieldname": "plot_feature",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Plot Feature",
+   "options": "West Open\nCorner\nPark Facing\nNormal\nOther",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "hold_for_sale",
+   "fieldtype": "Check",
+   "label": " Hold for Sale"
+  },
+  {
+   "fieldname": "column_break_3bbzj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "land_area",
+   "fieldtype": "Currency",
+   "label": " Plot Area",
+   "read_only_depends_on": "eval:(doc.status === \"Booked\");\n",
+   "reqd": 1
+  },
+  {
+   "default": "Square Foot",
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "label": " UOM",
+   "options": "UOM",
+   "reqd": 1
+  },
+  {
+   "fieldname": "reason_for_hold",
+   "fieldtype": "Data",
+   "label": " Reason for Hold"
+  },
+  {
+   "fieldname": "total",
+   "fieldtype": "Currency",
+   "label": " Total Plot Value",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "current_owner_detail_tab",
+   "fieldtype": "Tab Break",
+   "label": " Current Ownership Detail"
+  },
+  {
+   "fieldname": "client_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Customer Name",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ayjoz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "father_name",
+   "fieldtype": "Data",
+   "label": " Father Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cnic",
+   "fieldtype": "Data",
+   "label": " CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_5xzlh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mobile_no",
+   "fieldtype": "Data",
+   "label": "contact No.",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales_agent",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": " Sales Broker",
+   "options": "Supplier",
+   "read_only": 1
+  },
+  {
+   "fieldname": "connection",
+   "fieldtype": "Tab Break",
+   "label": "Connection",
+   "show_dashboard": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Plot List",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_7g6t7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Available",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Property status",
+   "options": "Available\nBooked",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [
+  {
+   "group": "Realestate",
+   "link_doctype": "Housing Booking",
+   "link_fieldname": "plot_no"
+  },
+  {
+   "group": "Realestate",
+   "link_doctype": "Property Transfer",
+   "link_fieldname": "plot_no"
+  },
+  {
+   "group": "Realestate",
+   "link_doctype": "Customer Payment Realestate",
+   "link_fieldname": "plot_no"
+  },
+  {
+   "group": "Realestate",
+   "link_doctype": "Cancellation Property",
+   "link_fieldname": "plot_no"
+  },
+  {
+   "group": "Purchase",
+   "link_doctype": "Purchase Invoice",
+   "link_fieldname": "bill_no"
+  }
+ ],
+ "modified": "2023-10-19 01:11:11.822923",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Plot List",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Realestate Account Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1
+}
