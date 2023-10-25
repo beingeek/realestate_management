@@ -471,7 +471,7 @@
    "link_fieldname": "document_number"
   },
   {
-   "link_doctype": "Customer Payment Realestate",
+   "link_doctype": "Customer Payment",
    "link_fieldname": "document_number"
   }
  ],
