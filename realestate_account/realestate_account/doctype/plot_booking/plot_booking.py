@@ -1,6 +1,3 @@
-# Copyright (c) 2023, CE Construction and contributors
-# For license information, please see license.txt
-
 import frappe
 from frappe import _
 from frappe.model.document import Document
@@ -30,7 +27,7 @@ def get_plot_detail(plot_no):
             'land_price'        : plot.land_price,
             'land_area'         : plot.land_area,
             'uom'               : plot.uom,
-            'total_unit_value'  :plot.total
+            'total_unit_value'  : plot.total
         }
         return data
     except Exception as e:
@@ -132,6 +129,32 @@ def create_invoice(plot_booking):
         frappe.msgprint(f"Error creating invoice: {str(e)}")
     except Exception as ex:
         frappe.msgprint(f"Unexpected error: {str(ex)}")
+
+
+
+@frappe.whitelist()
+def check_accounting_period_open(booking_date):
+    try:
+        sql_query = """
+            SELECT closed
+            FROM `tabAccounting Period` AS tap
+            LEFT JOIN `tabClosed Document` AS tcd ON tcd.parent = tap.name
+            WHERE tcd.document_type = 'Purchase Invoice' 
+                AND MONTH(tap.end_date) = MONTH(%s) 
+                AND YEAR(tap.end_date) = YEAR(%s)
+                LIMIT 1;
+        """
+        result = frappe.db.sql(sql_query, (booking_date, booking_date), as_dict=True)
+
+        if not result:
+            return {'is_open': None}  # Return a dictionary with 'is_open' set to None
+
+        return {'is_open': result[0]['closed']}  # Return a dictionary with 'is_open' value
+    except Exception as e:
+        frappe.log_error(f"Error getting in period: {str(e)}")
+        return {'is_open': None}
+
+
 
 
 
