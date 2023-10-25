@@ -206,8 +206,27 @@ def create_journal_entry(cust_pmt):
 
     return {"message": f"Journal Entry {journal_entry.name} created successfully", "journal_entry": journal_entry.name}
 
+@frappe.whitelist()
+def check_accounting_period(payment_date):
+    try:
+        sql_query = """
+            SELECT closed
+            FROM `tabAccounting Period` AS tap
+            LEFT JOIN `tabClosed Document` AS tcd ON tcd.parent = tap.name
+            WHERE tcd.document_type = 'Journal Entry' 
+                AND MONTH(tap.end_date) = MONTH(%s) 
+                AND YEAR(tap.end_date) = YEAR(%s)
+                LIMIT 1;
+        """
+        result = frappe.db.sql(sql_query, (payment_date, payment_date), as_dict=True)
 
+        if not result:
+            return {'is_open': None}
 
+        return {'is_open': result[0]['closed']}
+    except Exception as e:
+        frappe.log_error(f"Error getting in period: {str(e)}")
+        return {'is_open': None}
 
 
 
