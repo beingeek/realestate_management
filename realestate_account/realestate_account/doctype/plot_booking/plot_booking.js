@@ -1,6 +1,3 @@
-// Copyright (c) 2023, CE Construction and contributors
-// For license information, please see license.txt
-
 
 frappe.ui.form.on('Plot Booking', 'validate', function(frm) {
     if (frm.doc.difference !== 0) {
@@ -440,7 +437,6 @@ frappe.ui.form.on("Plot Booking", {
                 if (response.message) {
                     console.log(response);
                     var plots_with_details = response.message;
-
                     if (plots_with_details.length === 0) {
                         frm.set_value("plot_no", "");
                         frappe.msgprint(__("No available plots found."));
@@ -488,6 +484,32 @@ frappe.ui.form.on("Plot Booking", {
 
 ////////////////////////////////   Create A/P invoice ////////////////////////////
 
+
+
+frappe.ui.form.on('Plot Booking', {
+    before_save: function(frm) {
+        if (frm.doc.commission_amount !== 0) {
+            checkAccountingPeriodOpen(frm.doc.booking_date);
+        }
+    }
+});
+function checkAccountingPeriodOpen(postingDate) {
+    frappe.call({
+        method: 'realestate_account.realestate_account.doctype.plot_booking.plot_booking.check_accounting_period_open',
+        args: {
+            booking_date: postingDate
+        },
+        callback: function(response) {
+            console.log(response);
+            if (response.message && response.message.is_open === 1) {
+                frappe.msgprint(__('The accounting period is not open. Please open the accounting period.'));
+                frappe.validated = false; 
+            }
+        }
+    });
+}
+
+
 frappe.ui.form.on('Plot Booking', {
         on_submit: function(frm) {
             if ((frm.doc.commission_amount ?? 0)!== 0) {
@@ -525,37 +547,4 @@ frappe.ui.form.on('Plot Booking', {
     }
     }
 });   
-
-
-
-
-
-// frappe.ui.form.on('Plot Booking', {
-//     refresh: function(frm) {
-//         // Get the previously stored plot_no value from the form
-//         var previousPlotNo = frm.__last_rendered_doc.plot_no;
-
-//         // Check if the current plot_no is different from the previous one
-//         if (frm.doc.plot_no && frm.doc.plot_no !== previousPlotNo) {
-//             // Trigger your custom logic here when plot_no changes
-//             frappe.msgprint(__('Plot number has changed.'));
-            
-//             // Update the previously stored plot_no value
-//             frm.__last_rendered_doc.plot_no = frm.doc.plot_no;
-//         }
-//     }
-// });
-
-
-
-
-
-
-
-
-
-
-
-
-
 
