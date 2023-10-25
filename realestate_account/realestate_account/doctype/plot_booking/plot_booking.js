@@ -1,4 +1,3 @@
-
 frappe.ui.form.on('Plot Booking', 'validate', function(frm) {
     if (frm.doc.difference !== 0) {
         frappe.msgprint(__('Amount of Installment Total and Grand Total is not matched'));
@@ -23,7 +22,6 @@ frappe.ui.form.on('Plot Booking', {
         frm.toggle_display(['generate_installment'], frm.doc.__islocal);
     }
 });
-
 
 
 
@@ -54,10 +52,7 @@ frappe.ui.form.on('Plot Booking', {
                 }
             });
         } 
-    }
-});
-
-frappe.ui.form.on('Plot Booking', {
+    },
     after_cancel: function(frm) {
         if (frm.doc.plot_no) {
             frappe.call({
@@ -482,33 +477,8 @@ frappe.ui.form.on("Plot Booking", {
     },
 });
 
-////////////////////////////////   Create A/P invoice ////////////////////////////
 
-
-
-frappe.ui.form.on('Plot Booking', {
-    before_save: function(frm) {
-        if (frm.doc.commission_amount !== 0) {
-            checkAccountingPeriodOpen(frm.doc.booking_date);
-        }
-    }
-});
-function checkAccountingPeriodOpen(postingDate) {
-    frappe.call({
-        method: 'realestate_account.realestate_account.doctype.plot_booking.plot_booking.check_accounting_period_open',
-        args: {
-            booking_date: postingDate
-        },
-        callback: function(response) {
-            console.log(response);
-            if (response.message && response.message.is_open === 1) {
-                frappe.msgprint(__('The accounting period is not open. Please open the accounting period.'));
-                frappe.validated = false; 
-            }
-        }
-    });
-}
-
+////////////////////////////////   Create A/P invoice & plot Status Check & Accounting Period Check///////////////////////////
 
 frappe.ui.form.on('Plot Booking', {
         on_submit: function(frm) {
@@ -545,6 +515,62 @@ frappe.ui.form.on('Plot Booking', {
                             
         });
     }
+},
+    before_submit: function(frm) {
+        if (frm.doc.plot_no) {
+            frappe.call({
+                method: 'frappe.client.get_value',
+                args: {
+                    doctype: 'Plot List',
+                    filters: {name: frm.doc.plot_no },
+                    fieldname: 'status'
+                },
+                callback: function(response) {
+                    if (response.message) {
+                        console.log(response);
+                        var status = response.message.status;
+                        
+                        if (status === 'Booked') {
+                            frappe.msgprint(__('The plot no you try to booking is already booked'));
+                            frappe.validated = false; 
+                        }
+                    }
+                }
+            });
+        };
+    },
+    before_submit: function(frm) {
+            if (frm.doc.commission_amount !== 0) {
+                checkAccountingPeriodOpen(frm.doc.booking_date);
+            }
+        }
+    });
+    function checkAccountingPeriodOpen(postingDate) {
+        frappe.call({
+            method: 'realestate_account.realestate_account.doctype.plot_booking.plot_booking.check_accounting_period_open',
+            args: {
+                booking_date: postingDate
+            },
+            callback: function(response) {
+                console.log(response);
+                if (response.message && response.message.is_open === 1) {
+                    frappe.msgprint(__('The accounting period is not open. Please open the accounting period.'));
+                    frappe.validated = false; 
+                }
+            }
+        });
     }
-});   
+    
+
+
+
+
+
+
+
+
+
+
+
+
 
