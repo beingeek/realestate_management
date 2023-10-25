@@ -167,6 +167,7 @@ def create_journal_entry(cust_pmt):
         "voucher_type": "Journal Entry",
         "voucher_no": cust_pmt,
         "posting_date": cpr_doc.payment_date,
+	"naming_series": "ACC-PCOM-.YYYY.-",  
         "user_remark": cpr_doc.remarks,
         "custom_document_number": cpr_doc.name,
         "custom_document_type": "Customer Payment"
