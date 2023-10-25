@@ -36,28 +36,28 @@ frappe.ui.form.on('Property Transfer', {
 });
 
 
-
-
-// frappe.ui.form.on('Property Transfer', {
-//     validate: function(frm) {
-//         if (!frm.doc.plot_no) {
-//              frappe.call({
-//                 method: 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.validate_plot_no_on_client',
-//                 args: {
-//                     plot_no: frm.doc.plot_no
-//                 },
-//                 callback: function(r) {
-//                     if (r.message && r.message.error) {
-//                         frappe.msgprint(__(r.message.error));
-//                         frappe.validated = false;
-//                     }
-//                     // Additional client-side logic if needed
-//                 }
-//             });
-//         }
-//     }
-// });
-
+frappe.ui.form.on('Property Transfer', {
+    validate: function(frm) {
+        if (frm.doc.paid_amount !== 0) {
+            checkAccountingPeriodOpen(frm.doc.doc_date);
+        }
+    }
+});
+function checkAccountingPeriodOpen(postingDate) {
+    frappe.call({
+        method: 'realestate_account.realestate_account.doctype.plot_booking.plot_booking.check_accounting_period_open',
+        args: {
+            doc_date: postingDate
+        },
+        callback: function(response) {
+            console.log(response);
+            if (response.message && response.message.is_open === 1) {
+                frappe.msgprint(__('The accounting period is not open. Please open the accounting period.'));
+                frappe.validated = false; 
+            }
+        }
+    });
+}
 
 
 
