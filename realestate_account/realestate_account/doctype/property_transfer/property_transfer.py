@@ -1,5 +1,3 @@
-# Copyright (c) 2023, CE Construction and contributors
-# For license information, please see license.txt
 
 import frappe
 from frappe import _
@@ -447,6 +445,27 @@ def plot_master_data_transfer_document_status_update_reversal(transfer):
         frappe.log_error(frappe.get_traceback(), _("Failed to update plot status"))
         return "Failed"
 
+@frappe.whitelist()
+def check_accounting_period(doc_date):
+    try:
+        sql_query = """
+            SELECT closed
+            FROM `tabAccounting Period` AS tap
+            LEFT JOIN `tabClosed Document` AS tcd ON tcd.parent = tap.name
+            WHERE tcd.document_type = 'Journal Entry' 
+                AND MONTH(tap.end_date) = MONTH(%s) 
+                AND YEAR(tap.end_date) = YEAR(%s)
+                LIMIT 1;
+        """
+        result = frappe.db.sql(sql_query, (doc_date, doc_date), as_dict=True)
+
+        if not result:
+            return {'is_open': None}
+
+        return {'is_open': result[0]['closed']}
+    except Exception as e:
+        frappe.log_error(f"Error getting in period: {str(e)}")
+        return {'is_open': None}
 
 
 
