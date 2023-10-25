@@ -443,3 +443,28 @@ frappe.ui.form.on("Property Transfer", {
         };
     }
 });
+
+frappe.ui.form.on('Customer Payment', {
+    validate: function(frm) {
+        checkAccountingPeriodOpen(frm.doc.payment_date);
+    },
+    before_submit: function(frm) {
+            checkAccountingPeriodOpen(frm.doc.payment_date);
+    }
+});
+function checkAccountingPeriodOpen(postingDate) {
+    frappe.call({
+        method: 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.check_accounting_period',
+        args: {
+            payment_date: postingDate
+        },
+        callback: function(response) {
+            console.log(response);
+            if (response.message && response.message.is_open === 1) {
+                frappe.msgprint(__('The accounting period is not open. Please open the accounting period.'));
+                frappe.validated = false; 
+            }
+        }
+    });
+}
+
