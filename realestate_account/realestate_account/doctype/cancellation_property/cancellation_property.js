@@ -214,3 +214,28 @@ frappe.ui.form.on("Cancellation Property", {
         }
     }
 });
+
+
+frappe.ui.form.on("Cancellation Property", {
+    validate: function(frm) {
+        checkAccountingPeriodOpen(frm.doc.doc_date);
+    },
+    before_submit: function(frm) {
+            checkAccountingPeriodOpen(frm.doc.doc_date);
+    }
+});
+function checkAccountingPeriodOpen(postingDate) {
+    frappe.call({
+        method: 'realestate_account.realestate_account.doctype.cancellation_property.cancellation_property.check_accounting_period',
+        args: {
+            doc_date: postingDate
+        },
+        callback: function(response) {
+            console.log(response);
+            if (response.message && response.message.is_open === 1) {
+                frappe.msgprint(__('The accounting period is not open. Please open the accounting period.'));
+                frappe.validated = false; 
+            }
+        }
+    });
+}
