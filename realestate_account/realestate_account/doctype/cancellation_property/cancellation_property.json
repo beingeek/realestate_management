@@ -143,7 +143,7 @@
    "fetch_from": "customer.custom_contact_no",
    "fieldname": "contact_no",
    "fieldtype": "Data",
-   "label": "Contact No.",
+   "label": "Contact No",
    "read_only": 1
   },
   {
