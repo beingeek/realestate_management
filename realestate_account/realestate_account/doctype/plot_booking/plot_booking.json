@@ -208,7 +208,7 @@
    "fieldtype": "Column Break"
   },
   {
-   "fetch_from": "client_name.custom__contact_no",
+   "fetch_from": "client_name.custom_contact_no",
    "fieldname": "mobile_no",
    "fieldtype": "Data",
    "label": "Contact No.",
