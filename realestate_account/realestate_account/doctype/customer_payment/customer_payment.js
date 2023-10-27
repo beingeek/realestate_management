@@ -468,3 +468,24 @@ function checkAccountingPeriodOpen(postingDate) {
     });
 }
 
+frappe.ui.form.on('Customer Payment', {
+    validate: function(frm) {
+        if (frm.doc.book_number && frm.doc.project_name) {
+            frappe.call({
+                method: 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.check_duplicate_book_number',
+                args: {
+                    'book_number': frm.doc.book_number,
+                    'project': frm.doc.project_name,
+                    'doc_name': frm.doc.name
+                },
+                callback: function(r) {
+                    if (r.message && r.message.is_duplicate) {
+                        frappe.msgprint(__('Duplicate book number found for the project. Another Customer Payment: {0}', [r.message.duplicate_payment]));
+                        frm.set_value('book_number', '');
+                        frappe.validated = false;
+                    }
+                }
+            });
+        }
+    }
+});
