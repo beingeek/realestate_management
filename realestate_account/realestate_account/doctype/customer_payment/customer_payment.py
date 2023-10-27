@@ -229,7 +229,12 @@ def check_accounting_period(payment_date):
         frappe.log_error(f"Error getting in period: {str(e)}")
         return {'is_open': None}
 
+@frappe.whitelist()
+def check_duplicate_book_number(book_number, project, doc_name):
+    duplicate_payment = frappe.db.get_value('Customer Payment',
+                                            {'book_number': book_number, 'project_name': project, 'name': ('!=', doc_name), 'docstatus': ('!=', 2)})
 
+    return {'is_duplicate': bool(duplicate_payment), 'duplicate_payment': duplicate_payment}
 
 
 
