@@ -7,8 +7,12 @@
  "engine": "InnoDB",
  "field_order": [
   "date",
+  "column_break_ggvn",
+  "installment_name",
   "installment",
+  "column_break_uowu",
   "amount",
+  "column_break_pmzu",
   "remarks"
  ],
  "fields": [
@@ -40,12 +44,30 @@
    "fieldname": "remarks",
    "fieldtype": "Data",
    "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_ggvn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "installment_name",
+   "fieldtype": "Data",
+   "label": "Installment Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_uowu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_pmzu",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-10-19 00:51:18.505324",
+ "modified": "2023-10-29 00:03:02.321321",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Installment Payment Plan - Transfer",
