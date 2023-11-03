@@ -7,7 +7,6 @@ from frappe.model.document import Document
 #################### Get Plot & Base document data for Property Transfer #############
 
 
-
 def validate(doc, method):
     if doc.get('doctype') == 'Re-Purchase or Cancel' and doc.is_new():
         if not doc.get('plot_no') and doc.get('docstatus') == 0:
@@ -271,7 +270,8 @@ def create_journal_entry(property_transfer):
         "posting_date": pt_doc.doc_date,
         "user_remark": pt_doc.remarks,
         "custom_document_number": pt_doc.name,
-        "custom_document_type": "Property Transfer"
+        "custom_document_type": "Property Transfer",
+        "custom_plot_no": pt_doc.plot_no
     })
 
     # Customer Account 
@@ -453,11 +453,11 @@ def check_accounting_period(doc_date):
             FROM `tabAccounting Period` AS tap
             LEFT JOIN `tabClosed Document` AS tcd ON tcd.parent = tap.name
             WHERE tcd.document_type = 'Journal Entry' 
-                AND MONTH(tap.end_date) = MONTH(%s) 
-                AND YEAR(tap.end_date) = YEAR(%s)
-                LIMIT 1;
+            AND MONTH(tap.end_date) = MONTH(%s) 
+            AND YEAR(tap.end_date) = YEAR(%s)
+            LIMIT 1;
         """
-        result = frappe.db.sql(sql_query, (doc_date, doc_date), as_dict=True)
+        result = frappe.db.sql(sql_query, doc_date, as_dict=True)
 
         if not result:
             return {'is_open': None}
