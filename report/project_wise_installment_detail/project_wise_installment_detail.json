@@ -1,0 +1,124 @@
+{
+ "add_total_row": 1,
+ "columns": [
+  {
+   "fieldname": "Project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "width": 0
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "width": 0
+  },
+  {
+   "fieldname": "plot_no",
+   "fieldtype": "Link",
+   "label": "Plot Number",
+   "options": "Plot List",
+   "width": 0
+  },
+  {
+   "fieldname": "name",
+   "fieldtype": "Data",
+   "label": "Document No.",
+   "width": 0
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Data",
+   "label": "Address",
+   "width": 0
+  },
+  {
+   "fieldname": "contact_no",
+   "fieldtype": "Data",
+   "label": "Contact No.",
+   "width": 0
+  },
+  {
+   "fieldname": "sales_broker",
+   "fieldtype": "Link",
+   "label": "sales_broker",
+   "options": "Supplier",
+   "width": 0
+  },
+  {
+   "fieldname": "Installment",
+   "fieldtype": "Data",
+   "label": "Installment Type",
+   "width": 0
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Installment Date",
+   "width": 0
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "label": "Installment Amount",
+   "width": 0
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount",
+   "width": 0
+  },
+  {
+   "fieldname": "remaining_amount",
+   "fieldtype": "Currency",
+   "label": "Remaing Amount",
+   "width": 0
+  }
+ ],
+ "creation": "2023-10-21 14:24:39.180731",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "mandatory": 1,
+   "options": "Project",
+   "wildcard_filter": 0
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To Date",
+   "mandatory": 1,
+   "wildcard_filter": 0
+  }
+ ],
+ "idx": 12,
+ "is_standard": "Yes",
+ "letter_head": "",
+ "letterhead": null,
+ "modified": "2023-10-30 14:09:26.296546",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Project wise Installment Detail",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "query": "WITH installment_data AS (\n    SELECT\n        c.name,\n        c.project_name as Project,\n        c.address as address,\n        c.mobile_no as contact_no,\n        c.client_name as customer,\n        c.sales_broker,\n        c.plot_no,\n        d.installment_name as Installment,\n        d.date,\n        d.remarks,\n        d.idx,\n        d.amount,\n        d.amount - IFNULL((\n                SELECT SUM(b.paid_amount) \n                FROM `tabCustomer Payment` AS a\n                INNER JOIN `tabCustomer Payment Installment` AS b\n                ON a.name = b.parent\n                WHERE a.docstatus = 1\n                AND a.document_number = c.name\n                AND b.base_doc_idx = d.idx\n                AND a.plot_no = c.plot_no), 0 ) AS remaining_amount\n    FROM\n        `tabPlot Booking` AS c\n    INNER JOIN\n        `tabInstallment Payment Plan` AS d\n    ON\n        c.name = d.parent\n    WHERE\n        c.docstatus = 1 AND c.status = 'Active' AND c.project_name = %(project)s AND d.date <= %(to_date)s\n    Union All\n\tSELECT\n        c.name,\n        c.project as Project,\n        c.to_address as address,\n        c.to_mobile_no as contact_no,\n        c.to_customer as customer,\n        c.sales_broker,\n        c.plot_no,\n        d.installment_name as Installment,\n        d.date,\n        d.remarks,\n        d.idx,\n        d.amount,\n        d.amount - IFNULL((\n                SELECT SUM(b.paid_amount)\n                FROM `tabCustomer Payment` AS a\n                INNER JOIN `tabCustomer Payment Installment` AS b\n                ON a.name = b.parent\n                WHERE a.docstatus = 1\n                AND a.document_number = c.name\n                AND b.base_doc_idx = d.idx\n                AND a.plot_no = c.plot_no), 0 ) AS remaining_amount\n    FROM\n        `tabProperty Transfer` AS c\n    INNER JOIN\n        `tabInstallment Payment Plan - Transfer` AS d\n    ON\n        c.name = d.parent\n    WHERE\n       c.docstatus = 1 AND c.status = 'Active' AND c.project = %(project)s AND d.date <= %(to_date)s\n)\n    SELECT\n    x.Project,\n    x.customer, \n    x.plot_no,\n    x.name,\n    x.address,\n    x.contact_no,\n    x.sales_broker,\n    x.Installment,\n    x.date,\n    x.amount,\n    (x.amount-x.remaining_amount) as paid_amount,\n    x.remaining_amount\n    FROM installment_data as x\nOrder by\n   x.project,\n   x.name,\n   x.idx;\n\n   \n   ",
+ "ref_doctype": "Plot Booking",
+ "report_name": "Project wise Installment Detail",
+ "report_type": "Query Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Realestate Account Manager"
+  }
+ ]
+}

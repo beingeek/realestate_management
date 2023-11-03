@@ -1,0 +1,119 @@
+{
+ "add_total_row": 1,
+ "columns": [
+  {
+   "fieldname": "Project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "width": 0
+  },
+  {
+   "fieldname": "name",
+   "fieldtype": "Data",
+   "label": "Document No.",
+   "width": 0
+  },
+  {
+   "fieldname": "DocDate",
+   "fieldtype": "Date",
+   "label": "Document Date",
+   "width": 0
+  },
+  {
+   "fieldname": "Customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "width": 0
+  },
+  {
+   "fieldname": "plot_no",
+   "fieldtype": "Data",
+   "label": "Plot Nu.",
+   "width": 0
+  },
+  {
+   "fieldname": "installment_date",
+   "fieldtype": "Date",
+   "label": "installment Date",
+   "width": 0
+  },
+  {
+   "fieldname": "Installment",
+   "fieldtype": "Data",
+   "label": "Installment Type",
+   "width": 0
+  },
+  {
+   "fieldname": "Installment_amount",
+   "fieldtype": "Currency",
+   "label": "Installment Amount",
+   "width": 0
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount",
+   "width": 0
+  },
+  {
+   "fieldname": "Balance_Amount",
+   "fieldtype": "Currency",
+   "label": "Balance Amount",
+   "width": 0
+  }
+ ],
+ "creation": "2023-03-20 21:42:17.304623",
+ "disable_prepared_report": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [
+  {
+   "fieldname": "Project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "mandatory": 1,
+   "options": "Project",
+   "wildcard_filter": 0
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From Date",
+   "mandatory": 1,
+   "options": "2070\n2071\n2072\n2073\n2074\n2075\n2076\n2077\n2078\n2079\n2080\n2081\n2082\n2083\n2084\n2085",
+   "wildcard_filter": 0
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To Date",
+   "mandatory": 1,
+   "options": "01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12",
+   "wildcard_filter": 0
+  }
+ ],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": null,
+ "modified": "2023-10-19 13:10:35.583782",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Recovery Schedule",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "query": "SELECT \n    iap.Project, \n    iap.name,\n    iap.DocDate,\n    iap.Customer,\n    iap.plot_no,\n    iap.installment_date,\n    iap.Installment,\n    iap.Installment_amount,\n    iap.paid_amount,\n    (iap.Installment_amount - iap.paid_amount) AS Balance_Amount\nFROM \n    installment_and_payment iap \nWHERE \n    iap.Project = 'Talha Residency' AND iap.installment_date BETWEEN '2023-10-01' AND '2023-12-31'\nORDER BY \n    iap.DocDate ASC;",
+ "ref_doctype": "Customer Payment Realestate",
+ "report_name": "Recovery Schedule",
+ "report_type": "Query Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Realestate Account Manager"
+  }
+ ]
+}
