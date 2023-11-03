@@ -1,11 +1,7 @@
-# Copyright (c) 2023, CE Construction and contributors
-# For license information, please see license.txt
 
 import frappe
 from frappe import _
 from frappe.model.document import Document
-
-
 
 #################### Get Plot #############
 
@@ -34,7 +30,7 @@ def get_plot_no(project):
 def get_previous_document_detail(plot_no):
     try:
         sql_query = """
-            WITH plot_detail AS (
+    WITH plot_detail AS (
     SELECT DISTINCT
         tpt.name,
         tpt.plot_no,
@@ -103,7 +99,7 @@ def post_journal_entry(can_pro):
         "voucher_no": can_pro,
         "posting_date": cp_doc.doc_date,
         "user_remark": cp_doc.remarks,
-        "bill_no": cp_doc.plot_no,
+        "custom_plot_no": cp_doc.plot_no,
         "custom_document_number": cp_doc.name,
         "custom_document_type": "Cancellation Property"
     })
