@@ -8,8 +8,10 @@
  "field_order": [
   "mode_of_payment",
   "amount",
-  "bank_account",
+  "column_break_iame",
   "ledger",
+  "bank_account",
+  "column_break_wwlm",
   "cheque_no",
   "cheque_date"
  ],
@@ -24,6 +26,7 @@
    "reqd": 1
   },
   {
+   "default": "1110 - Cash - TBD",
    "fieldname": "ledger",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -51,15 +54,22 @@
   {
    "fieldname": "bank_account",
    "fieldtype": "Link",
-   "in_list_view": 1,
    "label": "Bank Account",
    "options": "Bank Account"
+  },
+  {
+   "fieldname": "column_break_iame",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_wwlm",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-10-17 14:08:18.319717",
+ "modified": "2023-10-27 18:15:21.265524",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Payment Type",
