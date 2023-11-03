@@ -5,6 +5,25 @@ frappe.ui.form.on('Cancellation Property',  'validate',  function(frm) {
             frappe.throw(__("Future posting Document date not Allowed."));
             frappe.validated = false;
     }
+    if (frm.doc.customer) {
+        frappe.call({
+            method: 'frappe.client.get_value',
+            args: {
+                doctype: 'Plot List',
+                filters: { name: frm.doc.plot_no},
+                fieldname: 'client_name'
+            },
+            callback: function(response) {
+                if (response.message) {
+                    var client_name = response.message.client_name;
+                    if (client_name !== frm.doc.customer) {
+                        frappe.msgprint(__('The plot master data customer does not match the customer'));
+                        frappe.validated = false;
+                    }
+                }
+            }
+        });
+    }
 });
 
 
