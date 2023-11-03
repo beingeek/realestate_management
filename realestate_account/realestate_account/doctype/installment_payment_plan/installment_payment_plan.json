@@ -7,15 +7,18 @@
  "engine": "InnoDB",
  "field_order": [
   "date",
+  "column_break_etsy",
+  "installment_name",
   "installment",
+  "column_break_qzih",
   "amount",
+  "column_break_ocul",
   "remarks"
  ],
  "fields": [
   {
    "fieldname": "installment",
    "fieldtype": "Select",
-   "in_list_view": 1,
    "label": "Installment",
    "options": "Booking Amount\nMonthly Installment\nQuarterly Installment\nHalf Yearly Installment\nYearly Installment\nPossession Amount",
    "read_only": 1,
@@ -43,12 +46,32 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_etsy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_qzih",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ocul",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "installment_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Installment Name",
+   "read_only": 1,
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-10-16 18:45:23.808077",
+ "modified": "2023-10-29 00:02:47.265201",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Installment Payment Plan",
