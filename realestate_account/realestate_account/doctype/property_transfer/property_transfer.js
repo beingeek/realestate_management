@@ -63,7 +63,7 @@ frappe.ui.form.on('Property Transfer', {
 });
 function checkAccountingPeriodOpen(postingDate) {
     frappe.call({
-        method: 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.check_accounting_period_open',
+        method: 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.check_accounting_period',
         args: {
             doc_date: postingDate
         },
@@ -193,7 +193,7 @@ frappe.ui.form.on('Property Transfer', {
 //////////// (update & reversal) Plot Booking document Status & Plot Master Data  ////////////////////////////////////////////////
 
 frappe.ui.form.on('Property Transfer', {
-    before_submit: function(frm) {
+    on_submit: function(frm) {
         if (frm.doc.document_number) {
         
         let docType = frm.doc.document_type;
@@ -230,7 +230,7 @@ frappe.ui.form.on('Property Transfer', {
         });
     }
 },
-    before_cancel: function(frm) {
+    after_cancel: function(frm) {
         if (frm.doc.document_number) {
             let docType = frm.doc.document_type;
         
