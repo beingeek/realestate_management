@@ -12,12 +12,75 @@ frappe.ui.form.on("Customer Payment",  'validate',  function(frm) {
         frappe.throw('paid amount not greater then installment amount')
         frappe.validated = false;
     }
+    if (frm.doc.book_number && frm.doc.project_name) {
+        frappe.call({
+            method: 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.check_duplicate_book_number',
+            args: {
+                'book_number': frm.doc.book_number,
+                'project': frm.doc.project_name,
+                'doc_name': frm.doc.name
+            },
+            callback: function(r) {
+                if (r.message && r.message.is_duplicate) {
+                    frappe.msgprint(__('Duplicate book number found for the project. Another Customer Payment: {0}', [r.message.duplicate_payment]));
+                    frm.set_value('book_number', '');
+                    frappe.validated = false;
+                }
+            }
+        });
+    }
+    if (frm.doc.total_paid_amount !== frm.doc.payment_type_total_amount) {
+        frappe.throw('Installment payment and payment type should be zero')
+        frappe.validated = false;
+    } 
+    if (frm.doc.customer_name) {
+        frappe.call({
+            method: 'frappe.client.get_value',
+            args: {
+                doctype: 'Plot List',
+                filters: { name: frm.doc.plot_no},
+                fieldname: 'client_name'
+            },
+            callback: function(response) {
+                if (response.message) {
+                    var client_name = response.message.client_name;
+                    if (client_name !== frm.doc.customer_name) {
+                        frappe.msgprint(__('The master data customer does not match the payment customer'));
+                        frappe.validated = false;
+                    }
+                }
+            }
+        });
+    }
+    if (frm.doc.payment_date) {
+        frappe.call({
+            method: 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.check_accounting_period',
+            args: {
+                payment_date: frm.doc.payment_date
+            },
+            callback: function(response) {
+                if (response.message && response.message.is_open === 1) {
+                    frappe.msgprint(__('The accounting period is not open. Please open the accounting period.'));
+                    frappe.validated = false; 
+                }
+            }
+        });
+    }
 });
+
 
 frappe.ui.form.on("Customer Payment", {
     onload: function (frm) {
         frm.toggle_display(['get_insallment_information'], frm.doc.__islocal);
     },
+    onload: function(frm) {
+        setTimeout(function() {
+            frm.fields_dict['get_insallment_information'].$input.css({
+                'background-color': 'black',
+                'color': 'white'
+            });
+        }, 1000); 
+    }
 });
 
 
@@ -158,6 +221,7 @@ frappe.ui.form.on('Customer Payment', {
                     if (data.message[i].receivable_amount > 0) {
                         var row = frm.add_child("installment");
                         row.installment = data.message[i].Installment;
+                        row.installment_amount = data.message[i].installment_amount;
                         row.receivable_amount = data.message[i].receivable_amount;
                         row.base_doc_idx = data.message[i].idx;
                         row.date = data.message[i].date;
@@ -335,42 +399,6 @@ function removeUnpaidInstallments(frm) {
 }
 
 
-// frappe.ui.form.on('Customer Payment', {
-//     refresh: function(frm) {
-//         // Trigger the refresh event for the child table
-//         frm.fields_dict['payment_type'].grid.get_field('ledger').get_query = function(doc, cdt, cdn) {
-//             var child = locals[cdt][cdn];
-//             if (child.mode_of_payment === 'Cash') {
-//                 return {
-//                     filters: {
-//                         account_type: 'Cash',
-//                         is_group: 0 
-//                     }
-//                 };
-//             } else if (child.mode_of_payment === 'Cheque' || child.mode_of_payment === 'Bank Transfer') {
-//                 return {
-//                     filters: {
-//                         account_type: 'Bank',
-//                         is_group: 0 
-//                     }
-//                 };
-//             }
-//         };
-//     },
-    
-//     // Triggered when the mode_of_payment field changes
-//     mode_of_payment: function(frm, cdt, cdn) {
-//         // Refresh the ledger field
-//         frm.clear_field('ledger');
-//     }
-// });
-
-
-
-
-
-
-
 
 
 /////////////////////////////////// Payment Type //////////////////////////////////////////////
@@ -386,8 +414,6 @@ frappe.ui.form.on("Payment Type", "amount", function(frm, cdt, cdn) {
     frm.refresh_field('payment_type_total_amount');
 });
 
-
-
 frappe.ui.form.on("Payment Type", {
     payment_type_remove: function(frm) {
         let total = 0;
@@ -400,28 +426,9 @@ frappe.ui.form.on("Payment Type", {
     }
 });
 
-frappe.ui.form.on("Customer Payment",  'validate',  function(frm) {
-    if (frm.doc.total_paid_amount !== frm.doc.payment_type_total_amount) {
-        frappe.throw('Installment payment and payment type should be zero')
-        frappe.validated = false;
-    } 
-})
 
 
-frappe.ui.form.on("Payment Type", {
-    onload: function(frm) {
-        setTimeout(function() {
-            frm.fields_dict['get_insallment_information'].$input.css({
-                'background-color': 'black',
-                'color': 'white'
-            });
-        }, 1000); 
-    }
-});
-
-
-
-frappe.ui.form.on("Property Transfer", {
+frappe.ui.form.on("Customer Payment", {
     refresh: function(frm) {
         frm.fields_dict['payment_type'].grid.get_field('ledger').get_query = function(doc, cdt, cdn) {
             var child = locals[cdt][cdn];
@@ -444,48 +451,102 @@ frappe.ui.form.on("Property Transfer", {
     }
 });
 
-frappe.ui.form.on('Customer Payment', {
-    validate: function(frm) {
-        checkAccountingPeriodOpen(frm.doc.payment_date);
-    },
-    before_submit: function(frm) {
-            checkAccountingPeriodOpen(frm.doc.payment_date);
+
+frappe.ui.form.on('Customer Payment', 'before_submit', function(frm) {
+        if (frm.doc.customer_name) {
+            frappe.call({
+                method: 'frappe.client.get_value',
+                args: {
+                    doctype: 'Plot List',
+                    filters: { name: frm.doc.plot_no},
+                    fieldname: 'client_name'
+                },
+                callback: function(response) {
+                    if (response.message) {
+                        var client_name = response.message.client_name;
+                        if (client_name !== frm.doc.customer_name) {
+                            frappe.msgprint(__('The master data customer does not match the payment customer'));
+                            frappe.validated = false;
+                        }
+                    }
+                }
+            });
+        }
+    if (frm.doc.book_number && frm.doc.project_name) {
+        frappe.call({
+            method: 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.check_duplicate_book_number',
+            args: {
+                'book_number': frm.doc.book_number,
+                'project': frm.doc.project_name,
+                'doc_name': frm.doc.name
+            },
+            callback: function(r) {
+                if (r.message && r.message.is_duplicate) {
+                    frappe.msgprint(__('Duplicate book number found for the project. Another Customer Payment: {0}', [r.message.duplicate_payment]));
+                    frm.set_value('book_number', '');
+                    frappe.validated = false;
+                }
+            }
+        });
+    }
+    if (frm.doc.payment_date) {
+        frappe.call({
+            method: 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.check_accounting_period',
+            args: {
+                payment_date: frm.doc.payment_date
+            },
+            callback: function(response) {
+                if (response.message && response.message.is_open === 1) {
+                    frappe.msgprint(__('The accounting period is not open. Please open the accounting period.'));
+                    frappe.validated = false; 
+                }
+            }
+        });
     }
 });
-function checkAccountingPeriodOpen(postingDate) {
+
+frappe.ui.form.on('Customer Payment', {
+    validate: function (frm) {
+        frm.doc.installment.forEach(function(installment) {
+            validatePaidAmount(frm, installment);
+        });
+    }
+});
+
+frappe.ui.form.on('Customer Payment', {
+    before_submit: function (frm) {
+        frm.doc.installment.forEach(function(installment) {
+            validatePaidAmount(frm, installment);
+        });
+    }
+});
+
+
+function validatePaidAmount(frm, installment) {   
     frappe.call({
-        method: 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.check_accounting_period',
+        method: 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.check_paid_amount',
         args: {
-            payment_date: postingDate
+            doc_no: frm.doc.document_number,
+            doc_child_idx: installment.base_doc_idx,
         },
-        callback: function(response) {
-            console.log(response);
-            if (response.message && response.message.is_open === 1) {
-                frappe.msgprint(__('The accounting period is not open. Please open the accounting period.'));
-                frappe.validated = false; 
+        callback: function (response) {
+            if (!response.exc) {
+                var previousPaidAmount = response.message.total_paid_amount || 0;
+                var installmentAmount = installment.installment_amount || 0;
+
+                // console.log("Installment Amount:", installmentAmount);
+                // console.log("Total Paid Amount:", installment.paid_amount);
+                // console.log("Previous Paid Amount:", previousPaidAmount);
+
+                if ((previousPaidAmount + installment.paid_amount) > installmentAmount) {
+                    frappe.msgprint(__('Total paid amount cannot exceed the limit. Check row: {0}', [installment.idx]));
+                    frappe.validated = false;                }
+            } else {
+                console.error(response.exc);
             }
         }
     });
 }
 
-frappe.ui.form.on('Customer Payment', {
-    validate: function(frm) {
-        if (frm.doc.book_number && frm.doc.project_name) {
-            frappe.call({
-                method: 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.check_duplicate_book_number',
-                args: {
-                    'book_number': frm.doc.book_number,
-                    'project': frm.doc.project_name,
-                    'doc_name': frm.doc.name
-                },
-                callback: function(r) {
-                    if (r.message && r.message.is_duplicate) {
-                        frappe.msgprint(__('Duplicate book number found for the project. Another Customer Payment: {0}', [r.message.duplicate_payment]));
-                        frm.set_value('book_number', '');
-                        frappe.validated = false;
-                    }
-                }
-            });
-        }
-    }
-});
+
+
