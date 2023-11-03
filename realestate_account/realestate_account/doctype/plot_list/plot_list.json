@@ -231,7 +231,7 @@
  "links": [
   {
    "group": "Realestate",
-   "link_doctype": "Housing Booking",
+   "link_doctype": "Plot Booking",
    "link_fieldname": "plot_no"
   },
   {
@@ -241,7 +241,7 @@
   },
   {
    "group": "Realestate",
-   "link_doctype": "Customer Payment Realestate",
+   "link_doctype": "Customer Payment",
    "link_fieldname": "plot_no"
   },
   {
@@ -255,7 +255,7 @@
    "link_fieldname": "bill_no"
   }
  ],
- "modified": "2023-10-19 01:11:11.822923",
+ "modified": "2023-10-28 12:00:51.377217",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot List",
