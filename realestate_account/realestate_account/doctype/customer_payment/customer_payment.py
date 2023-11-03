@@ -1,6 +1,151 @@
 
 import frappe
 from frappe.model.document import Document
+from frappe.utils import today, getdate
+
+
+class CustomerPayment(Document):
+
+    def validate(self):
+        self.validate_check_duplicate_book_number()
+        self.validate_row_paid_amount()
+        self.validate_check_paid_amount_installment_amount()
+        self.validate_doc_date()
+        self.validate_check_total_amount()
+        self.validate_acounting_period()
+
+    def on_submit(self):
+        try:
+            self.make_gl_entries()
+        except Exception as e:
+            frappe.msgprint(f"Error while making GL entries: {str(e)}")
+ 
+    def validate_check_duplicate_book_number(self):
+        if self.book_number and self.project_name:
+            duplicate_payment = frappe.get_value(
+                'Customer Payment',
+                filters={
+                    'book_number': self.book_number,
+                    'project_name': self.project_name,
+                    'name': ('!=', self.name),
+                    'docstatus': ('!=', 2)
+                },
+                fieldname='name'
+            )
+            if duplicate_payment:
+                frappe.throw(f'Duplicate book number found for the project. Another Customer Payment: {duplicate_payment}')
+
+    def validate_row_paid_amount(self):
+        for installment in self.installment:
+            total_paid_amount = self.check_total_paid_amount(installment.base_doc_idx)
+            if total_paid_amount is not None:
+                previous_paid_amount = total_paid_amount + installment.paid_amount
+                if previous_paid_amount > installment.installment_amount:
+                    frappe.throw(f'Total paid amount cannot exceed the installment amount. Check row: {installment.idx}')
+
+    def check_total_paid_amount(self, doc_child_idx):
+        sql_query = """
+            SELECT Sum(b.paid_amount) as total_paid_amount
+                FROM `tabCustomer Payment` AS a
+                INNER JOIN `tabCustomer Payment Installment` AS b
+                ON a.name = b.parent
+                WHERE a.docstatus = 1
+                AND a.document_number = %s 
+                AND b.base_doc_idx = %s
+        """
+        result = frappe.db.sql(sql_query, (self.document_number, doc_child_idx), as_dict=True)
+
+        return result[0]['total_paid_amount'] if result else 0
+
+    def validate_check_paid_amount_installment_amount(self):
+        if self.installment_total != self.payment_type_total_amount:
+            frappe.throw('Installment Total and Payment Type Total Amount must be equal')
+ 
+    def validate_check_total_amount(self):
+        if not self.total_paid_amount:
+            frappe.throw('Total paid amount should be set.')
+        if self.total_paid_amount <= 0:
+            frappe.throw('Total paid amount is less than or equal to zero')
+    
+    def validate_doc_date(self):
+        if self.payment_date:
+            doc_date = getdate(self.payment_date)
+            today_date = today()
+        if doc_date and doc_date > getdate(today_date):
+            frappe.throw("Future Document date not Allowed.")
+
+    def Check_customer_plot_master_data(self):
+        if self.customer_name:
+            client_name = frappe.get_value('Plot List', {'name': self.plot_no}, 'client_name')
+            if client_name != self.customer_name:
+                frappe.msgprint('The master data customer does not match the payment customer')
+                frappe.throw('Validation Error: Customer mismatch')
+
+    def validate_acounting_period(self):
+        sql_query = """
+            SELECT closed
+            FROM `tabAccounting Period` AS tap
+            LEFT JOIN `tabClosed Document` AS tcd ON tcd.parent = tap.name
+            WHERE tcd.document_type = 'Journal Entry' 
+            AND MONTH(tap.end_date) = MONTH(%s) 
+            AND YEAR(tap.end_date) = YEAR(%s)
+            LIMIT 1;
+        """
+        result = frappe.db.sql(sql_query, (self.payment_date, self.payment_date), as_dict=True)
+        if not result:
+            return {'is_open': None}
+        if result[0]['closed'] == 1:
+            frappe.throw('The accounting period is not open. Please open the accounting period.')
+        return {'is_open': 1}
+	        
+    def make_gl_entries(self):
+        if self.total_paid_amount > 0:
+            default_company = frappe.defaults.get_user_default("Company")
+            default_receivable_account = frappe.get_value("Company", default_company, "default_receivable_account")
+
+            journal_entry = frappe.get_doc({
+                "doctype": "Journal Entry",
+                "voucher_type": "Journal Entry",
+                "voucher_no": self.name,
+                "posting_date": self.payment_date,  
+                "user_remark": self.remarks,
+                "custom_document_number": self.name,
+                "custom_document_type": "Customer Payment",
+                "custom_plot_no": self.plot_no,
+            })
+
+            for payment in self.payment_type:
+                journal_entry.append("accounts", {
+                    "account": payment.ledger,
+                    "debit_in_account_currency": payment.amount,
+                    "against": default_receivable_account,
+                    "project": self.project_name,
+                    "custom_plot_no": self.plot_no,
+                    "cost_center": "",
+                    "is_advance": 0,
+                    "custom_document_number": self.name,
+                    "custom_document_type": "Customer Payment"
+                })
+
+            journal_entry.append("accounts", {
+                "account": default_receivable_account,
+                "credit_in_account_currency": self.total_paid_amount,
+                "party_type": "Customer",
+                "party": self.customer_name,
+                "project": self.project_name,
+                "custom_plot_no": self.plot_no,
+                "cost_center": "",
+                "is_advance": 0,
+                "custom_document_number": self.name,
+                "custom_document_type": "Customer Payment"
+            })
+            journal_entry.insert(ignore_permissions=True)
+            journal_entry.submit()
+
+            frappe.db.commit()
+            frappe.msgprint(f"Journal Entry {journal_entry.name} created successfully")
+
+
 
 @frappe.whitelist()
 def get_plot_no(project):
@@ -27,8 +172,9 @@ def get_plot_no(project):
 def get_plot_detail(plot_no):
     try:
         sql_query = """
-		SELECT x.name, x.plot_no, x.project , x.doc_type, x.customer, x.receivable_amount, x.DocDate, x.sales_broker From (
-		SELECT  DISTINCT name, plot_no, project_name as project, 
+			    SELECT x.name, x.plot_no, x.project , x.doc_type, x.customer, 
+                x.receivable_amount, x.DocDate, x.sales_broker From (
+				SELECT  DISTINCT name, plot_no, project_name as project, 
                 'Plot Booking' as Doc_type, client_name as customer, sales_broker, 
                 total_sales_amount as receivable_amount, booking_date as DocDate 
                 FROM `tabPlot Booking`
@@ -145,7 +291,6 @@ WHERE
     x.receivable_amount <> 0
 ORDER BY x.date
 limit 5;
-
         """
         results = frappe.db.sql(sql_query, (doc_no), as_dict=True)
         if not results:
@@ -154,115 +299,5 @@ limit 5;
     except Exception as e:
         frappe.log_error(f"Error in get_available_plots: {str(e)}")
         return []
-
-@frappe.whitelist()
-def create_journal_entry(cust_pmt):
-    cpr_doc = frappe.get_doc("Customer Payment", cust_pmt)
-
-    default_company = frappe.defaults.get_user_default("Company")
-    default_receivable_account = frappe.get_value("Company", default_company, "default_receivable_account")
-
-    journal_entry = frappe.get_doc({
-        "doctype": "Journal Entry",
-        "voucher_type": "Journal Entry",
-        "voucher_no": cust_pmt,
-        "posting_date": cpr_doc.payment_date,  
-        "user_remark": cpr_doc.remarks,
-        "custom_document_number": cpr_doc.name,
-        "custom_document_type": "Customer Payment",
-        "custom_plot_no": cpr_doc.plot_no,
-    })
-
-    for payment in cpr_doc.payment_type:
-        journal_entry.append("accounts", {
-            "account": payment.ledger,
-            "debit_in_account_currency": payment.amount,
-            "against": default_receivable_account,
-            "project": cpr_doc.project_name,
-            "custom_plot_no": cpr_doc.plot_no,
-            "cost_center": "",
-            "is_advance": 0,
-            "custom_document_number": cpr_doc.name,
-            "custom_document_type": "Customer Payment"
-        })
-
-    # Credit entry
-    journal_entry.append("accounts", {
-        "account": default_receivable_account,
-        "credit_in_account_currency": cpr_doc.total_paid_amount,
-        "party_type": "Customer",
-        "party": cpr_doc.customer_name,
-        "project": cpr_doc.project_name,
-        "custom_plot_no": cpr_doc.plot_no,
-        "cost_center": "",
-        "is_advance": 0,
-        "custom_document_number": cpr_doc.name,
-        "custom_document_type": "Customer Payment"
-    })
-
-    journal_entry.insert(ignore_permissions=True)
-    journal_entry.submit()
-
-    frappe.db.commit()
-
-    return {"message": f"Journal Entry {journal_entry.name} created successfully", "journal_entry": journal_entry.name}
-
-@frappe.whitelist()
-def check_accounting_period(payment_date):
-    try:
-        sql_query = """
-            SELECT closed
-            FROM `tabAccounting Period` AS tap
-            LEFT JOIN `tabClosed Document` AS tcd ON tcd.parent = tap.name
-            WHERE tcd.document_type = 'Journal Entry' 
-                AND MONTH(tap.end_date) = MONTH(%s) 
-                AND YEAR(tap.end_date) = YEAR(%s)
-                LIMIT 1;
-        """
-        result = frappe.db.sql(sql_query, (payment_date, payment_date), as_dict=True)
-
-        if not result:
-            return {'is_open': None}
-
-        return {'is_open': result[0]['closed']}
-    except Exception as e:
-        frappe.log_error(f"Error getting in period: {str(e)}")
-        return {'is_open': None}
-
-
-@frappe.whitelist()
-def check_duplicate_book_number(book_number, project, doc_name):
-    duplicate_payment = frappe.db.get_value('Customer Payment',
-                                            {'book_number': book_number, 'project_name': project, 'name': ('!=', doc_name), 'docstatus': ('!=', 2)})
-    return {'is_duplicate': bool(duplicate_payment), 'duplicate_payment': duplicate_payment}
-
-
-@frappe.whitelist()
-def check_paid_amount(doc_no, doc_child_idx):
-    try:
-        sql_query = """
-            SELECT Sum(b.paid_amount) as total_paid_amount
-                FROM `tabCustomer Payment` AS a
-                INNER JOIN `tabCustomer Payment Installment` AS b
-                ON a.name = b.parent
-                WHERE a.docstatus = 1
-                AND a.document_number = %s 
-                AND b.base_doc_idx = %s
-        """
-        result = frappe.db.sql(sql_query, (doc_no, doc_child_idx), as_dict=True)
-
-        if not result:
-            return {'total_paid_amount': 0}
-
-        return {'total_paid_amount': result[0]['total_paid_amount']}
-    except Exception as e:
-        frappe.log_error(f"Error getting total paid amount: {str(e)}")
-        return {'total_paid_amount': None}
-
-
-
-
-
-class CustomerPayment(Document):
-    pass
+  
 
