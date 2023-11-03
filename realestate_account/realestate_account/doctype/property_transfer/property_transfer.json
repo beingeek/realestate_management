@@ -1,6 +1,5 @@
 {
  "actions": [],
- "allow_rename": 1,
  "autoname": "format:PT-{######}",
  "creation": "2023-10-13 16:10:58.249146",
  "default_view": "List",
@@ -12,38 +11,36 @@
   "section_break_sw5bd",
   "doc_date",
   "document_type",
-  "base_doc_date",
   "paid_amount",
+  "base_doc_date",
   "column_break_b5ps8",
   "project",
   "document_number",
+  "from_sales_broker",
   "column_break_udnoi",
   "plot_no",
   "base_doc_total",
   "transfer_amount",
   "transfer_from_customer",
   "from_customer",
-  "from_address",
-  "column_break_pwise",
   "from_father_name",
+  "column_break_pwise",
   "from_cnic",
-  "column_break_mzmx1",
   "from_mobile_no",
-  "from_sales_broker",
+  "column_break_mzmx1",
+  "from_address",
   "transfer_to_customer_section",
   "to_customer",
-  "to_address",
-  "column_break_mkzq5",
   "to_father_name",
+  "column_break_mkzq5",
   "to_cnic",
-  "column_break_poc4d",
   "to_mobile_no",
   "column_break_f7lhu",
+  "to_address",
   "section_break_dykmb",
   "transfer_type",
   "column_break_bhrcb",
   "transfer_charge",
-  "payment_type_total_amount",
   "column_break_hedy7",
   "sales_broker",
   "section_break_pbxz5",
@@ -54,6 +51,7 @@
   "status",
   "company",
   "column_break_6il7m",
+  "payment_type_total_amount",
   "amended_from",
   "payment_schedule_tab",
   "payment_plan_data_input_section",
@@ -279,10 +277,6 @@
    "fieldtype": "Data",
    "label": " CNIC",
    "read_only": 1
-  },
-  {
-   "fieldname": "column_break_poc4d",
-   "fieldtype": "Column Break"
   },
   {
    "fetch_from": "to_customer.custom_contact_no",
@@ -518,6 +512,7 @@
    "reqd": 1
   },
   {
+   "depends_on": "eval:(doc.transfer_charge !==0)",
    "fieldname": "section_break_pbxz5",
    "fieldtype": "Section Break"
   },
@@ -554,7 +549,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-10-22 12:21:23.290801",
+ "modified": "2023-10-27 22:23:52.447815",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Property Transfer",
@@ -571,12 +566,25 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Realestate Account Manager",
+   "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "track_changes": 1,
- "track_seen": 1
+ "track_changes": 1
 }
