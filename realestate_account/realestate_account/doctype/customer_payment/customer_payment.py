@@ -1,10 +1,6 @@
-# Copyright (c) 2023, CE Construction and contributors
-# For license information, please see license.txt
 
 import frappe
 from frappe.model.document import Document
-
-
 
 @frappe.whitelist()
 def get_plot_no(project):
@@ -31,8 +27,8 @@ def get_plot_no(project):
 def get_plot_detail(plot_no):
     try:
         sql_query = """
-			    SELECT x.name, x.plot_no, x.project , x.doc_type, x.customer, x.receivable_amount, x.DocDate, x.sales_broker From (
-				SELECT  DISTINCT name, plot_no, project_name as project, 
+		SELECT x.name, x.plot_no, x.project , x.doc_type, x.customer, x.receivable_amount, x.DocDate, x.sales_broker From (
+		SELECT  DISTINCT name, plot_no, project_name as project, 
                 'Plot Booking' as Doc_type, client_name as customer, sales_broker, 
                 total_sales_amount as receivable_amount, booking_date as DocDate 
                 FROM `tabPlot Booking`
@@ -63,14 +59,16 @@ SELECT
     x.remarks,
     x.idx,
     x.name,
+    x.installment_amount,
     x.receivable_amount
 FROM (
     SELECT
         c.name,
-        d.Installment,
+        d.installment_name as Installment,
         d.date,
         d.remarks,
         d.idx,
+        d.amount as installment_amount,
         d.amount - IFNULL((
                 SELECT SUM(b.paid_amount) AS paid_amount
                 FROM `tabCustomer Payment` AS a
@@ -114,14 +112,16 @@ SELECT
     x.remarks,
     x.idx,
     x.receivable_amount,
-    x.name
+    x.name,
+    x.installment_amount
 FROM (
     SELECT
         c.name,
-        d.Installment,
+        d.installment_name as Installment,
         d.date,
         d.remarks,
         d.idx,
+        d.amount as installment_amount,
         d.amount - IFNULL((
                 SELECT SUM(b.paid_amount) AS paid_amount
                 FROM `tabCustomer Payment` AS a
@@ -166,11 +166,11 @@ def create_journal_entry(cust_pmt):
         "doctype": "Journal Entry",
         "voucher_type": "Journal Entry",
         "voucher_no": cust_pmt,
-        "posting_date": cpr_doc.payment_date,
-	"naming_series": "ACC-PCOM-.YYYY.-",  
+        "posting_date": cpr_doc.payment_date,  
         "user_remark": cpr_doc.remarks,
         "custom_document_number": cpr_doc.name,
-        "custom_document_type": "Customer Payment"
+        "custom_document_type": "Customer Payment",
+        "custom_plot_no": cpr_doc.plot_no,
     })
 
     for payment in cpr_doc.payment_type:
@@ -229,12 +229,37 @@ def check_accounting_period(payment_date):
         frappe.log_error(f"Error getting in period: {str(e)}")
         return {'is_open': None}
 
+
 @frappe.whitelist()
 def check_duplicate_book_number(book_number, project, doc_name):
     duplicate_payment = frappe.db.get_value('Customer Payment',
                                             {'book_number': book_number, 'project_name': project, 'name': ('!=', doc_name), 'docstatus': ('!=', 2)})
-
     return {'is_duplicate': bool(duplicate_payment), 'duplicate_payment': duplicate_payment}
+
+
+@frappe.whitelist()
+def check_paid_amount(doc_no, doc_child_idx):
+    try:
+        sql_query = """
+            SELECT Sum(b.paid_amount) as total_paid_amount
+                FROM `tabCustomer Payment` AS a
+                INNER JOIN `tabCustomer Payment Installment` AS b
+                ON a.name = b.parent
+                WHERE a.docstatus = 1
+                AND a.document_number = %s 
+                AND b.base_doc_idx = %s
+        """
+        result = frappe.db.sql(sql_query, (doc_no, doc_child_idx), as_dict=True)
+
+        if not result:
+            return {'total_paid_amount': 0}
+
+        return {'total_paid_amount': result[0]['total_paid_amount']}
+    except Exception as e:
+        frappe.log_error(f"Error getting total paid amount: {str(e)}")
+        return {'total_paid_amount': None}
+
+
 
 
 
