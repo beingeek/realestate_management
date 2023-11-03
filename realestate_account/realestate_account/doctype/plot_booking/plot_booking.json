@@ -2,7 +2,6 @@
  "actions": [],
  "allow_events_in_timeline": 1,
  "allow_import": 1,
- "allow_rename": 1,
  "autoname": "format:BK-{######}",
  "creation": "2023-03-01 18:29:43.377635",
  "default_view": "List",
@@ -13,22 +12,23 @@
   "booking_information_tab",
   "booking_information_section",
   "booking_date",
-  "plot_feature",
-  "uom",
-  "column_break_kyo0t",
+  "column_break_ilqz",
   "project_name",
-  "land_price",
-  "column_break_jku2i",
   "plot_no",
+  "column_break_kyo0t",
+  "land_price",
+  "plot_feature",
+  "column_break_jku2i",
   "area",
+  "uom",
   "customer_details_section",
   "client_name",
-  "address",
-  "column_break_ndce1",
   "father_name",
+  "column_break_ndce1",
   "cnic",
-  "column_break_6gerh",
   "mobile_no",
+  "column_break_6gerh",
+  "address",
   "account_information_section",
   "unit_cost",
   "column_break_e6ssq",
@@ -37,12 +37,13 @@
   "booking_grand_total",
   "section_break_jrmxs",
   "sales_broker",
-  "remarks",
+  "status",
+  "amended_from",
   "column_break_dfvwv",
   "commission_amount",
   "company",
   "column_break_4wmrw",
-  "status",
+  "remarks",
   "payment_plan_detail_tab",
   "payment_plan_data_input_section",
   "installment_starting_date",
@@ -73,8 +74,7 @@
   "column_break_95hhw",
   "total_yearly_installment",
   "difference",
-  "connection",
-  "amended_from"
+  "connection"
  ],
  "fields": [
   {
@@ -245,7 +245,8 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Sales Broker",
-   "options": "Supplier"
+   "options": "Supplier",
+   "reqd": 1
   },
   {
    "fieldname": "remarks",
@@ -298,7 +299,8 @@
   {
    "fieldname": "installment_ending_date",
    "fieldtype": "Date",
-   "label": " Installment Ending Date"
+   "label": " Installment Ending Date",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_v7ici",
@@ -308,6 +310,8 @@
    "fieldname": "total_sales_amount",
    "fieldtype": "Currency",
    "label": " Total Sale Amount",
+   "non_negative": 1,
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -375,12 +379,14 @@
   {
    "fieldname": "total_monthly_installment",
    "fieldtype": "Currency",
-   "label": " Total Monthly Installment"
+   "label": " Total Monthly Installment",
+   "read_only": 1
   },
   {
    "fieldname": "total_booking_amount",
    "fieldtype": "Currency",
-   "label": " Total Booking Amount"
+   "label": " Total Booking Amount",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_ndvp3",
@@ -389,12 +395,14 @@
   {
    "fieldname": "total_quarterly_installment",
    "fieldtype": "Currency",
-   "label": " Total Quarterly Installment"
+   "label": " Total Quarterly Installment",
+   "read_only": 1
   },
   {
    "fieldname": "total_installment_amount",
    "fieldtype": "Currency",
-   "label": " Total Installment Amount"
+   "label": " Total Installment Amount",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_muuqu",
@@ -403,12 +411,14 @@
   {
    "fieldname": "total_half_yearly_installment",
    "fieldtype": "Currency",
-   "label": " Total Half Yearly Installment"
+   "label": " Total Half Yearly Installment",
+   "read_only": 1
   },
   {
    "fieldname": "total_possession_amount",
    "fieldtype": "Currency",
-   "label": " Total Possession Amount"
+   "label": " Total Possession Amount",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_95hhw",
@@ -417,13 +427,15 @@
   {
    "fieldname": "total_yearly_installment",
    "fieldtype": "Currency",
-   "label": "Total Yearly Installment"
+   "label": "Total Yearly Installment",
+   "read_only": 1
   },
   {
    "fieldname": "difference",
    "fieldtype": "Currency",
    "label": "Difference (Total Sales Amount- Total Payment Schdule Amount)",
-   "options": "Company:company:default_currency"
+   "options": "Company:company:default_currency",
+   "read_only": 1
   },
   {
    "fetch_from": "project_name.company",
@@ -456,6 +468,10 @@
    "fieldtype": "Tab Break",
    "label": "Connection",
    "show_dashboard": 1
+  },
+  {
+   "fieldname": "column_break_ilqz",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -473,9 +489,13 @@
   {
    "link_doctype": "Customer Payment",
    "link_fieldname": "document_number"
+  },
+  {
+   "link_doctype": "Cancellation Property",
+   "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-10-19 01:15:11.638013",
+ "modified": "2023-10-28 12:54:05.215997",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot Booking",
@@ -492,6 +512,7 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
+   "submit": 1,
    "write": 1
   },
   {
@@ -504,6 +525,7 @@
    "report": 1,
    "role": "Realestate Account Manager",
    "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],
@@ -511,7 +533,5 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "track_changes": 1,
- "track_seen": 1,
- "track_views": 1
+ "track_changes": 1
 }
