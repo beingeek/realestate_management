@@ -27,6 +27,25 @@ frappe.ui.form.on('Property Transfer',  'validate',  function(frm) {
         frappe.msgprint(__('Please enter a plot number before saving the document.'));
         frappe.validated = false;
     }
+    if (frm.doc.from_customer) {
+        frappe.call({
+            method: 'frappe.client.get_value',
+            args: {
+                doctype: 'Plot List',
+                filters: { name: frm.doc.plot_no},
+                fieldname: 'client_name'
+            },
+            callback: function(response) {
+                if (response.message) {
+                    var client_name = response.message.client_name;
+                    if (client_name !== frm.doc.from_customer) {
+                        frappe.msgprint(__('The master data customer does not match the from customer'));
+                        frappe.validated = false;
+                    }
+                }
+            }
+        });
+    }
 });
 
 frappe.ui.form.on('Property Transfer', {
@@ -35,9 +54,8 @@ frappe.ui.form.on('Property Transfer', {
     }
 });
 
-
 frappe.ui.form.on('Property Transfer', {
-    validate: function(frm) {
+    before_submit: function(frm) {
         if (frm.doc.paid_amount !== 0) {
             checkAccountingPeriodOpen(frm.doc.doc_date);
         }
@@ -45,7 +63,7 @@ frappe.ui.form.on('Property Transfer', {
 });
 function checkAccountingPeriodOpen(postingDate) {
     frappe.call({
-        method: 'realestate_account.realestate_account.doctype.plot_booking.plot_booking.check_accounting_period_open',
+        method: 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.check_accounting_period_open',
         args: {
             doc_date: postingDate
         },
@@ -58,8 +76,6 @@ function checkAccountingPeriodOpen(postingDate) {
         }
     });
 }
-
-
 
 
 //////Get plot_no Based on Project
@@ -338,6 +354,12 @@ frappe.ui.form.on('Property Transfer', {
             var totalYearlyInstallment              = 0
             var totalInstallmentAmount              = 0
             var difference                          = 0
+            
+            var quarterlyInstallmentCounter         = 1; 
+            var halfYearlyInstallmentCounter        = 1; 
+            var yearlyInstallmentCounter            = 1; 
+
+
 
             frm.clear_table('payment_schedule');
 
@@ -345,7 +367,8 @@ frappe.ui.form.on('Property Transfer', {
                 frm.add_child('payment_schedule', {   
                     installment: 'Booking Amount',
                     date:bookingDate,
-                    amount: bookingAmount 
+                    amount: bookingAmount,
+                    installment_name : 'Booking Amount'
                 });
             }
 
@@ -354,44 +377,53 @@ frappe.ui.form.on('Property Transfer', {
                     frm.add_child('payment_schedule', {   
                         installment: 'Monthly Installment',
                         date: frappe.datetime.add_months(startDate, i),
-                        amount: monthlyInstallment
+                        amount: monthlyInstallment,
+                        installment_name: `Monthly Installment - ${i + 1}`
                     });
                     totalMonthlyInstallment = totalMonthlyInstallment + monthlyInstallment 
                 }
-
+  
                 if (i >= 2 && (i - 2) % 3 === 0 && quarterlyInstallment > 0) {
                     frm.add_child('payment_schedule', {   
                         installment: 'Quarterly Installment',
                         date: frappe.datetime.add_months(startDate, i),
-                        amount: quarterlyInstallment
+                        amount: quarterlyInstallment,
+                        installment_name :`Quarterly Installment - ${quarterlyInstallmentCounter }`   
                     });
-                    totalQuarterlyInstallment = totalQuarterlyInstallment + quarterlyInstallment
+                    totalQuarterlyInstallment = totalQuarterlyInstallment + quarterlyInstallment;
+                    quarterlyInstallmentCounter ++;
                 }
-
+                
                 if (i >= 5 && (i - 5) % 6 === 0 && halfYearlyInstallment > 0) {
                     frm.add_child('payment_schedule', {   
                         installment: 'Half Yearly Installment',
                         date: frappe.datetime.add_months(startDate, i),
-                        amount: halfYearlyInstallment
+                        amount: halfYearlyInstallment,
+                        installment_name :`Half Yearly Installment - ${halfYearlyInstallmentCounter}`
                     });
-                    totalHalfYearlyInstallment = totalHalfYearlyInstallment + halfYearlyInstallment
+                    totalHalfYearlyInstallment = totalHalfYearlyInstallment + halfYearlyInstallment;
+                    halfYearlyInstallmentCounter ++;
                 }
    
                 if (i >= 11 && (i - 11) % 12 === 0 && yearlyInstallment > 0) {
                     frm.add_child('payment_schedule', {   
                         installment: 'Yearly Installment',
                         date: frappe.datetime.add_months(startDate, i),
-                        amount: yearlyInstallment
+                        amount: yearlyInstallment,
+                        installment_name :`Yearly Installment - ${yearlyInstallmentCounter }`  
                     });
                     totalYearlyInstallment = totalYearlyInstallment + yearlyInstallment
+                    yearlyInstallmentCounter ++;
                 }
+  
             }
             
             if (possessionAmount   > 0) {
                 frm.add_child('payment_schedule', {   
                     installment: 'Possession Amount',
                     date:frappe.datetime.add_months(startDate, numberOfMonth),
-                    amount: possessionAmount  
+                    amount: possessionAmount,
+                    installment_name : 'Possession Amount'  
                 });
             }          
 
