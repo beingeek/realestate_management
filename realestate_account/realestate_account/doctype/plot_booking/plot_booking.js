@@ -8,15 +8,55 @@ frappe.ui.form.on('Plot Booking', 'validate', function(frm) {
         frappe.msgprint(__('Future booking date not allowed.'));
         frappe.validated = false;
     }
-
-    frm.doc.payment_schedule.forEach(d => {
-        if (parseFloat(d.amount) <= 0) {
-            frappe.msgprint(__('Please remove 0 Amount Row in Payment Schedule'));
-            frappe.validated = false;
-        }
-    });
+    
 });
 
+
+frappe.ui.form.on('Plot Booking', {
+    before_submit: function(frm) {
+        if (frm.doc.plot_no) {
+            frappe.call({
+                method: 'frappe.client.get_value',
+                args: {
+                    doctype: 'Plot List',
+                    filters: { name: frm.doc.plot_no },
+                    fieldname: 'status'
+                },
+                    callback: function(response) {
+                        if (response.message) {
+                            console.log(response);
+                            var status = response.message.status;
+    
+                            if (status === 'Booked') {
+                                frappe.msgprint(__('The plot no you try to book is already booked'));
+                                frappe.validated = false;
+                            }
+                        }
+                    }
+                });
+            }
+    
+            if (frm.doc.commission_amount !== 0) {
+                checkAccountingPeriodOpen(frm.doc.booking_date);
+            }
+        }
+    });
+    function checkAccountingPeriodOpen(postingDate) {
+        frappe.call({
+            method: 'realestate_account.realestate_account.doctype.plot_booking.plot_booking.check_accounting_period_open',
+            args: {
+                booking_date: postingDate
+            },
+            callback: function(response) {
+                console.log(response);
+                if (response.message && response.message.is_open === 1) {
+                    frappe.msgprint(__('The accounting period is not open. Please open the accounting period.'));
+                    frappe.validated = false;
+                }
+            }
+        });
+    }
+    
 frappe.ui.form.on('Plot Booking', {
     onload: function (frm) {
         frm.toggle_display(['generate_installment'], frm.doc.__islocal);
@@ -171,7 +211,7 @@ frappe.ui.form.on('Plot Booking', {
 frappe.ui.form.on('Plot Booking', {
     generate_installment: function(frm) {
         frm.fields_dict['generate_installment'].$input.css({
-            'background-color': 'blue',
+            'background-color': 'black',
             'color': 'white'
         });
             var numberOfMonth           = frm.doc.no_of_month_plan;
@@ -201,6 +241,10 @@ frappe.ui.form.on('Plot Booking', {
             var totalYearlyInstallment              = 0
             var totalInstallmentAmount              = 0
             var difference                          = 0
+            
+            var quarterlyInstallmentCounter         = 1; 
+            var halfYearlyInstallmentCounter        = 1; 
+            var yearlyInstallmentCounter            = 1; 
 
             frm.clear_table('payment_schedule');
 
@@ -208,7 +252,8 @@ frappe.ui.form.on('Plot Booking', {
                 frm.add_child('payment_schedule', {   
                     installment: 'Booking Amount',
                     date:bookingDate,
-                    amount: bookingAmount 
+                    amount: bookingAmount,
+                    installment_name : 'Booking Amount'
                 });
             }
 
@@ -217,7 +262,8 @@ frappe.ui.form.on('Plot Booking', {
                     frm.add_child('payment_schedule', {   
                         installment: 'Monthly Installment',
                         date: frappe.datetime.add_months(startDate, i),
-                        amount: monthlyInstallment
+                        amount: monthlyInstallment,
+                        installment_name: `Monthly Installment - ${i + 1}`
                     });
                     totalMonthlyInstallment = totalMonthlyInstallment + monthlyInstallment 
                 }
@@ -226,38 +272,48 @@ frappe.ui.form.on('Plot Booking', {
                     frm.add_child('payment_schedule', {   
                         installment: 'Quarterly Installment',
                         date: frappe.datetime.add_months(startDate, i),
-                        amount: quarterlyInstallment
+                        amount: quarterlyInstallment,
+                        installment_name :`Quarterly Installment - ${quarterlyInstallmentCounter }`   
                     });
-                    totalQuarterlyInstallment = totalQuarterlyInstallment + quarterlyInstallment
+                    totalQuarterlyInstallment = totalQuarterlyInstallment + quarterlyInstallment;
+                    quarterlyInstallmentCounter ++;                    
+                    
                 }
-
+                
                 if (i >= 5 && (i - 5) % 6 === 0 && halfYearlyInstallment > 0) {
                     frm.add_child('payment_schedule', {   
                         installment: 'Half Yearly Installment',
                         date: frappe.datetime.add_months(startDate, i),
-                        amount: halfYearlyInstallment
+                        amount: halfYearlyInstallment,
+                        installment_name :`Half Yearly Installment - ${halfYearlyInstallmentCounter}`  
+
                     });
-                    totalHalfYearlyInstallment = totalHalfYearlyInstallment + halfYearlyInstallment
+                    totalHalfYearlyInstallment = totalHalfYearlyInstallment + halfYearlyInstallment;
+                    halfYearlyInstallmentCounter ++;
                 }
    
                 if (i >= 11 && (i - 11) % 12 === 0 && yearlyInstallment > 0) {
                     frm.add_child('payment_schedule', {   
                         installment: 'Yearly Installment',
                         date: frappe.datetime.add_months(startDate, i),
-                        amount: yearlyInstallment
+                        amount: yearlyInstallment,
+                        installment_name :`Yearly Installment - ${yearlyInstallmentCounter }`  
                     });
                     totalYearlyInstallment = totalYearlyInstallment + yearlyInstallment
+                    yearlyInstallmentCounter ++;
                 }
+  
             }
             
             if (possessionAmount   > 0) {
                 frm.add_child('payment_schedule', {   
                     installment: 'Possession Amount',
                     date:frappe.datetime.add_months(startDate, numberOfMonth),
-                    amount: possessionAmount  
+                    amount: possessionAmount,
+                    installment_name : 'Possession Amount'  
                 });
             }          
-
+          
             totalInstallmentAmount = totalMonthlyInstallment + totalHalfYearlyInstallment + totalQuarterlyInstallment 
                                     + totalYearlyInstallment
                                     
@@ -478,7 +534,7 @@ frappe.ui.form.on("Plot Booking", {
 });
 
 
-////////////////////////////////   Create A/P invoice & plot Status Check & Accounting Period Check///////////////////////////
+//////////////////////////////// Create A/P invoice & plot Status Check & Accounting Period Check///////////////////////////
 
 frappe.ui.form.on('Plot Booking', {
         on_submit: function(frm) {
@@ -512,65 +568,7 @@ frappe.ui.form.on('Plot Booking', {
                     frappe.validated = false; 
                 }
             }
-                            
         });
     }
-},
-    before_submit: function(frm) {
-        if (frm.doc.plot_no) {
-            frappe.call({
-                method: 'frappe.client.get_value',
-                args: {
-                    doctype: 'Plot List',
-                    filters: {name: frm.doc.plot_no },
-                    fieldname: 'status'
-                },
-                callback: function(response) {
-                    if (response.message) {
-                        console.log(response);
-                        var status = response.message.status;
-                        
-                        if (status === 'Booked') {
-                            frappe.msgprint(__('The plot no you try to booking is already booked'));
-                            frappe.validated = false; 
-                        }
-                    }
-                }
-            });
-        };
-    },
-    before_submit: function(frm) {
-            if (frm.doc.commission_amount !== 0) {
-                checkAccountingPeriodOpen(frm.doc.booking_date);
-            }
-        }
-    });
-    function checkAccountingPeriodOpen(postingDate) {
-        frappe.call({
-            method: 'realestate_account.realestate_account.doctype.plot_booking.plot_booking.check_accounting_period_open',
-            args: {
-                booking_date: postingDate
-            },
-            callback: function(response) {
-                console.log(response);
-                if (response.message && response.message.is_open === 1) {
-                    frappe.msgprint(__('The accounting period is not open. Please open the accounting period.'));
-                    frappe.validated = false; 
-                }
-            }
-        });
-    }
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
+});
