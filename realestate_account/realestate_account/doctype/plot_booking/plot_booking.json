@@ -59,7 +59,6 @@
   "column_break_xuy1s",
   "half_yearly_installment_amount",
   "yearly_installment_amount",
-  "generate_installment",
   "payment_schedule_section",
   "payment_schedule",
   "payment_plan_reconcilition_section",
@@ -109,6 +108,8 @@
    "reqd": 1
   },
   {
+   "fetch_from": "plot_no.total",
+   "fetch_if_empty": 1,
    "fieldname": "unit_cost",
    "fieldtype": "Currency",
    "label": "Total Unit Cost",
@@ -117,6 +118,8 @@
    "reqd": 1
   },
   {
+   "fetch_from": "plot_no.total",
+   "fetch_if_empty": 1,
    "fieldname": "booking_grand_total",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -307,6 +310,8 @@
    "fieldtype": "Column Break"
   },
   {
+   "fetch_from": "plot_no.total",
+   "fetch_if_empty": 1,
    "fieldname": "total_sales_amount",
    "fieldtype": "Currency",
    "label": " Total Sale Amount",
@@ -352,11 +357,6 @@
    "fieldname": "yearly_installment_amount",
    "fieldtype": "Currency",
    "label": " Yearly installments Amount"
-  },
-  {
-   "fieldname": "generate_installment",
-   "fieldtype": "Button",
-   "label": " Generate Installment"
   },
   {
    "collapsible": 1,
@@ -495,7 +495,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-10-28 12:54:05.215997",
+ "modified": "2023-11-04 18:30:54.547991",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot Booking",
