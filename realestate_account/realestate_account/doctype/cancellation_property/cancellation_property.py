@@ -2,156 +2,120 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.utils import today, getdate
 
-#################### Get Plot #############
+class CancellationProperty(Document):
+   
+    def validate(self):
+        self.validate_doc_date()
+        self.validate_Check_customer_plot_master_data()
+        self.validate_acounting_period()
+        
+    def on_submit(self):
+        try:
+            self.make_gl_entries()
+        except Exception as e:
+            frappe.msgprint(f"Error while making GL entries: {str(e)}")
 
-@frappe.whitelist()
-def get_plot_no(project):
-    try:
-        sql_query = """
-                SELECT DISTINCT  x.plot_no, x.project FROM (
-                SELECT DISTINCT name, plot_no, project  FROM `tabProperty Transfer`
-                WHERE status = 'Active' and docstatus = 1
-                UNION ALL
-                SELECT DISTINCT name, plot_no, project_name as project FROM `tabPlot Booking`
-                WHERE status = 'Active'and docstatus = 1) x
-                Where x.project = %s
-                Order by x.plot_no
-        """
-        results = frappe.db.sql(sql_query, (project), as_dict=True)
-        if not results:
-            return []
-        return results
-    except Exception as e:
-        frappe.log_error(f"Error in get_available_plots: {str(e)}")
-        return []
-
-@frappe.whitelist()
-def get_previous_document_detail(plot_no):
-    try:
-        sql_query = """
-    WITH plot_detail AS (
-    SELECT DISTINCT
-        tpt.name,
-        tpt.plot_no,
-        tpt.project,
-        'Property Transfer' as Doc_type,
-        tpt.to_customer as customer,
-        tpt.sales_broker,
-        tpt.total_transfer_amount as receivable_amount,
-        tpt.doc_date as DocDate,
-        tpt.paid_amount + IFNULL((
-            SELECT SUM(total_paid_amount)
-            FROM `tabCustomer Payment` tcpr
-            WHERE tcpr.docstatus = 1
-              AND tcpr.plot_no = tpt.plot_no
-              AND tcpr.document_number = tpt.name
-        ), 0) AS paid_amount
-    FROM
-        `tabProperty Transfer` tpt
-    WHERE
-        tpt.status = 'Active' AND tpt.docstatus = 1
-    UNION ALL
-    SELECT DISTINCT
-        thb.name,
-        thb.plot_no,
-        thb.project_name as project,
-        'Plot Booking' as Doc_type,
-        thb.client_name as customer,
-        thb.sales_broker,
-        thb.total_sales_amount as receivable_amount,
-        thb.booking_date as DocDate,
-        IFNULL((
-            SELECT SUM(total_paid_amount)
-            FROM `tabCustomer Payment` tcpr
-            WHERE tcpr.docstatus = 1
-              AND tcpr.plot_no = thb.plot_no
-              AND tcpr.document_number = thb.name
-        ), 0) AS paid_amount
-    FROM
-        `tabPlot Booking` thb
-    WHERE
-        thb.status = 'Active' AND thb.docstatus = 1
-)
-SELECT * FROM plot_detail WHERE plot_no = %s
-        """
-        results = frappe.db.sql(sql_query, (plot_no), as_dict=True)
-        if not results:
-            return []
-        return results
-    except Exception as e:
-        frappe.log_error(f"Error in get_available_plots: {str(e)}")
-        return []
-
-@frappe.whitelist()
-def post_journal_entry(can_pro):
-    cp_doc = frappe.get_doc("Cancellation Property", can_pro)
-
-    company = frappe.get_doc("Company", cp_doc.company)
+    def validate_doc_date(self):
+        if self.doc_date:
+            doc_date = getdate(self.doc_date)
+            today_date = today()
+        if doc_date and doc_date > getdate(today_date):
+            frappe.throw("Future Document date not Allowed.")
     
-    deductionAccount = company.custom_default_deduction_revenue_account
-    default_receivable_account = company.default_receivable_account
-    cost_center = company.cost_center
-	
-    journal_entry = frappe.get_doc({
-        "doctype": "Journal Entry",
-        "voucher_type": "Journal Entry",
-        "voucher_no": can_pro,
-        "posting_date": cp_doc.doc_date,
-        "user_remark": cp_doc.remarks,
-        "custom_plot_no": cp_doc.plot_no,
-        "custom_document_number": cp_doc.name,
-        "custom_document_type": "Cancellation Property"
-    })
+    def validate_Check_customer_plot_master_data(self):
+        if self.customer:
+            client_name = frappe.get_value('Plot List', {'name': self.plot_no}, 'client_name')
+            if client_name != self.customer:
+                frappe.msgprint('The master data customer does not match the payment customer')
+                frappe.throw('Validation Error: Customer mismatch')
+    
+    def validate_acounting_period(self):
+        sql_query = """
+            SELECT closed
+            FROM `tabAccounting Period` AS tap
+            LEFT JOIN `tabClosed Document` AS tcd ON tcd.parent = tap.name
+            WHERE tcd.document_type = 'Journal Entry' 
+            AND MONTH(tap.end_date) = MONTH(%s) 
+            AND YEAR(tap.end_date) = YEAR(%s)
+            LIMIT 1;
+        """
+        result = frappe.db.sql(sql_query, (self.payment_date, self.payment_date), as_dict=True)
+        if not result:
+            return {'is_open': None}
+        if result[0]['closed'] == 1:
+            frappe.throw('The accounting period is not open. Please open the accounting period.')
+        return {'is_open': 1}
 
-	# Credit entry (Cash/Bank)
-    for payment in cp_doc.payment_type:
-        journal_entry.append("accounts", {
-            "account": payment.ledger,
-            "credit_in_account_currency": payment.amount,
-            "against": default_receivable_account,
-            "project": cp_doc.project,
-            "custom_plot_no": cp_doc.plot_no,
-            "bank_account":payment.bank_account,
-            "cost_center": "",
-            "is_advance": 0,
-            "custom_document_number": cp_doc.name,
-            "custom_document_type":"Cancellation Property"
-        })
+    def make_gl_entries(self):
+        if self.total_paid_amount != 0:
 
-	#Credit Entry (Income)
-    journal_entry.append("accounts", {
-        "account": deductionAccount,
-        "credit_in_account_currency": cp_doc.deduction,
-        "against": cp_doc.customer,
-        "project": cp_doc.project,
-        "custom_plot_no": cp_doc.plot_no,
-        "cost_center": cost_center,
-        "is_advance": 0,
-        "custom_document_number": cp_doc.name,
-        "custom_document_type": "Cancellation Property"
-    })
+            company = frappe.defaults.get_user_default("Company")
+            deductionAccount = company.custom_default_deduction_revenue_account
+            default_receivable_account = company.default_receivable_account
+            cost_center = company.cost_center
+            
+            journal_entry = frappe.get_doc({
+                "doctype": "Journal Entry",
+                "voucher_type": "Journal Entry",
+                "voucher_no": self.name,
+                "posting_date": self.doc_date,
+                "user_remark": self.remarks,
+                "custom_plot_no": self.plot_no,
+                "custom_document_number": self.name,
+                "custom_document_type": "Cancellation Property"
+            })
 
-	#Debit Entry (Customer)
-    journal_entry.append("accounts", {
-        "account": default_receivable_account,
-        "debit_in_account_currency": cp_doc.total_paid_amount,
-        "party_type": "Customer",
-        "party": cp_doc.customer,
-        "project": cp_doc.project,
-        "custom_plot_no": cp_doc.plot_no,
-        "cost_center": "",
-        "is_advance": 0,
-        "custom_document_number": cp_doc.name,
-        "custom_document_type": "Cancellation Property"
-    })
+            # Credit entry (Cash/Bank)
+            for payment in self.payment_type:
+                journal_entry.append("accounts", {
+                    "account": payment.ledger,
+                    "credit_in_account_currency": payment.amount,
+                    "against": default_receivable_account,
+                    "project": self.project,
+                    "custom_plot_no": self.plot_no,
+                    "bank_account":payment.bank_account,
+                    "cost_center": "",
+                    "is_advance": 0,
+                    "custom_document_number": self.name,
+                    "custom_document_type":"Cancellation Property"
+                })
 
-    journal_entry.insert(ignore_permissions=True)
-    journal_entry.submit()
+            #Credit Entry (Income)
+            journal_entry.append("accounts", {
+                "account": deductionAccount,
+                "credit_in_account_currency": self.deduction,
+                "against": self.customer,
+                "project": self.project,
+                "custom_plot_no": self.plot_no,
+                "cost_center": cost_center,
+                "is_advance": 0,
+                "custom_document_number": self.name,
+                "custom_document_type": "Cancellation Property"
+            })
 
-    frappe.db.commit()
+            #Debit Entry (Customer)
+            journal_entry.append("accounts", {
+                "account": default_receivable_account,
+                "debit_in_account_currency": self.total_paid_amount,
+                "party_type": "Customer",
+                "party": self.customer,
+                "project": self.project,
+                "custom_plot_no": self.plot_no,
+                "cost_center": "",
+                "is_advance": 0,
+                "custom_document_number": self.name,
+                "custom_document_type": "Cancellation Property"
+            })
 
-    return {"message": f"Journal Entry {journal_entry.name} created successfully", "journal_entry": journal_entry.name}
+            journal_entry.insert(ignore_permissions=True)
+            journal_entry.submit()
+
+            frappe.db.commit()
+
+            return {"message": f"Journal Entry {journal_entry.name} created successfully", "journal_entry": journal_entry.name}
+
 
 ################ plot_master_data_update_&_document_ststus_update #####################
 
@@ -232,37 +196,84 @@ def plot_master_data_and_document_status_update_reversal(can_pro):
         return "Failed"
 
 
-@frappe.whitelist()
-def check_plot_status(plot_no):
-    plot_status = frappe.get_value("Plot List", plot_no, "status")
-    return plot_status
 
+#################### Get Plot #############
 
 @frappe.whitelist()
-def check_accounting_period(doc_date):
+def get_plot_no(project):
     try:
         sql_query = """
-            SELECT closed
-            FROM `tabAccounting Period` AS tap
-            LEFT JOIN `tabClosed Document` AS tcd ON tcd.parent = tap.name
-            WHERE tcd.document_type = 'Journal Entry' 
-                AND MONTH(tap.end_date) = MONTH(%s) 
-                AND YEAR(tap.end_date) = YEAR(%s)
-                LIMIT 1;
+                SELECT DISTINCT  x.plot_no, x.project FROM (
+                SELECT DISTINCT name, plot_no, project  FROM `tabProperty Transfer`
+                WHERE status = 'Active' and docstatus = 1
+                UNION ALL
+                SELECT DISTINCT name, plot_no, project_name as project FROM `tabPlot Booking`
+                WHERE status = 'Active'and docstatus = 1) x
+                Where x.project = %s
+                Order by x.plot_no
         """
-        result = frappe.db.sql(sql_query, (doc_date, doc_date), as_dict=True)
-
-        if not result:
-            return {'is_open': None}
-
-        return {'is_open': result[0]['closed']}
+        results = frappe.db.sql(sql_query, (project), as_dict=True)
+        if not results:
+            return []
+        return results
     except Exception as e:
-        frappe.log_error(f"Error getting in period: {str(e)}")
-        return {'is_open': None}
+        frappe.log_error(f"Error in get_available_plots: {str(e)}")
+        return []
 
+@frappe.whitelist()
+def get_previous_document_detail(plot_no):
+    try:
+        sql_query = """
+            WITH plot_detail AS (
+    SELECT DISTINCT
+        tpt.name,
+        tpt.plot_no,
+        tpt.project,
+        'Property Transfer' as Doc_type,
+        tpt.to_customer as customer,
+        tpt.sales_broker,
+        tpt.total_transfer_amount as receivable_amount,
+        tpt.doc_date as DocDate,
+        tpt.paid_amount + IFNULL((
+            SELECT SUM(total_paid_amount)
+            FROM `tabCustomer Payment` tcpr
+            WHERE tcpr.docstatus = 1
+              AND tcpr.plot_no = tpt.plot_no
+              AND tcpr.document_number = tpt.name
+        ), 0) AS paid_amount
+    FROM
+        `tabProperty Transfer` tpt
+    WHERE
+        tpt.status = 'Active' AND tpt.docstatus = 1
+    UNION ALL
+    SELECT DISTINCT
+        thb.name,
+        thb.plot_no,
+        thb.project_name as project,
+        'Plot Booking' as Doc_type,
+        thb.client_name as customer,
+        thb.sales_broker,
+        thb.total_sales_amount as receivable_amount,
+        thb.booking_date as DocDate,
+        IFNULL((
+            SELECT SUM(total_paid_amount)
+            FROM `tabCustomer Payment` tcpr
+            WHERE tcpr.docstatus = 1
+              AND tcpr.plot_no = thb.plot_no
+              AND tcpr.document_number = thb.name
+        ), 0) AS paid_amount
+    FROM
+        `tabPlot Booking` thb
+    WHERE
+        thb.status = 'Active' AND thb.docstatus = 1
+)
+SELECT * FROM plot_detail WHERE plot_no = %s
+        """
+        results = frappe.db.sql(sql_query, (plot_no), as_dict=True)
+        if not results:
+            return []
+        return results
+    except Exception as e:
+        frappe.log_error(f"Error in get_available_plots: {str(e)}")
+        return []
 
-
-
-
-class CancellationProperty(Document):
-	pass
