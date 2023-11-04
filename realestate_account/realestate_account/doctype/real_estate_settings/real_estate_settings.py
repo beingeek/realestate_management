@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class RealEstateSetting(Document):
+class RealEstateSettings(Document):
 	pass
