@@ -1,5 +1,4 @@
 
-
 frappe.ui.form.on("Customer Payment", {
     onload: function (frm) {
         frm.toggle_display(['get_insallment_information'], frm.doc.__islocal);
@@ -89,23 +88,33 @@ frappe.ui.form.on('Customer Payment', {
                     var name = r.message[0].name;
                     var docType = r.message[0].doc_type; 
                     var customer = r.message[0].customer;
-                    
+                    var address = r.message[0].address;
+                    var sales_amount = r.message[0].sales_amount;
+                    var received_amount = r.message[0].received_amount
+                    var remaining_amount = sales_amount-received_amount
+
                     cur_frm.set_value('document_type', docType);
                     cur_frm.set_value('document_number', name);
                     cur_frm.clear_table('installment');
                     cur_frm.refresh_field('installment'); 
                     cur_frm.set_value("total_paid_amount", 0);
                     cur_frm.refresh_fields("total_paid_amount");
+                    cur_frm.set_value("sales_amount", sales_amount );
+                    cur_frm.refresh_fields("sales_amount");
+                    cur_frm.set_value("received_amount", received_amount );
+                    cur_frm.refresh_fields("received_amount");
+                    cur_frm.set_value("remaining_amount", remaining_amount );
+                    cur_frm.refresh_fields("remaining_amount");
                     cur_frm.set_value("customer_name", customer );
-                    cur_frm.refresh_fields("customer_name");        
+                    cur_frm.refresh_fields("customer_name");
+                    cur_frm.set_value("address", address);
+                    cur_frm.refresh_fields("address");                
                     cur_frm.set_value('payment_date', frappe.datetime.get_today()); 
                     cur_frm.refresh_fields('payment_date');
-            
                 }
             }
         });
     };
-                
     
 frappe.ui.form.on('Customer Payment', {
     get_insallment_information: function(frm, cdt, cdn) {
@@ -283,10 +292,6 @@ frappe.ui.form.on("Payment Type", {
         frm.refresh_field('payment_type_total_amount');
     }
 });
-
-
-
-
 
 //////////////////Bank Account Filter /////////////////
 
