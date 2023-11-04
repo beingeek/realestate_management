@@ -1,31 +1,3 @@
-//////// form Validation script/////////
-
-frappe.ui.form.on('Cancellation Property',  'validate',  function(frm) {
-    if (frm.doc.doc_date > frappe.datetime.get_today()) {
-            frappe.throw(__("Future posting Document date not Allowed."));
-            frappe.validated = false;
-    }
-    if (frm.doc.customer) {
-        frappe.call({
-            method: 'frappe.client.get_value',
-            args: {
-                doctype: 'Plot List',
-                filters: { name: frm.doc.plot_no},
-                fieldname: 'client_name'
-            },
-            callback: function(response) {
-                if (response.message) {
-                    var client_name = response.message.client_name;
-                    if (client_name !== frm.doc.customer) {
-                        frappe.msgprint(__('The plot master data customer does not match the customer'));
-                        frappe.validated = false;
-                    }
-                }
-            }
-        });
-    }
-});
-
 
 frappe.ui.form.on('Cancellation Property', {
 	project: function(frm) {
@@ -145,8 +117,9 @@ function calculate_final_amount(frm) {
 
 /////////////////////////// update Plot master Data //////////
 
+
 frappe.ui.form.on('Cancellation Property', {
-    before_submit: function(frm) {
+    on_submit: function(frm) {
         if (frm.doc.plot_no) {
             frappe.call({
                 method: "realestate_account.realestate_account.doctype.cancellation_property.cancellation_property.plot_master_data_and_document_status_update",
@@ -173,7 +146,33 @@ frappe.ui.form.on('Cancellation Property', {
     }
 });
 
-
+frappe.ui.form.on('Cancellation Property', {
+    after_cancel: function(frm) {
+        if (frm.doc.plot_no) {
+            frappe.call({
+                method: "realestate_account.realestate_account.doctype.cancellation_property.cancellation_property.plot_master_data_and_document_status_update_reversal",
+                args: {
+                    can_pro:frm.doc.name
+                },
+                callback: function(r) {
+                    if (!r.exc) {
+                        console.log(r);
+                        if (r.message === 'Success') {
+                            frappe.msgprint(__("Booking Details remove in plot master Data"));
+                            frm.reload_doc();
+                        } else {
+                            frappe.msgprint(__(r.message));
+                            frappe.validated = false;
+                        }
+                    } else {
+                        frappe.msgprint(__('Failed to post the document.'));
+                        frappe.validated = false; // Prevent document submission
+                    }
+                }
+            });
+        } 
+    }
+});
 
 /////////////////////////// Payment Type payment ledger filter  //////////
 
@@ -202,59 +201,4 @@ frappe.ui.form.on('Cancellation Property', {
  
 
 
-//////////////////////// Call for create_journal_entry /////////////////////////
 
-frappe.ui.form.on("Cancellation Property", {
-    before_submit: function(frm) {
-        let paidAmount = frm.doc.total_paid_amount;
-        if (paidAmount !== 0) {
-            frappe.call({
-                method: "realestate_account.realestate_account.doctype.cancellation_property.cancellation_property.post_journal_entry",
-                args: {
-                    can_pro:frm.doc.name
-                },
-                callback: function(r) {
-                    if (!r.exc) {
-                        if (r.message && r.message.journal_entry) {
-                            frappe.msgprint(__("Journal Entry {0} created successfully", [r.message.journal_entry]), 'Success');
-                            frm.reload_doc();
-                        } else {
-                            frappe.msgprint(__("Error creating Journal Entry: {0}", [r.message || 'Unknown error']), 'Error');
-                            frappe.validated = false; 
-                        }
-                    } else {
-                        frappe.msgprint(__("Error creating Journal Entry.."), 'Error');
-                        frappe.validated = false; 
-                    }
-                }
-            });
-        } else {
-            frappe.msgprint(__("Paid amount is 0. Cannot create Journal Entry."), 'Warning');
-        }
-    }
-});
-
-
-frappe.ui.form.on("Cancellation Property", {
-    validate: function(frm) {
-        checkAccountingPeriodOpen(frm.doc.doc_date);
-    },
-    before_submit: function(frm) {
-            checkAccountingPeriodOpen(frm.doc.doc_date);
-    }
-});
-function checkAccountingPeriodOpen(postingDate) {
-    frappe.call({
-        method: 'realestate_account.realestate_account.doctype.cancellation_property.cancellation_property.check_accounting_period',
-        args: {
-            doc_date: postingDate
-        },
-        callback: function(response) {
-            console.log(response);
-            if (response.message && response.message.is_open === 1) {
-                frappe.msgprint(__('The accounting period is not open. Please open the accounting period.'));
-                frappe.validated = false; 
-            }
-        }
-    });
-}
