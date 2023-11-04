@@ -3,7 +3,6 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import today, getdate
 
-
 class CustomerPayment(Document):
 
     def validate(self):
@@ -172,19 +171,50 @@ def get_plot_no(project):
 def get_plot_detail(plot_no):
     try:
         sql_query = """
-			    SELECT x.name, x.plot_no, x.project , x.doc_type, x.customer, 
-                x.receivable_amount, x.DocDate, x.sales_broker From (
-				SELECT  DISTINCT name, plot_no, project_name as project, 
-                'Plot Booking' as Doc_type, client_name as customer, sales_broker, 
-                total_sales_amount as receivable_amount, booking_date as DocDate 
+            SELECT 
+                x.name, 
+                x.plot_no, 
+                x.project, 
+                x.doc_type, 
+                x.customer, 
+                x.sales_amount, 
+                x.DocDate, 
+                x.sales_broker,
+                x.address,
+                IFNULL((SELECT  
+                    SUM(tcp.total_paid_amount) 
+                    FROM `tabCustomer Payment` tcp
+                    where tcp.document_number = x.name and tcp.docstatus = 1), 0) +
+                IFNULL((SELECT  
+                    SUM(COALESCE(tpt.paid_amount, 0)) 
+                    FROM `tabProperty Transfer` tpt
+                WHERE tpt.name = x.name AND docstatus = 1),0) as received_amount
+                FROM (
+                SELECT  
+                    DISTINCT name, 
+                    plot_no, 
+                    project_name as project, 
+                    'Plot Booking' as Doc_type, 
+                    client_name as customer, 
+                    sales_broker, 
+                    total_sales_amount as sales_amount, 
+                    booking_date as DocDate,
+                    address AS address
                 FROM `tabPlot Booking`
-                WHERE status = 'Active'and docstatus = 1
+                WHERE status = 'Active' AND docstatus = 1
                 UNION ALL
-                SELECT  DISTINCT name, plot_no, project as project, 
-                'Property Transfer' as Doc_type, to_customer as customer, sales_broker, 
-                total_transfer_amount as receivable_amount, doc_date as DocDate 
+                SELECT  
+                    DISTINCT name, 
+                    plot_no, 
+                    project as project, 
+                    'Property Transfer' as Doc_type, 
+                    to_customer as customer, 
+                    sales_broker, 
+                    total_transfer_amount + paid_amount as sales_amount, 
+                    doc_date as DocDate,
+                    to_address AS address 
                 FROM `tabProperty Transfer`
-                WHERE status = 'Active'and docstatus = 1) x
+                WHERE status = 'Active' AND docstatus = 1) x               
                 WHERE x.plot_no = %s
         """
         results = frappe.db.sql(sql_query, (plot_no), as_dict=True)
@@ -195,49 +225,50 @@ def get_plot_detail(plot_no):
         frappe.log_error(f"Error in get_available_plots: {str(e)}")
         return []
 
+
 @frappe.whitelist()
 def get_installment_list_from_booking(doc_no):
     try:
         sql_query = """
-SELECT 
-    x.Installment,
-    x.date,
-    x.remarks,
-    x.idx,
-    x.name,
-    x.installment_amount,
-    x.receivable_amount
-FROM (
-    SELECT
-        c.name,
-        d.installment_name as Installment,
-        d.date,
-        d.remarks,
-        d.idx,
-        d.amount as installment_amount,
-        d.amount - IFNULL((
-                SELECT SUM(b.paid_amount) AS paid_amount
-                FROM `tabCustomer Payment` AS a
-                INNER JOIN `tabCustomer Payment Installment` AS b
-                ON a.name = b.parent
-                WHERE a.docstatus = 1
-                AND a.document_number = c.name
-                AND b.base_doc_idx = d.idx
-                AND a.plot_no = c.plot_no), 0 ) AS receivable_amount
-    FROM
-        `tabPlot Booking` AS c
-    INNER JOIN
-        `tabInstallment Payment Plan` AS d
-    ON
-        c.name = d.parent
-    WHERE
-        c.name = %s
-    ORDER BY 
-        d.date ASC ) x
-WHERE 
-    x.receivable_amount <> 0
-ORDER BY x.date
-limit 5;
+            SELECT 
+                x.Installment,
+                x.date,
+                x.remarks,
+                x.idx,
+                x.name,
+                x.installment_amount,
+                x.receivable_amount
+            FROM (
+                SELECT
+                    c.name,
+                    d.installment_name as Installment,
+                    d.date,
+                    d.remarks,
+                    d.idx,
+                    d.amount as installment_amount,
+                    d.amount - IFNULL((
+                            SELECT SUM(b.paid_amount) AS paid_amount
+                            FROM `tabCustomer Payment` AS a
+                            INNER JOIN `tabCustomer Payment Installment` AS b
+                            ON a.name = b.parent
+                            WHERE a.docstatus = 1
+                            AND a.document_number = c.name
+                            AND b.base_doc_idx = d.idx
+                            AND a.plot_no = c.plot_no), 0 ) AS receivable_amount
+                FROM
+                    `tabPlot Booking` AS c
+                INNER JOIN
+                    `tabInstallment Payment Plan` AS d
+                ON
+                    c.name = d.parent
+                WHERE
+                    c.name = %s
+                ORDER BY 
+                    d.date ASC ) x
+            WHERE 
+                x.receivable_amount <> 0
+            ORDER BY x.date
+            limit 5;
 
         """
         results = frappe.db.sql(sql_query, (doc_no), as_dict=True)
@@ -252,45 +283,45 @@ limit 5;
 def get_installment_list_from_transfer(doc_no):
     try:
         sql_query = """
-SELECT 
-    x.Installment,
-    x.date,
-    x.remarks,
-    x.idx,
-    x.receivable_amount,
-    x.name,
-    x.installment_amount
-FROM (
-    SELECT
-        c.name,
-        d.installment_name as Installment,
-        d.date,
-        d.remarks,
-        d.idx,
-        d.amount as installment_amount,
-        d.amount - IFNULL((
-                SELECT SUM(b.paid_amount) AS paid_amount
-                FROM `tabCustomer Payment` AS a
-                INNER JOIN `tabCustomer Payment Installment` AS b
-                ON a.name = b.parent
-                WHERE a.docstatus = 1
-                AND a.document_number = c.name
-                AND b.base_doc_idx = d.idx
-                AND a.plot_no = c.plot_no), 0 ) AS receivable_amount
-    FROM
-        `tabProperty Transfer` AS c
-    INNER JOIN
-        `tabInstallment Payment Plan - Transfer` AS d
-    ON
-        c.name = d.parent
-    WHERE
-        c.name = %s
-    ORDER BY 
-        d.date ASC ) x
-WHERE 
-    x.receivable_amount <> 0
-ORDER BY x.date
-limit 5;
+            SELECT 
+                x.Installment,
+                x.date,
+                x.remarks,
+                x.idx,
+                x.receivable_amount,
+                x.name,
+                x.installment_amount
+            FROM (
+                SELECT
+                    c.name,
+                    d.installment_name as Installment,
+                    d.date,
+                    d.remarks,
+                    d.idx,
+                    d.amount as installment_amount,
+                    d.amount - IFNULL((
+                            SELECT SUM(b.paid_amount) AS paid_amount
+                            FROM `tabCustomer Payment` AS a
+                            INNER JOIN `tabCustomer Payment Installment` AS b
+                            ON a.name = b.parent
+                            WHERE a.docstatus = 1
+                            AND a.document_number = c.name
+                            AND b.base_doc_idx = d.idx
+                            AND a.plot_no = c.plot_no), 0 ) AS receivable_amount
+                FROM
+                    `tabProperty Transfer` AS c
+                INNER JOIN
+                    `tabInstallment Payment Plan - Transfer` AS d
+                ON
+                    c.name = d.parent
+                WHERE
+                    c.name = %s
+                ORDER BY 
+                    d.date ASC ) x
+            WHERE 
+                x.receivable_amount <> 0
+            ORDER BY x.date
+            limit 5;
         """
         results = frappe.db.sql(sql_query, (doc_no), as_dict=True)
         if not results:
