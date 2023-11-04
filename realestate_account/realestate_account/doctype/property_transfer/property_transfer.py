@@ -2,16 +2,349 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.utils import today, getdate
+
+class ClosedAccountingPeriod(frappe.ValidationError):
+	pass
+
+class PropertyTransfer(Document):
+    
+    def validate(self):
+        self.validate_from_customer_and_to_customer()
+        self.validate_transfer_charge_and_payment_type_total()
+        self.validate_difference_field()
+        self.validate_doc_date()
+        self.validate_Check_customer_plot_master_data()
+        self.validate_transfer_amount()
+        self.validate_accounting_period()
+
+    def on_submit(self):
+        try:
+            self.make_gl_entries()
+        except Exception as e:
+            frappe.msgprint(f"Error while making GL entries: {str(e)}")
 
 
-#################### Get Plot & Base document data for Property Transfer #############
+    def validate_doc_date(self):
+        if self.doc_date:
+            doc_date = getdate(self.doc_date)
+            today_date = today()
+        if doc_date and doc_date > getdate(today_date):
+            frappe.throw("Future Document date not Allowed.")
+    
+    def validate_from_customer_and_to_customer(self):
+        if self.from_customer == self.to_customer:
+            frappe.throw('From Customer and To Customer must be different')
+
+    def validate_transfer_charge_and_payment_type_total(self):
+        if self.transfer_charge != self.payment_type_total_amount:
+            frappe.throw('Transfer Charge & Payment type total Should be equal')
+
+    def validate_difference_field(self):
+        if self.difference != 0:
+            frappe.throw('Difference field should be zero')
+    
+    def validate_Check_customer_plot_master_data(self):
+        if self.from_customer:
+            client_name = frappe.get_value('Plot List', {'name': self.plot_no}, 'client_name')
+            if client_name != self.from_customer:
+                frappe.msgprint('The master data customer does not match the payment customer')
+                frappe.throw('Validation Error: Customer mismatch')
+    
+    def validate_transfer_amount(self):
+        if self.total_transfer_amount == 0:
+            frappe.throw('The Transfer amount should not zero')
+
+
+    def validate_accounting_period(doc, method=None):
+        ap = frappe.qb.DocType("Accounting Period")
+        cd = frappe.qb.DocType("Closed Document")
+        accounting_period = (
+            frappe.qb.from_(ap)
+            .from_(cd)
+            .select(ap.name)
+            .where(
+                (ap.name == cd.parent)
+                & (ap.company == doc.company)
+                & (cd.closed == 1)
+                & (cd.document_type == doc.doctype)
+                & (doc.booking_date >= ap.start_date)
+                & (doc.booking_date <= ap.end_date)
+            )
+        ).run(as_dict=1)
+        if accounting_period:
+            frappe.throw(_("You cannot create a {0} within the closed Accounting Period {1}").format(
+                doc.doctype, frappe.bold(accounting_period[0]["name"]),
+            ClosedAccountingPeriod
+        ))
+
+    def make_gl_entries(self):
+        if self.paid_amount != 0 or self.transfer_charge != 0:
+
+            company = frappe.defaults.get_user_default("Company")
+            transfer_account = company.custom_default_transfer_revenue_account
+            default_receivable_account = company.default_receivable_account
+            cost_center = company.cost_center
+            
+        journal_entry = frappe.get_doc({
+            "doctype": "Journal Entry",
+            "voucher_type": "Journal Entry",
+            "voucher_no": self,
+            "posting_date": self.doc_date,
+            "user_remark": self.remarks,
+            "custom_document_number": self.name,
+            "custom_document_type": "Property Transfer",
+            "custom_plot_no": self.plot_no
+        })
+
+        if self.paid_amount > 0:
+            journal_entry.append("accounts", {
+                "account": default_receivable_account,
+                "debit_in_account_currency": self.paid_amount,
+                "party_type": "Customer",
+                "party": self.from_customer,
+                "against": self.to_customer,
+                "project": self.project,
+                "custom_plot_no": self.plot_no,
+                "cost_center": "",
+                "is_advance": 0,
+                "custom_document_number": self.name,
+                "custom_document_type": "Property Transfer"
+            })
+            journal_entry.append("accounts", {
+                "account": default_receivable_account,
+                "credit_in_account_currency": self.paid_amount,
+                "party_type": "Customer",
+                "party": self.to_customer,
+                "against": self.from_customer,
+                "project": self.project,
+                "custom_plot_no": self.plot_no,
+                "cost_center": "",
+                "is_advance": 0,
+                "custom_document_number": self.name,
+                "custom_document_type": "Property Transfer"
+            })
+
+        # Transfer Charges
+
+        if self.transfer_charge > 0:
+            for payment in self.payment_type:
+                journal_entry.append("accounts", {
+                    "account": payment.ledger,
+                    "debit_in_account_currency": payment.amount,
+                    "against": default_receivable_account,
+                    "project": self.project,
+                    "custom_plot_no": self.plot_no,
+                    "cost_center": "",
+                    "is_advance": 0,
+                    "custom_document_number": self.name,
+                    "custom_document_type": "Property Transfer"
+                })
+
+            # Credit entry for transfer charge
+            journal_entry.append("accounts", {
+                "account": transfer_account,
+                "credit_in_account_currency": self.transfer_charge,
+                "against": self.from_customer,
+                "project": self.project,
+                "custom_plot_no": self.plot_no,
+                "cost_center": cost_center,
+                "is_advance": 0,
+                "custom_document_number": self.name,
+                "custom_document_type": "Property Transfer"
+            })
+
+        journal_entry.insert(ignore_permissions=True)
+        journal_entry.submit()
+
+        frappe.db.commit()
+
+        return {"message": f"Journal Entry {journal_entry.name} created successfully", "journal_entry": journal_entry.name}
 
 
 
-def validate(doc, method):
-    if doc.get('doctype') == 'Re-Purchase or Cancel' and doc.is_new():
-        if not doc.get('plot_no') and doc.get('docstatus') == 0:
-            frappe.throw("Please enter a plot number before saving the document.")
+################ plot_master_data_booking_document_ststus_update #####################
+
+##on_submit
+
+@frappe.whitelist()
+def plot_master_data_booking_document_status_update(transfer):
+    try:
+        propertyTransfer = frappe.get_doc("Property Transfer", transfer)
+        
+        if propertyTransfer.plot_no:
+            plot_master = frappe.get_doc("Plot List", propertyTransfer.plot_no)
+            
+            plot_master.client_name     = propertyTransfer.to_customer
+            plot_master.address         = propertyTransfer.to_address
+            plot_master.father_name     = propertyTransfer.to_father_name
+            plot_master.cnic            = propertyTransfer.to_cnic
+            plot_master.mobile_no       = propertyTransfer.to_mobile_no
+            plot_master.sales_agent     = propertyTransfer.sales_broker
+
+        if propertyTransfer.document_number:
+            Plot_booking = frappe.get_doc("Plot Booking", propertyTransfer.document_number)
+            Plot_booking.status = "Property Transfer"   
+            
+            plot_master.save()
+            Plot_booking.save()
+            frappe.db.commit()
+            
+            return "Success"
+        else:
+            return "Plot number not specified in the Plot Booking document."
+
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), _("Failed to update plot status"))
+        return "Failed"
+
+##on_cencel_event
+
+@frappe.whitelist()
+def plot_master_data_booking_document_status_update_reversal(transfer):
+    try:
+        propertyTransfer = frappe.get_doc("Property Transfer", transfer)
+        
+        if propertyTransfer.plot_no:
+            plot_master = frappe.get_doc("Plot List", propertyTransfer.plot_no)
+            
+            plot_master.client_name     = propertyTransfer.from_customer
+            plot_master.address         = propertyTransfer.from_address
+            plot_master.father_name     = propertyTransfer.from_father_name
+            plot_master.cnic            = propertyTransfer.from_cnic
+            plot_master.mobile_no       = propertyTransfer.from_mobile_no
+            plot_master.sales_agent     = propertyTransfer.from_sales_broker
+        
+        if propertyTransfer.document_number:
+            Plot_booking = frappe.get_doc("Plot Booking", propertyTransfer.document_number)
+            Plot_booking.status = "Active"
+            
+            plot_master.save()
+            Plot_booking.save()
+
+            frappe.db.commit()
+            
+            return "Success"
+        else:
+            return "Plot number not specified in the Plot Booking document."
+
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), _("Failed to update plot status"))
+        return "Failed"
+
+
+################ update the status of Property Transfer Document #####################
+
+##On_submit
+
+@frappe.whitelist()
+def update_transfer_status(transfer):
+    try:
+        property_transfer = frappe.get_doc("Property Transfer", transfer)       
+        if property_transfer:
+            property_transfer.status = "Further Transferred"
+            property_transfer.save(ignore_permissions=True)
+            frappe.db.commit()
+            return "Success"
+        else:
+            return "Error: Property Transfer document not found."
+        
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), _("Failed to update status"))
+        return "Failed"
+
+##On_Cancel
+
+@frappe.whitelist()
+def update_transfer_cancel_status(transfer):
+    try:
+        property_transfer = frappe.get_doc("Property Transfer", transfer)
+        if property_transfer:
+            property_transfer.status = "Active"
+            property_transfer.save(ignore_permissions=True)
+            frappe.db.commit()
+            
+            return "Success"
+        else:
+            return "Error: Property Transfer document not found."
+
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), _("Failed to update status"))
+        return "Failed"
+
+# ################# Update & cancel booking Document #############################
+
+##On_submit
+
+@frappe.whitelist()
+def plot_master_data_transfer_document_status_update(transfer):
+    try:
+        propertyTransfer = frappe.get_doc("Property Transfer", transfer)
+        
+        if propertyTransfer.plot_no:
+            plot_master = frappe.get_doc("Plot List", propertyTransfer.plot_no)
+            
+            plot_master.client_name     = propertyTransfer.to_customer
+            plot_master.address         = propertyTransfer.to_address
+            plot_master.father_name     = propertyTransfer.to_father_name
+            plot_master.cnic            = propertyTransfer.to_cnic
+            plot_master.mobile_no       = propertyTransfer.to_mobile_no
+            plot_master.sales_agent     = propertyTransfer.sales_broker
+
+        if propertyTransfer.document_number:
+            Plot_booking = frappe.get_doc("Property Transfer", propertyTransfer.document_number)
+            Plot_booking.status = "Further Transferred"   
+            
+            plot_master.save()
+            Plot_booking.save()
+            frappe.db.commit()
+            
+            return "Success"
+        else:
+            return "Plot number not specified in the Plot Booking document."
+
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), _("Failed to update plot status"))
+        return "Failed"
+
+##On_Cancel
+
+@frappe.whitelist()
+def plot_master_data_transfer_document_status_update_reversal(transfer):
+    try:
+        propertyTransfer = frappe.get_doc("Property Transfer", transfer)
+        
+        if propertyTransfer.plot_no:
+            plot_master = frappe.get_doc("Plot List", propertyTransfer.plot_no)
+            
+            plot_master.client_name     = propertyTransfer.from_customer
+            plot_master.address         = propertyTransfer.from_address
+            plot_master.father_name     = propertyTransfer.from_father_name
+            plot_master.cnic            = propertyTransfer.from_cnic
+            plot_master.mobile_no       = propertyTransfer.from_mobile_no
+            plot_master.sales_agent     = propertyTransfer.from_sales_broker
+        
+        if propertyTransfer.document_number:
+            Plot_booking = frappe.get_doc("Property Transfer", propertyTransfer.document_number)
+            Plot_booking.status = "Active"
+            
+            plot_master.save()
+            Plot_booking.save()
+
+            frappe.db.commit()
+            
+            return "Success"
+        else:
+            return "Plot number not specified in the Plot Booking document."
+
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), _("Failed to update plot status"))
+        return "Failed"
+
+
+
+
+################ Get Plot & Base document data for Property Transfer ############
 
 @frappe.whitelist()
 def get_plot_no(project):
@@ -185,315 +518,3 @@ limit 5;
 """
         data = frappe.db.sql(sql_query, (doc_no), as_dict=True)
         return data
-
-################ plot_master_data_booking_document_ststus_update #####################
-
-@frappe.whitelist()
-def plot_master_data_booking_document_status_update(transfer):
-    try:
-        propertyTransfer = frappe.get_doc("Property Transfer", transfer)
-        
-        if propertyTransfer.plot_no:
-            plot_master = frappe.get_doc("Plot List", propertyTransfer.plot_no)
-            
-            plot_master.client_name     = propertyTransfer.to_customer
-            plot_master.address         = propertyTransfer.to_address
-            plot_master.father_name     = propertyTransfer.to_father_name
-            plot_master.cnic            = propertyTransfer.to_cnic
-            plot_master.mobile_no       = propertyTransfer.to_mobile_no
-            plot_master.sales_agent     = propertyTransfer.sales_broker
-
-        if propertyTransfer.document_number:
-            Plot_booking = frappe.get_doc("Plot Booking", propertyTransfer.document_number)
-            Plot_booking.status = "Property Transfer"   
-            
-            plot_master.save()
-            Plot_booking.save()
-            frappe.db.commit()
-            
-            return "Success"
-        else:
-            return "Plot number not specified in the Plot Booking document."
-
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), _("Failed to update plot status"))
-        return "Failed"
-
-
-@frappe.whitelist()
-def plot_master_data_booking_document_status_update_reversal(transfer):
-    try:
-        propertyTransfer = frappe.get_doc("Property Transfer", transfer)
-        
-        if propertyTransfer.plot_no:
-            plot_master = frappe.get_doc("Plot List", propertyTransfer.plot_no)
-            
-            plot_master.client_name     = propertyTransfer.from_customer
-            plot_master.address         = propertyTransfer.from_address
-            plot_master.father_name     = propertyTransfer.from_father_name
-            plot_master.cnic            = propertyTransfer.from_cnic
-            plot_master.mobile_no       = propertyTransfer.from_mobile_no
-            plot_master.sales_agent     = propertyTransfer.from_sales_broker
-        
-        if propertyTransfer.document_number:
-            Plot_booking = frappe.get_doc("Plot Booking", propertyTransfer.document_number)
-            Plot_booking.status = "Active"
-            
-            plot_master.save()
-            Plot_booking.save()
-
-            frappe.db.commit()
-            
-            return "Success"
-        else:
-            return "Plot number not specified in the Plot Booking document."
-
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), _("Failed to update plot status"))
-        return "Failed"
-
-
-#################### Create Journal Entry Docuemnt #############
-
-@frappe.whitelist()
-def create_journal_entry(property_transfer):
-    pt_doc = frappe.get_doc("Property Transfer", property_transfer)
-
-    company = frappe.get_doc("Company", pt_doc.company)
-    transfer_account = company.custom_default_transfer_revenue_account
-    default_receivable_account = company.default_receivable_account
-    cost_center = company.cost_center
-    
-    journal_entry = frappe.get_doc({
-        "doctype": "Journal Entry",
-        "voucher_type": "Journal Entry",
-        "voucher_no": property_transfer,
-        "posting_date": pt_doc.doc_date,
-        "user_remark": pt_doc.remarks,
-        "custom_document_number": pt_doc.name,
-        "custom_document_type": "Property Transfer",
-        "custom_plot_no": pt_doc.plot_no
-    })
-
-    # Customer Account 
-    # Debit entry 
-    if pt_doc.paid_amount > 0:
-        journal_entry.append("accounts", {
-            "account": default_receivable_account,
-            "debit_in_account_currency": pt_doc.paid_amount,
-            "party_type": "Customer",
-            "party": pt_doc.from_customer,
-            "against": pt_doc.to_customer,
-            "project": pt_doc.project,
-            "custom_plot_no": pt_doc.plot_no,
-            "cost_center": "",
-            "is_advance": 0,
-            "custom_document_number": pt_doc.name,
-            "custom_document_type": "Property Transfer"
-        })
-    # Credit entry
-        journal_entry.append("accounts", {
-            "account": default_receivable_account,
-            "credit_in_account_currency": pt_doc.paid_amount,
-            "party_type": "Customer",
-            "party": pt_doc.to_customer,
-            "against": pt_doc.from_customer,
-            "project": pt_doc.project,
-            "custom_plot_no": pt_doc.plot_no,
-            "cost_center": "",
-            "is_advance": 0,
-            "custom_document_number": pt_doc.name,
-            "custom_document_type": "Property Transfer"
-        })
-
-    # Transfer Charges
-
-    if pt_doc.transfer_charge > 0:
-        # Debit entry for transfer charge
-        for payment in pt_doc.payment_type:
-            journal_entry.append("accounts", {
-                "account": payment.ledger,
-                "debit_in_account_currency": payment.amount,
-                "against": default_receivable_account,
-                "project": pt_doc.project,
-                "custom_plot_no": pt_doc.plot_no,
-                "cost_center": "",
-                "is_advance": 0,
-                "custom_document_number": pt_doc.name,
-                "custom_document_type": "Property Transfer"
-            })
-
-        # Credit entry for transfer charge
-        journal_entry.append("accounts", {
-            "account": transfer_account,
-            "credit_in_account_currency": pt_doc.transfer_charge,
-            "against": pt_doc.from_customer,
-            "project": pt_doc.project,
-            "custom_plot_no": pt_doc.plot_no,
-            "cost_center": cost_center,
-            "is_advance": 0,
-            "custom_document_number": pt_doc.name,
-            "custom_document_type": "Property Transfer"
-        })
-
-    journal_entry.insert(ignore_permissions=True)
-    journal_entry.submit()
-
-    frappe.db.commit()
-
-    return {"message": f"Journal Entry {journal_entry.name} created successfully", "journal_entry": journal_entry.name}
-
-
-################ update the status of Property Transfer Document #####################
-
-@frappe.whitelist()
-def update_transfer_status(transfer):
-    try:
-        property_transfer = frappe.get_doc("Property Transfer", transfer)       
-        if property_transfer:
-            property_transfer.status = "Further Transferred"
-            property_transfer.save(ignore_permissions=True)
-            frappe.db.commit()
-            return "Success"
-        else:
-            return "Error: Property Transfer document not found."
-        
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), _("Failed to update status"))
-        return "Failed"
-
-
-@frappe.whitelist()
-def update_transfer_cancel_status(transfer):
-    try:
-        property_transfer = frappe.get_doc("Property Transfer", transfer)
-        if property_transfer:
-            property_transfer.status = "Active"
-            property_transfer.save(ignore_permissions=True)
-            frappe.db.commit()
-            
-            return "Success"
-        else:
-            return "Error: Property Transfer document not found."
-
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), _("Failed to update status"))
-        return "Failed"
-
-# ################# Update & cancel booking Document #############################
-
-@frappe.whitelist()
-def plot_master_data_transfer_document_status_update(transfer):
-    try:
-        propertyTransfer = frappe.get_doc("Property Transfer", transfer)
-        
-        if propertyTransfer.plot_no:
-            plot_master = frappe.get_doc("Plot List", propertyTransfer.plot_no)
-            
-            plot_master.client_name     = propertyTransfer.to_customer
-            plot_master.address         = propertyTransfer.to_address
-            plot_master.father_name     = propertyTransfer.to_father_name
-            plot_master.cnic            = propertyTransfer.to_cnic
-            plot_master.mobile_no       = propertyTransfer.to_mobile_no
-            plot_master.sales_agent     = propertyTransfer.sales_broker
-
-        if propertyTransfer.document_number:
-            Plot_booking = frappe.get_doc("Property Transfer", propertyTransfer.document_number)
-            Plot_booking.status = "Further Transferred"   
-            
-            plot_master.save()
-            Plot_booking.save()
-            frappe.db.commit()
-            
-            return "Success"
-        else:
-            return "Plot number not specified in the Plot Booking document."
-
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), _("Failed to update plot status"))
-        return "Failed"
-
-
-@frappe.whitelist()
-def plot_master_data_transfer_document_status_update_reversal(transfer):
-    try:
-        propertyTransfer = frappe.get_doc("Property Transfer", transfer)
-        
-        if propertyTransfer.plot_no:
-            plot_master = frappe.get_doc("Plot List", propertyTransfer.plot_no)
-            
-            plot_master.client_name     = propertyTransfer.from_customer
-            plot_master.address         = propertyTransfer.from_address
-            plot_master.father_name     = propertyTransfer.from_father_name
-            plot_master.cnic            = propertyTransfer.from_cnic
-            plot_master.mobile_no       = propertyTransfer.from_mobile_no
-            plot_master.sales_agent     = propertyTransfer.from_sales_broker
-        
-        if propertyTransfer.document_number:
-            Plot_booking = frappe.get_doc("Property Transfer", propertyTransfer.document_number)
-            Plot_booking.status = "Active"
-            
-            plot_master.save()
-            Plot_booking.save()
-
-            frappe.db.commit()
-            
-            return "Success"
-        else:
-            return "Plot number not specified in the Plot Booking document."
-
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), _("Failed to update plot status"))
-        return "Failed"
-
-@frappe.whitelist()
-def check_accounting_period(doc_date):
-    try:
-        sql_query = """
-            SELECT closed
-            FROM `tabAccounting Period` AS tap
-            LEFT JOIN `tabClosed Document` AS tcd ON tcd.parent = tap.name
-            WHERE tcd.document_type = 'Journal Entry' 
-                AND MONTH(tap.end_date) = MONTH(%s) 
-                AND YEAR(tap.end_date) = YEAR(%s)
-                LIMIT 1;
-        """
-        result = frappe.db.sql(sql_query, doc_date, as_dict=True)
-
-        if not result:
-            return {'is_open': None}
-
-        return {'is_open': result[0]['closed']}
-    except Exception as e:
-        frappe.log_error(f"Error getting in period: {str(e)}")
-        return {'is_open': None}
-
-
-
-
-# from frappe import _
-
-class PropertyTransfer(Document):
-    pass
-
-#     def before_insert(self):
-#         self.validate_plot_no()
-
-#     def validate_plot_no(self):
-#         if not self.plot_no and self.docstatus == 0:
-#             frappe.throw(_("Please enter a plot number before saving the document."))
-
-#         # Use Frappe's ORM to check if any other document with the same plot_no is in draft state
-#         existing_draft_doc = frappe.get_all(
-#             "Re-Purchase or Cancel",
-#             filters={"plot_no": self.plot_no, "docstatus": 0},
-#             limit=1,
-#         )
-
-#         if existing_draft_doc:
-#             frappe.throw(_("Another document with the same plot number is in draft state."))
-
-
-
-
-    
