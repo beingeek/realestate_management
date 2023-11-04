@@ -36,7 +36,8 @@
   "mobile_no",
   "sales_agent",
   "connection",
-  "amended_from"
+  "amended_from",
+  "title"
  ],
  "fields": [
   {
@@ -225,6 +226,14 @@
    "label": "Property status",
    "options": "Available\nBooked",
    "read_only": 1
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Title",
+   "print_hide": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -255,7 +264,7 @@
    "link_fieldname": "bill_no"
   }
  ],
- "modified": "2023-10-28 12:00:51.377217",
+ "modified": "2023-11-04 20:18:34.838000",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot List",
@@ -287,9 +296,11 @@
    "write": 1
   }
  ],
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
+ "title_field": "title",
  "track_changes": 1,
  "track_seen": 1
 }
