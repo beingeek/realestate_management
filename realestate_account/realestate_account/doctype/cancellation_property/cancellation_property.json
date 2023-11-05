@@ -10,14 +10,17 @@
   "property_information_tab",
   "property_information_section",
   "doc_date",
-  "document_type",
-  "base_doc_date",
-  "column_break_2ef7h",
-  "project",
   "document_number",
-  "column_break_snpnl",
+  "document_type",
+  "column_break_vvps",
+  "project",
   "plot_no",
-  "base_doc_total",
+  "column_break_2ef7h",
+  "sales_amount",
+  "deduction",
+  "column_break_snpnl",
+  "received_amount",
+  "final_payment",
   "customer_information_section",
   "customer",
   "address",
@@ -27,21 +30,15 @@
   "column_break_dzefc",
   "cnic",
   "sales_broker",
-  "payment_information_section",
-  "total_paid_amount",
-  "column_break_c3l3c",
-  "deduction",
-  "column_break_sa0aq",
-  "final_payment",
   "section_break_3psyl",
   "payment_type",
   "remarks_section",
   "remarks",
-  "company",
   "column_break_0nsw8",
+  "company",
   "column_break_nszkl",
-  "connection",
-  "amended_from"
+  "amended_from",
+  "connection"
  ],
  "fields": [
   {
@@ -61,12 +58,6 @@
    "hidden": 1,
    "label": "Document Type",
    "options": "DocType"
-  },
-  {
-   "fieldname": "base_doc_date",
-   "fieldtype": "Date",
-   "label": "Previous Doc. Date",
-   "read_only": 1
   },
   {
    "fieldname": "column_break_2ef7h",
@@ -102,14 +93,6 @@
    "in_standard_filter": 1,
    "label": "Plot No",
    "options": "Plot List",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
-   "fieldname": "base_doc_total",
-   "fieldtype": "Currency",
-   "label": "Previous Doc Total",
-   "non_negative": 1,
    "read_only": 1,
    "reqd": 1
   },
@@ -169,32 +152,11 @@
    "read_only": 1
   },
   {
-   "fieldname": "payment_information_section",
-   "fieldtype": "Section Break",
-   "label": "Payment Information"
-  },
-  {
-   "fieldname": "total_paid_amount",
-   "fieldtype": "Currency",
-   "label": "Total Paid Amount",
-   "non_negative": 1,
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_c3l3c",
-   "fieldtype": "Column Break"
-  },
-  {
    "depends_on": "eval:(doc.total_paid_amount !== 0)",
    "fieldname": "deduction",
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Deduction"
-  },
-  {
-   "fieldname": "column_break_sa0aq",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "final_payment",
@@ -206,8 +168,11 @@
    "reqd": 1
   },
   {
+   "collapsible": 1,
    "fieldname": "section_break_3psyl",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "hide_border": 1,
+   "label": "Payment Type"
   },
   {
    "fieldname": "payment_type",
@@ -262,12 +227,32 @@
   {
    "fieldname": "column_break_nszkl",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_vvps",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sales_amount",
+   "fieldtype": "Currency",
+   "label": "Sales Amount",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "received_amount",
+   "fieldtype": "Currency",
+   "label": "Received Amount",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-10-29 02:25:46.033690",
+ "modified": "2023-11-05 22:55:28.168320",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Cancellation Property",
