@@ -1,85 +1,37 @@
- 
+
 frappe.ui.form.on('Property Transfer', {
-    onload: function (frm) {
-        frm.toggle_display(['generate_installment'], frm.doc.__islocal);
+    project_name: function(frm) {
+        var project_name = frm.doc.project_name;
+        if (!frm.doc.project_name) {
+            frappe.throw(__("Please select a project."));
+            return;
+        }
+        if (frm.prompt_opened) {
+            return;
+        }
+
+        frm.cscript.project_name = function(doc) {
+            if (doc.project_name !== project_name) {
+                frm.prompt_opened = false;
+            }
+        };
+        frm.prompt_opened = true;
+        frappe.prompt({
+            label: __("Select Available Plot"),
+            fieldname: 'selected_plot',
+            fieldtype: "Link",
+            options: "Plot List",
+            get_query: () => ({
+                filters: {
+                    "status": 'Booked', 'project_name': frm.doc.project_name
+                }
+            })
+        }, (values) => {
+            frappe.model.set_value(frm.doctype, frm.docname, 'plot_no', values.selected_plot);
+            frm.prompt_opened = false;
+        }, __('Select Available Plot'));
     }
 });
-
-
-//////Get plot_no Based on Project
-
-frappe.ui.form.on('Property Transfer', {
-        project: function(frm) {
-            var project = frm.doc.project;
-            if (!project) {
-                frappe.msgprint(__("Please select a project."));
-                return;
-            }
-    
-            if (frm.dialog_opened) {
-                return;
-            }
-            frm.dialog_opened = true;
-            frm.cscript.project = function(doc) {
-                if (doc.project !== project) {
-                    frm.dialog_opened = false;
-                }
-            };   
-            frappe.call({
-                method: "realestate_account.realestate_account.doctype.property_transfer.property_transfer.get_plot_no",
-                args: {
-                    project: project,
-                },
-                callback: function(response) {
-                    if (response.message) {
-                        console.log(response);
-                        var plots_with_details = response.message;
-    
-                        if (plots_with_details.length === 0) {
-                            frm.set_value("plot_no", "");
-                            frappe.msgprint(__("No available plots found."));
-                        } else {
-                            var selectedPlotValue = null;
-                            var dialog = new frappe.ui.Dialog({
-                                title: __("Select Available Plot"),
-                                fields: [
-                                    {
-                                        label: __("Available Plots"),
-                                        fieldname: "selected_plot",
-                                        fieldtype: "Autocomplete",
-                                        options: getAllPlotOptions(), // Initially load all plot options
-                                        depends_on: 'eval:1',
-                                        onchange: function () {
-                                            selectedPlotValue = dialog.fields_dict.selected_plot.value;
-                                        },
-                                    },
-                                ],
-                                primary_action: function () {
-                                    if (selectedPlotValue) {
-                                        frappe.model.set_value(frm.doctype, frm.docname, 'plot_no', selectedPlotValue);
-                                    }
-                                    dialog.hide();
-                                    frm.dialog_opened = false;
-                                },
-                                primary_action_label: __("Select the Plot"),
-                            });
-                            function getAllPlotOptions() {
-                                return plots_with_details.map(function (plot) {
-                                    return {
-                                        value: plot.plot_no,
-                                        label: `${plot.plot_no}`,
-                                    };
-                                });
-                            }
-                            dialog.show();
-    
-                        }
-                    }
-                },
-            });
-        },
-    });
-
     cur_frm.cscript.plot_no = function(doc) {
         frappe.call({
             method: "realestate_account.realestate_account.doctype.property_transfer.property_transfer.get_previous_document_detail",
@@ -106,95 +58,12 @@ frappe.ui.form.on('Property Transfer', {
                         cur_frm.set_value("total_transfer_amount", balanceTransferAmount);
                         cur_frm.set_value("from_sales_broker", salesBroker);
                         cur_frm.set_value('from_customer', customer);
-                        cur_frm.refresh_field('from_customer');
-
-                       
+                        cur_frm.refresh_field('from_customer');              
                 }
             }
         }
     });
 }
-
-
-//////////// (update & reversal) Plot Booking document Status & Plot Master Data  ////////////////////////////////////////////////
-
-// frappe.ui.form.on('Property Transfer', {
-//     on_submit: function(frm) {
-//         if (frm.doc.document_number) {
-        
-//         let docType = frm.doc.document_type;
-        
-//         let method;
-//         if (docType === 'Plot Booking') {
-//             method = 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.plot_master_data_booking_document_status_update';
-//         } else if (docType === 'Property Transfer') {
-//             method = 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.plot_master_data_transfer_document_status_update';
-//         } else {
-//             frappe.msgprint(__('Invalid document type.'));
-//             return;
-//         }
-
-//         frappe.call({
-//             method: method,
-//             args: {
-//                 transfer:frm.doc.name
-//             },
-//             callback: function(r) {
-//                 if (!r.exc) {
-//                     if (r.message === 'Success') {
-//                         frappe.msgprint(__("Plot Master Data & Booking document status updated"));
-//                         frm.reload_doc();
-//                     } else {
-//                         frappe.msgprint(__(r.message));
-//                         frappe.validated = false;
-//                     }
-//                 } else {
-//                     frappe.msgprint(__('Failed to post the document.'));
-//                     frappe.validated = false; // Prevent document submission
-//                 }
-//             }
-//         });
-//     }
-// },
-//     after_cancel: function(frm) {
-//         if (frm.doc.document_number) {
-//             let docType = frm.doc.document_type;
-        
-//             let method;
-//             if (docType === 'Plot Booking') {
-//                 method = 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.plot_master_data_booking_document_status_update_reversal';
-//             } else if (docType === 'Property Transfer') {
-//                 method = 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.plot_master_data_transfer_document_status_update_reversal';
-//             } else {
-//                 frappe.msgprint(__('Invalid document type.'));
-//                 return;
-//             }
-
-//             frappe.call({
-//                 method: method,
-//                 args: {
-//                     transfer:frm.doc.name
-//                 },
-//                 callback: function(r) {
-//                     if (!r.exc) {
-//                         console.log(r);
-//                         if (r.message === 'Success') {
-//                             frappe.msgprint(__("Reversal of Plot Master Data & Booking document status updated"));
-//                             frm.reload_doc();
-//                         } else {
-//                             frappe.msgprint(__(r.message));
-//                             frappe.validated = false;
-//                         }
-//                     } else {
-//                         frappe.msgprint(__('Failed to post the document.'));
-//                         frappe.validated = false; // Prevent document submission
-//                     }
-//                 }
-//             });
-//         }
-//     }
-// });
-
 
 //////////////////Payment Schedule ////////////////////////////////////////////
 
