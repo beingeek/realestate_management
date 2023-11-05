@@ -68,8 +68,8 @@ class PropertyTransfer(Document):
                 & (ap.company == doc.company)
                 & (cd.closed == 1)
                 & (cd.document_type == doc.doctype)
-                & (doc.booking_date >= ap.start_date)
-                & (doc.booking_date <= ap.end_date)
+                & (doc.doc_date >= ap.start_date)
+                & (doc.doc_date <= ap.end_date)
             )
         ).run(as_dict=1)
         if accounting_period:
