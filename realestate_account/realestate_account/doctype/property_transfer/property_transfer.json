@@ -10,17 +10,16 @@
   "property_information_tab",
   "section_break_sw5bd",
   "doc_date",
-  "document_type",
-  "paid_amount",
-  "base_doc_date",
+  "document_number",
+  "reference_no",
   "column_break_b5ps8",
   "project",
-  "document_number",
-  "from_sales_broker",
-  "column_break_udnoi",
   "plot_no",
-  "base_doc_total",
-  "transfer_amount",
+  "document_type",
+  "column_break_udnoi",
+  "sales_amount",
+  "received_amount",
+  "balance_transfer",
   "transfer_from_customer",
   "from_customer",
   "from_father_name",
@@ -29,6 +28,7 @@
   "from_mobile_no",
   "column_break_mzmx1",
   "from_address",
+  "from_sales_broker",
   "transfer_to_customer_section",
   "to_customer",
   "to_father_name",
@@ -47,12 +47,12 @@
   "payment_type",
   "remarks_section",
   "remarks",
+  "amended_from",
   "column_break_zppuq",
   "status",
-  "company",
   "column_break_6il7m",
+  "company",
   "payment_type_total_amount",
-  "amended_from",
   "payment_schedule_tab",
   "payment_plan_data_input_section",
   "installment_starting_date",
@@ -130,12 +130,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "base_doc_date",
-   "fieldtype": "Date",
-   "label": " Previous Document Date",
-   "read_only": 1
-  },
-  {
    "fieldname": "column_break_udnoi",
    "fieldtype": "Column Break"
   },
@@ -146,12 +140,6 @@
    "options": "Plot List",
    "read_only": 1,
    "reqd": 1
-  },
-  {
-   "fieldname": "base_doc_total",
-   "fieldtype": "Currency",
-   "label": " Previous Document Total",
-   "read_only": 1
   },
   {
    "collapsible": 1,
@@ -497,21 +485,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "paid_amount",
-   "fieldtype": "Currency",
-   "label": "Paid Amount",
-   "non_negative": 1,
-   "read_only": 1
-  },
-  {
-   "fieldname": "transfer_amount",
-   "fieldtype": "Currency",
-   "label": "Transfer Amount Total",
-   "non_negative": 1,
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
    "depends_on": "eval:(doc.transfer_charge !==0)",
    "fieldname": "section_break_pbxz5",
    "fieldtype": "Section Break"
@@ -529,7 +502,34 @@
   {
    "fieldname": "payment_type_total_amount",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Payment Type Total"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Refernce No"
+  },
+  {
+   "fieldname": "sales_amount",
+   "fieldtype": "Currency",
+   "label": "Sales Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "received_amount",
+   "fieldtype": "Currency",
+   "label": "Received Amount",
+   "non_negative": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "balance_transfer",
+   "fieldtype": "Currency",
+   "label": "Balance Transfer",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -549,7 +549,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-10-27 22:23:52.447815",
+ "modified": "2023-11-05 21:48:09.395257",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Property Transfer",
