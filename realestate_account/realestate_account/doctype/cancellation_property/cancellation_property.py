@@ -162,9 +162,7 @@ class CancellationProperty(Document):
                 trans_doc.save()
                 frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link("Property Transfer ", trans_doc.name)))
         except Exception as e:
-            frappe.msgprint(f"Error while updating plot master Data: {str(e)}")    
-
-
+            frappe.msgprint(f"Error while updating document master Data: {str(e)}")    
 
     def remove_plot(self):
         plot_master = frappe.get_doc("Plot List", self.plot_no)
@@ -193,81 +191,51 @@ class CancellationProperty(Document):
             frappe.throw(_("Error: The selected plot is not available for booking.")) 
 
 
-
-
-
-
-#################### Get Plot #############
-
-@frappe.whitelist()
-def get_plot_no(project):
-    try:
-        sql_query = """
-                SELECT DISTINCT  x.plot_no, x.project FROM (
-                SELECT DISTINCT name, plot_no, project  FROM `tabProperty Transfer`
-                WHERE status = 'Active' and docstatus = 1
-                UNION ALL
-                SELECT DISTINCT name, plot_no, project_name as project FROM `tabPlot Booking`
-                WHERE status = 'Active'and docstatus = 1) x
-                Where x.project = %s
-                Order by x.plot_no
-        """
-        results = frappe.db.sql(sql_query, (project), as_dict=True)
-        if not results:
-            return []
-        return results
-    except Exception as e:
-        frappe.log_error(f"Error in get_available_plots: {str(e)}")
-        return []
-
 @frappe.whitelist()
 def get_previous_document_detail(plot_no):
     try:
         sql_query = """
             WITH plot_detail AS (
-    SELECT DISTINCT
-        tpt.name,
-        tpt.plot_no,
-        tpt.project,
-        'Property Transfer' as Doc_type,
-        tpt.to_customer as customer,
-        tpt.sales_broker,
-        tpt.sales_amount as sales_amount,
-        tpt.doc_date as DocDate,
-        tpt.received_amount + IFNULL((
-            SELECT SUM(total_paid_amount)
-            FROM `tabCustomer Payment` tcpr
-            WHERE tcpr.docstatus = 1
-              AND tcpr.plot_no = tpt.plot_no
-              AND tcpr.document_number = tpt.name
-        ), 0) AS received_amount
-    FROM
-        `tabProperty Transfer` tpt
-    WHERE
-        tpt.status = 'Active' AND tpt.docstatus = 1
-    UNION ALL
-    SELECT DISTINCT
-        thb.name,
-        thb.plot_no,
-        thb.project_name as project,
-        'Plot Booking' as Doc_type,
-        thb.client_name as customer,
-        thb.sales_broker,
-        thb.total_sales_amount as sales_amount,
-        thb.booking_date as DocDate,
-        IFNULL((
-            SELECT SUM(total_paid_amount)
-            FROM `tabCustomer Payment` tcpr
-            WHERE tcpr.docstatus = 1
-              AND tcpr.plot_no = thb.plot_no
-              AND tcpr.document_number = thb.name
-        ), 0) AS received_amount
-    FROM
-        `tabPlot Booking` thb
-    WHERE
-        thb.status = 'Active' AND thb.docstatus = 1
-)
-SELECT * FROM plot_detail WHERE plot_no = %s
+            SELECT DISTINCT
+                tpt.name,
+                tpt.plot_no,
+                tpt.project,
+                'Property Transfer' as Doc_type,
+                tpt.to_customer as customer,
+                tpt.sales_broker,
+                tpt.sales_amount as sales_amount,
+                tpt.received_amount + IFNULL((
+                    SELECT SUM(total_paid_amount)
+                    FROM `tabCustomer Payment` tcpr
+                    WHERE tcpr.docstatus = 1
+                    AND tcpr.plot_no = tpt.plot_no
+                    AND tcpr.document_number = tpt.name
+                ), 0) AS received_amount
+            FROM
+                `tabProperty Transfer` tpt
+            WHERE
+                tpt.status = 'Active' AND tpt.docstatus = 1
+            UNION ALL
+            SELECT DISTINCT
+                thb.name,
+                thb.plot_no,
+                thb.project_name as project,
+                'Plot Booking' as Doc_type,
+                thb.client_name as customer,
+                thb.sales_broker,
+                thb.total_sales_amount as sales_amount,
+                IFNULL((
+                    SELECT SUM(total_paid_amount)
+                    FROM `tabCustomer Payment` tcpr
+                    WHERE tcpr.docstatus = 1
+                    AND tcpr.plot_no = thb.plot_no
+                    AND tcpr.document_number = thb.name
+                ), 0) AS received_amount
+            FROM
+                `tabPlot Booking` thb
+            WHERE
+                thb.status = 'Active' AND thb.docstatus = 1)
+            SELECT * FROM plot_detail WHERE plot_no = %s
         """
         results = frappe.db.sql(sql_query, (plot_no), as_dict=True)
         if not results:
