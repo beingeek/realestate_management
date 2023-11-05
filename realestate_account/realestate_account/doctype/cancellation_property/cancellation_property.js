@@ -84,17 +84,15 @@ cur_frm.cscript.plot_no = function(doc) {
 					var name = r.message[0].name;
 					var Customer = r.message[0].customer;
 					var docType = r.message[0].Doc_type;
-					var docDate = r.message[0].DocDate;
 					var salesBroker = r.message[0].sales_broker;
-					var docTotal = r.message[0].receivable_amount;
-					var paidAmount = r.message[0].paid_amount;
+					var salesAmount = r.message[0].sales_amount;
+					var receivedAmount = r.message[0].received_amount;
 				
 					cur_frm.set_value('document_type', docType);
 					cur_frm.set_value('document_number', name);
-					cur_frm.set_value('base_doc_date', docDate);
-					cur_frm.set_value('base_doc_total', docTotal);
-					cur_frm.set_value("total_paid_amount", paidAmount);
-					cur_frm.set_value("final_payment", paidAmount);
+					cur_frm.set_value("sales_amount", salesAmount);
+					cur_frm.set_value("received_amount", receivedAmount);
+					cur_frm.set_value("final_payment", receivedAmount);
 					cur_frm.set_value("sales_broker", salesBroker);
 					cur_frm.set_value("customer", Customer);			  
 				}
@@ -110,69 +108,10 @@ frappe.ui.form.on('Cancellation Property', {
     }
 });
 function calculate_final_amount(frm) {
-    var finalAmount = frm.doc.total_paid_amount - frm.doc.deduction;
+    var finalAmount = frm.doc.received_amount - frm.doc.deduction;
     frm.set_value("final_payment", finalAmount);
 }
 
-
-/////////////////////////// update Plot master Data //////////
-
-
-frappe.ui.form.on('Cancellation Property', {
-    on_submit: function(frm) {
-        if (frm.doc.plot_no) {
-            frappe.call({
-                method: "realestate_account.realestate_account.doctype.cancellation_property.cancellation_property.plot_master_data_and_document_status_update",
-                args: {
-                    can_pro:frm.doc.name
-                },
-                callback: function(r) {
-                    if (!r.exc) {
-                        console.log(r);
-                        if (r.message === 'Success') {
-                            frappe.msgprint(__("Booking Details updated in plot master Data"));
-                            frm.reload_doc();
-                        } else {
-                            frappe.msgprint(__(r.message));
-                            frappe.validated = false;
-                        }
-                    } else {
-                        frappe.msgprint(__('Failed to post the document.'));
-                        frappe.validated = false; // Prevent document submission
-                    }
-                }
-            });
-        } 
-    }
-});
-
-frappe.ui.form.on('Cancellation Property', {
-    after_cancel: function(frm) {
-        if (frm.doc.plot_no) {
-            frappe.call({
-                method: "realestate_account.realestate_account.doctype.cancellation_property.cancellation_property.plot_master_data_and_document_status_update_reversal",
-                args: {
-                    can_pro:frm.doc.name
-                },
-                callback: function(r) {
-                    if (!r.exc) {
-                        console.log(r);
-                        if (r.message === 'Success') {
-                            frappe.msgprint(__("Booking Details remove in plot master Data"));
-                            frm.reload_doc();
-                        } else {
-                            frappe.msgprint(__(r.message));
-                            frappe.validated = false;
-                        }
-                    } else {
-                        frappe.msgprint(__('Failed to post the document.'));
-                        frappe.validated = false; // Prevent document submission
-                    }
-                }
-            });
-        } 
-    }
-});
 
 /////////////////////////// Payment Type payment ledger filter  //////////
 
