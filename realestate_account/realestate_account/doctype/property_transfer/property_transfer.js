@@ -93,19 +93,17 @@ frappe.ui.form.on('Property Transfer', {
                         var name = r.message[0].name;
                         var customer = r.message[0].customer;
                         var docType = r.message[0].Doc_type;
-                        var docDate = r.message[0].DocDate;
                         var salesBroker = r.message[0].sales_broker;
-                        var docTotal = r.message[0].receivable_amount;
-                        var paidAmount = r.message[0].paid_amount;
-                        var updateTotal = docTotal - paidAmount
-                    
+                        var salesAmount = r.message[0].sales_amount;
+                        var receivedAmount = r.message[0].received_amount;
+                        var balanceTransferAmount = salesAmount - receivedAmount
+                        
                         cur_frm.set_value('document_type', docType);
                         cur_frm.set_value('document_number', name);
-                        cur_frm.set_value('base_doc_date', docDate);
-                        cur_frm.set_value('base_doc_total', docTotal);
-                        cur_frm.set_value('paid_amount', paidAmount);
-                        cur_frm.set_value("transfer_amount", updateTotal);
-                        cur_frm.set_value("total_transfer_amount", updateTotal);
+                        cur_frm.set_value('sales_amount', salesAmount);
+                        cur_frm.set_value('received_amount', receivedAmount);
+                        cur_frm.set_value("balance_transfer", balanceTransferAmount);
+                        cur_frm.set_value("total_transfer_amount", balanceTransferAmount);
                         cur_frm.set_value("from_sales_broker", salesBroker);
                         cur_frm.set_value('from_customer', customer);
                         cur_frm.refresh_field('from_customer');
@@ -120,82 +118,82 @@ frappe.ui.form.on('Property Transfer', {
 
 //////////// (update & reversal) Plot Booking document Status & Plot Master Data  ////////////////////////////////////////////////
 
-frappe.ui.form.on('Property Transfer', {
-    on_submit: function(frm) {
-        if (frm.doc.document_number) {
+// frappe.ui.form.on('Property Transfer', {
+//     on_submit: function(frm) {
+//         if (frm.doc.document_number) {
         
-        let docType = frm.doc.document_type;
+//         let docType = frm.doc.document_type;
         
-        let method;
-        if (docType === 'Plot Booking') {
-            method = 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.plot_master_data_booking_document_status_update';
-        } else if (docType === 'Property Transfer') {
-            method = 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.plot_master_data_transfer_document_status_update';
-        } else {
-            frappe.msgprint(__('Invalid document type.'));
-            return;
-        }
+//         let method;
+//         if (docType === 'Plot Booking') {
+//             method = 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.plot_master_data_booking_document_status_update';
+//         } else if (docType === 'Property Transfer') {
+//             method = 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.plot_master_data_transfer_document_status_update';
+//         } else {
+//             frappe.msgprint(__('Invalid document type.'));
+//             return;
+//         }
 
-        frappe.call({
-            method: method,
-            args: {
-                transfer:frm.doc.name
-            },
-            callback: function(r) {
-                if (!r.exc) {
-                    if (r.message === 'Success') {
-                        frappe.msgprint(__("Plot Master Data & Booking document status updated"));
-                        frm.reload_doc();
-                    } else {
-                        frappe.msgprint(__(r.message));
-                        frappe.validated = false;
-                    }
-                } else {
-                    frappe.msgprint(__('Failed to post the document.'));
-                    frappe.validated = false; // Prevent document submission
-                }
-            }
-        });
-    }
-},
-    after_cancel: function(frm) {
-        if (frm.doc.document_number) {
-            let docType = frm.doc.document_type;
+//         frappe.call({
+//             method: method,
+//             args: {
+//                 transfer:frm.doc.name
+//             },
+//             callback: function(r) {
+//                 if (!r.exc) {
+//                     if (r.message === 'Success') {
+//                         frappe.msgprint(__("Plot Master Data & Booking document status updated"));
+//                         frm.reload_doc();
+//                     } else {
+//                         frappe.msgprint(__(r.message));
+//                         frappe.validated = false;
+//                     }
+//                 } else {
+//                     frappe.msgprint(__('Failed to post the document.'));
+//                     frappe.validated = false; // Prevent document submission
+//                 }
+//             }
+//         });
+//     }
+// },
+//     after_cancel: function(frm) {
+//         if (frm.doc.document_number) {
+//             let docType = frm.doc.document_type;
         
-            let method;
-            if (docType === 'Plot Booking') {
-                method = 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.plot_master_data_booking_document_status_update_reversal';
-            } else if (docType === 'Property Transfer') {
-                method = 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.plot_master_data_transfer_document_status_update_reversal';
-            } else {
-                frappe.msgprint(__('Invalid document type.'));
-                return;
-            }
+//             let method;
+//             if (docType === 'Plot Booking') {
+//                 method = 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.plot_master_data_booking_document_status_update_reversal';
+//             } else if (docType === 'Property Transfer') {
+//                 method = 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.plot_master_data_transfer_document_status_update_reversal';
+//             } else {
+//                 frappe.msgprint(__('Invalid document type.'));
+//                 return;
+//             }
 
-            frappe.call({
-                method: method,
-                args: {
-                    transfer:frm.doc.name
-                },
-                callback: function(r) {
-                    if (!r.exc) {
-                        console.log(r);
-                        if (r.message === 'Success') {
-                            frappe.msgprint(__("Reversal of Plot Master Data & Booking document status updated"));
-                            frm.reload_doc();
-                        } else {
-                            frappe.msgprint(__(r.message));
-                            frappe.validated = false;
-                        }
-                    } else {
-                        frappe.msgprint(__('Failed to post the document.'));
-                        frappe.validated = false; // Prevent document submission
-                    }
-                }
-            });
-        }
-    }
-});
+//             frappe.call({
+//                 method: method,
+//                 args: {
+//                     transfer:frm.doc.name
+//                 },
+//                 callback: function(r) {
+//                     if (!r.exc) {
+//                         console.log(r);
+//                         if (r.message === 'Success') {
+//                             frappe.msgprint(__("Reversal of Plot Master Data & Booking document status updated"));
+//                             frm.reload_doc();
+//                         } else {
+//                             frappe.msgprint(__(r.message));
+//                             frappe.validated = false;
+//                         }
+//                     } else {
+//                         frappe.msgprint(__('Failed to post the document.'));
+//                         frappe.validated = false; // Prevent document submission
+//                     }
+//                 }
+//             });
+//         }
+//     }
+// });
 
 
 //////////////////Payment Schedule ////////////////////////////////////////////
@@ -281,8 +279,7 @@ frappe.ui.form.on('Property Transfer', {
             var totalHalfYearlyInstallment          = 0
             var totalYearlyInstallment              = 0
             var totalInstallmentAmount              = 0
-            var difference                          = 0
-            
+            var difference                          = 0            
             var quarterlyInstallmentCounter         = 1; 
             var halfYearlyInstallmentCounter        = 1; 
             var yearlyInstallmentCounter            = 1; 
@@ -473,8 +470,6 @@ frappe.ui.form.on("Payment Type", {
         frm.refresh_field('payment_type_total_amount');
     }
 });
-
-
 
 frappe.ui.form.on("Property Transfer", {
     refresh: function(frm) {
