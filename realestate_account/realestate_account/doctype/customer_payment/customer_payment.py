@@ -146,29 +146,6 @@ class CustomerPayment(Document):
             frappe.msgprint(_('Journal Entry {0} created successfully').format(frappe.get_desk_link("Journal Entry", journal_entry.name)))
             
 
-
-
-@frappe.whitelist()
-def get_plot_no(project):
-    try:
-        sql_query = """
-                SELECT DISTINCT  x.plot_no, x.project FROM (
-                SELECT DISTINCT name, plot_no, project  FROM `tabProperty Transfer`
-                WHERE status = 'Active' and docstatus = 1
-                UNION ALL
-                SELECT DISTINCT name, plot_no, project_name as project FROM `tabPlot Booking`
-                WHERE status = 'Active'and docstatus = 1) x
-                Where x.project = %s
-                Order by x.plot_no
-        """
-        results = frappe.db.sql(sql_query, (project), as_dict=True)
-        if not results:
-            return []
-        return results
-    except Exception as e:
-        frappe.log_error(f"Error in get_available_plots: {str(e)}")
-        return []
-
 @frappe.whitelist()
 def get_plot_detail(plot_no):
     try:
@@ -269,7 +246,7 @@ def get_installment_list_from_booking(doc_no):
                     d.date ASC ) x
             WHERE 
                 x.receivable_amount <> 0
-            ORDER BY x.date
+            ORDER BY x.idx
             limit 5;
 
         """
@@ -322,7 +299,7 @@ def get_installment_list_from_transfer(doc_no):
                     d.date ASC ) x
             WHERE 
                 x.receivable_amount <> 0
-            ORDER BY x.date
+            ORDER BY x.idx
             limit 5;
         """
         results = frappe.db.sql(sql_query, (doc_no), as_dict=True)
