@@ -10,12 +10,15 @@ class CancellationProperty(Document):
         self.validate_doc_date()
         self.validate_Check_customer_plot_master_data()
         self.validate_acounting_period()
+        self.validate_deduction_amount()
         
     def on_submit(self):
-        try:
-            self.make_gl_entries()
-        except Exception as e:
-            frappe.msgprint(f"Error while making GL entries: {str(e)}")
+        self.make_gl_entries()
+        self.update_plot_master()
+        self.update_booking_document()
+    
+    def on_cancel(self):
+        self.remove_plot()
 
     def validate_doc_date(self):
         if self.doc_date:
@@ -30,6 +33,15 @@ class CancellationProperty(Document):
             if client_name != self.customer:
                 frappe.msgprint('The master data customer does not match the payment customer')
                 frappe.throw('Validation Error: Customer mismatch')
+
+    def validate_deduction_amount(self):
+        if self.deduction != 0:
+            total_payment_amount = 0
+            for payment in self.payment_type:
+                total_payment_amount += payment.amount
+
+            if self.deduction != total_payment_amount:
+                frappe.throw('Total deduction amount must be equal to the sum of payment type amounts')
     
     def validate_acounting_period(self):
         sql_query = """
@@ -41,7 +53,7 @@ class CancellationProperty(Document):
             AND YEAR(tap.end_date) = YEAR(%s)
             LIMIT 1;
         """
-        result = frappe.db.sql(sql_query, (self.payment_date, self.payment_date), as_dict=True)
+        result = frappe.db.sql(sql_query, (self.doc_date, self.doc_date), as_dict=True)
         if not result:
             return {'is_open': None}
         if result[0]['closed'] == 1:
@@ -49,151 +61,139 @@ class CancellationProperty(Document):
         return {'is_open': 1}
 
     def make_gl_entries(self):
-        if self.total_paid_amount != 0:
+        try:
+            if self.received_amount != 0:
+                company = frappe.defaults.get_user_default("Company")
+                default_receivable_account = frappe.get_value("Company", company, "default_receivable_account")
+                
+                deductionAccount = frappe.db.get_single_value("Real Estate Settings", "default_transfer_revenue_account")
+                if not deductionAccount:
+                    frappe.throw('Please set Default deduction Account in Real Estate Settings')
+                cost_center = frappe.db.get_single_value("Real Estate Settings", "cost_center")
+                if not cost_center:
+                    frappe.throw('Please set Cost Centre in Real Estate Settings')
+        
+                journal_entry = frappe.get_doc({
+                    "doctype": "Journal Entry",
+                    "voucher_type": "Journal Entry",
+                    "voucher_no": self.name,
+                    "posting_date": self.doc_date,
+                    "user_remark": self.remarks,
+                    "custom_plot_no": self.plot_no,
+                    "custom_document_number": self.name,
+                    "custom_document_type": "Cancellation Property"
+                })
 
-            company = frappe.defaults.get_user_default("Company")
-            deductionAccount = company.custom_default_deduction_revenue_account
-            default_receivable_account = company.default_receivable_account
-            cost_center = company.cost_center
-            
-            journal_entry = frappe.get_doc({
-                "doctype": "Journal Entry",
-                "voucher_type": "Journal Entry",
-                "voucher_no": self.name,
-                "posting_date": self.doc_date,
-                "user_remark": self.remarks,
-                "custom_plot_no": self.plot_no,
-                "custom_document_number": self.name,
-                "custom_document_type": "Cancellation Property"
-            })
+                for payment in self.payment_type:
+                    journal_entry.append("accounts", {
+                        "account": payment.ledger,
+                        "credit_in_account_currency": payment.amount,
+                        "against": default_receivable_account,
+                        "project": self.project,
+                        "custom_plot_no": self.plot_no,
+                        "bank_account":payment.bank_account,
+                        "cost_center": "",
+                        "is_advance": 0,
+                        "custom_document_number": self.name,
+                        "custom_document_type":"Cancellation Property"
+                    })
 
-            # Credit entry (Cash/Bank)
-            for payment in self.payment_type:
                 journal_entry.append("accounts", {
-                    "account": payment.ledger,
-                    "credit_in_account_currency": payment.amount,
-                    "against": default_receivable_account,
+                    "account": deductionAccount,
+                    "credit_in_account_currency": self.final_payment,
+                    "against": self.customer,
                     "project": self.project,
                     "custom_plot_no": self.plot_no,
-                    "bank_account":payment.bank_account,
+                    "cost_center": cost_center,
+                    "is_advance": 0,
+                    "custom_document_number": self.name,
+                    "custom_document_type": "Cancellation Property"
+                })
+
+                journal_entry.append("accounts", {
+                    "account": default_receivable_account,
+                    "debit_in_account_currency": self.received_amount,
+                    "party_type": "Customer",
+                    "party": self.customer,
+                    "project": self.project,
+                    "custom_plot_no": self.plot_no,
                     "cost_center": "",
                     "is_advance": 0,
                     "custom_document_number": self.name,
-                    "custom_document_type":"Cancellation Property"
+                    "custom_document_type": "Cancellation Property"
                 })
 
-            #Credit Entry (Income)
-            journal_entry.append("accounts", {
-                "account": deductionAccount,
-                "credit_in_account_currency": self.deduction,
-                "against": self.customer,
-                "project": self.project,
-                "custom_plot_no": self.plot_no,
-                "cost_center": cost_center,
-                "is_advance": 0,
-                "custom_document_number": self.name,
-                "custom_document_type": "Cancellation Property"
-            })
+                journal_entry.insert(ignore_permissions=True)
+                journal_entry.submit()
 
-            #Debit Entry (Customer)
-            journal_entry.append("accounts", {
-                "account": default_receivable_account,
-                "debit_in_account_currency": self.total_paid_amount,
-                "party_type": "Customer",
-                "party": self.customer,
-                "project": self.project,
-                "custom_plot_no": self.plot_no,
-                "cost_center": "",
-                "is_advance": 0,
-                "custom_document_number": self.name,
-                "custom_document_type": "Cancellation Property"
-            })
+                frappe.db.commit()
+                frappe.msgprint(_('Journal Entry {0} created successfully').format(frappe.get_desk_link("Journal Entry", journal_entry.name)))
+        except Exception as e:
+            frappe.msgprint(f"Error while making GL entries: {str(e)}")
 
-            journal_entry.insert(ignore_permissions=True)
-            journal_entry.submit()
-
-            frappe.db.commit()
-
-            return {"message": f"Journal Entry {journal_entry.name} created successfully", "journal_entry": journal_entry.name}
-
-
-################ plot_master_data_update_&_document_ststus_update #####################
-
-@frappe.whitelist()
-def plot_master_data_and_document_status_update(can_pro):
-    try:
-        propertyTransfer = frappe.get_doc("Cancellation Property", can_pro)
-        
-        if propertyTransfer.plot_no:
-            plot_master = frappe.get_doc("Plot List", propertyTransfer.plot_no)
-            
-            plot_master.status          = "Available"
-            plot_master.client_name     = ""
-            plot_master.address         = ""
-            plot_master.father_name     = ""
-            plot_master.cnic            = ""
-            plot_master.mobile_no       = ""
-            plot_master.sales_agent     = ""
+    def update_plot_master(self):
+        try:
+            plot_master = frappe.get_doc("Plot List", self.plot_no)
+            plot_master.update({
+                    'status'        : "Available", 
+                    'client_name'   : "", 
+                    'address'       : "",
+                    'mobile_no'     : "", 
+                    'sales_agent'   : "",
+                    'father_name'   : "", 
+                    'cnic'          : "",
+                })
             plot_master.save()
+            frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link('Plot List', plot_master.name)))
+        except Exception as e:
+            frappe.msgprint(f"Error while updating plot master Data: {str(e)}")
 
-        if propertyTransfer.document_type == "Plot Booking" and propertyTransfer.document_number:
-            booking_doc = frappe.get_doc("Plot Booking", propertyTransfer.document_number)
-            booking_doc.status = "Cancel"
-            booking_doc.save()
-
-        elif propertyTransfer.document_type == "Property Transfer" and propertyTransfer.document_number:
-            transfer_doc = frappe.get_doc("Property Transfer", propertyTransfer.document_number)
-            transfer_doc.status = "Cancel"
-            transfer_doc.save()
-
-            frappe.db.commit()
-        return "Success"
-
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), _("Failed to update plot status"))
-        return "Failed"
-
-
-@frappe.whitelist()
-def plot_master_data_and_document_status_update_reversal(can_pro):
-    try:
-        cancelProperty = frappe.get_doc("Cancellation Property", can_pro)
-        
-        if cancelProperty.plot_no:
-            plot_master = frappe.get_doc("Plot List", cancelProperty.plot_no)
-            
-            if plot_master.status == "Booked" and plot_master.hold_for_sale == 0:
-                frappe.throw(_("Cannot proceed. The plot is Booked or hold for sale."))
-
-            plot_master.status          = "Booked"
-            plot_master.client_name     = cancelProperty.customer 
-            plot_master.address         = cancelProperty.address
-            plot_master.father_name     = cancelProperty.father_name
-            plot_master.cnic            = cancelProperty.cnic
-            plot_master.mobile_no       = cancelProperty.contact_no
-            plot_master.sales_agent     = cancelProperty.sales_broker
-
-            plot_master.save()
-
-            if cancelProperty.document_type == "Plot Booking" and cancelProperty.document_number:
-                booking_doc = frappe.get_doc("Plot Booking", cancelProperty.document_number)
-                booking_doc.status = "Active"
+    def update_booking_document(self):
+        try:
+            if self.document_type == "Plot Booking":
+                booking_doc = frappe.get_doc("Plot Booking", self.document_number)
+                booking_doc.update({'status' : "Cancel"})
                 booking_doc.save()
+                frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link('Plot Booking ', booking_doc.name)))
 
-            elif cancelProperty.document_type == "Property Transfer" and cancelProperty.document_number:
-                transfer_doc = frappe.get_doc("Property Transfer", cancelProperty.document_number)
-                transfer_doc.status = "Active"
-                transfer_doc.save()
+            if self.document_type == "Property Transfer":
+                trans_doc = frappe.get_doc("Property Transfer", self.document_number)
+                trans_doc.update({'status' : "Cancel"})
+                trans_doc.save()
+                frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link("Property Transfer ", trans_doc.name)))
+        except Exception as e:
+            frappe.msgprint(f"Error while updating plot master Data: {str(e)}")    
 
-            frappe.db.commit()
-        return "Success"
 
-    except frappe.ValidationError as e:
-        return str(e)
 
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), _("Failed to update plot status"))
-        return "Failed"
+    def remove_plot(self):
+        plot_master = frappe.get_doc("Plot List", self.plot_no)
+        if plot_master.status == "Available" and plot_master.hold_for_sale == 0:
+            
+            plot_master.update({
+                'status': "Booked", 'client_name': self.customer, 'address': self.address,
+                'mobile_no': self.contact_no, 'sales_agent': self.sales_broker,
+                'father_name': self.father_name, 'cnic': self.cnic,
+            })
+            plot_master.save()
+            frappe.msgprint(_('{0} booked successfully').format(frappe.get_desk_link('Plot List', plot_master.name)))
+            
+            if self.document_type == "Property Transfer":
+                trans_doc = frappe.get_doc("Property Transfer", self.document_number)
+                trans_doc.update({'status' : "Active"})
+                trans_doc.save()
+                frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link("Property Transfer ", trans_doc.name)))
+            
+            if self.document_type == "Plot Booking":
+                booking_doc = frappe.get_doc("Plot Booking", self.document_number)
+                booking_doc.update({'status' : "Active"})
+                booking_doc.save()
+                frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link('Plot Booking ', booking_doc.name)))
+        else:
+            frappe.throw(_("Error: The selected plot is not available for booking.")) 
+
+
+
 
 
 
@@ -232,15 +232,15 @@ def get_previous_document_detail(plot_no):
         'Property Transfer' as Doc_type,
         tpt.to_customer as customer,
         tpt.sales_broker,
-        tpt.total_transfer_amount as receivable_amount,
+        tpt.sales_amount as sales_amount,
         tpt.doc_date as DocDate,
-        tpt.paid_amount + IFNULL((
+        tpt.received_amount + IFNULL((
             SELECT SUM(total_paid_amount)
             FROM `tabCustomer Payment` tcpr
             WHERE tcpr.docstatus = 1
               AND tcpr.plot_no = tpt.plot_no
               AND tcpr.document_number = tpt.name
-        ), 0) AS paid_amount
+        ), 0) AS received_amount
     FROM
         `tabProperty Transfer` tpt
     WHERE
@@ -253,7 +253,7 @@ def get_previous_document_detail(plot_no):
         'Plot Booking' as Doc_type,
         thb.client_name as customer,
         thb.sales_broker,
-        thb.total_sales_amount as receivable_amount,
+        thb.total_sales_amount as sales_amount,
         thb.booking_date as DocDate,
         IFNULL((
             SELECT SUM(total_paid_amount)
@@ -261,7 +261,7 @@ def get_previous_document_detail(plot_no):
             WHERE tcpr.docstatus = 1
               AND tcpr.plot_no = thb.plot_no
               AND tcpr.document_number = thb.name
-        ), 0) AS paid_amount
+        ), 0) AS received_amount
     FROM
         `tabPlot Booking` thb
     WHERE
