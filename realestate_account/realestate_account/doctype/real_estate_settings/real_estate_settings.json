@@ -7,7 +7,10 @@
  "field_order": [
   "section_break_bnny",
   "commission_item",
-  "cost_center"
+  "cost_center",
+  "column_break_xaws",
+  "default_deduction_revenue_account",
+  "default_transfer_revenue_account"
  ],
  "fields": [
   {
@@ -25,12 +28,28 @@
    "fieldtype": "Link",
    "label": "Default Cost Center",
    "options": "Cost Center"
+  },
+  {
+   "fieldname": "column_break_xaws",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_deduction_revenue_account",
+   "fieldtype": "Link",
+   "label": "Default Deduction Revenue Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "default_transfer_revenue_account",
+   "fieldtype": "Link",
+   "label": "Default Transfer Revenue Account",
+   "options": "Account"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-11-04 11:36:18.027053",
+ "modified": "2023-11-05 13:40:07.658943",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Real Estate Settings",
