@@ -5,7 +5,6 @@ frappe.ui.form.on("Customer Payment", {
     }
 });
 
-
 frappe.ui.form.on('Customer Payment', {
     project_name: function(frm) {
             var project_name = frm.doc.project_name;
