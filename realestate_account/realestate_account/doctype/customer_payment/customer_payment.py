@@ -1,5 +1,6 @@
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 from frappe.utils import today, getdate
 
@@ -142,7 +143,8 @@ class CustomerPayment(Document):
             journal_entry.submit()
 
             frappe.db.commit()
-            frappe.msgprint(f"Journal Entry {journal_entry.name} created successfully")
+            frappe.msgprint(_('Journal Entry {0} created successfully').format(frappe.get_desk_link("Journal Entry", journal_entry.name)))
+            
 
 
 
@@ -186,7 +188,7 @@ def get_plot_detail(plot_no):
                     FROM `tabCustomer Payment` tcp
                     where tcp.document_number = x.name and tcp.docstatus = 1), 0) +
                 IFNULL((SELECT  
-                    SUM(COALESCE(tpt.paid_amount, 0)) 
+                    SUM(COALESCE(tpt.received_amount, 0)) 
                     FROM `tabProperty Transfer` tpt
                 WHERE tpt.name = x.name AND docstatus = 1),0) as received_amount
                 FROM (
@@ -210,7 +212,7 @@ def get_plot_detail(plot_no):
                     'Property Transfer' as Doc_type, 
                     to_customer as customer, 
                     sales_broker, 
-                    total_transfer_amount + paid_amount as sales_amount, 
+                    sales_amount as sales_amount,
                     doc_date as DocDate,
                     to_address AS address 
                 FROM `tabProperty Transfer`
