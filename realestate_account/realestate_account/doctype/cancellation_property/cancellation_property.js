@@ -1,83 +1,44 @@
 
 frappe.ui.form.on('Cancellation Property', {
-	project: function(frm) {
-		var project = frm.doc.project;
-		if (!project) {
-			frappe.msgprint(__("Please select a project."));
-			return;
-		}
+    project_name: function(frm) {
+        var project_name = frm.doc.project_name;
+        if (!frm.doc.project_name) {
+            frappe.throw(__("Please select a project."));
+            return;
+        }
+        if (frm.prompt_opened) {
+            return;
+        }
 
-		if (frm.dialog_opened) {
-			return;
-		}
-		frm.dialog_opened = true;
-		frm.cscript.project = function(doc) {
-			if (doc.project !== project) {
-				frm.dialog_opened = false;
-			}
-		};   
-		frappe.call({
-			method: "realestate_account.realestate_account.doctype.cancellation_property.cancellation_property.get_plot_no",
-			args: {
-				project: project,
-			},
-			callback: function(response) {
-				if (response.message) {
-					console.log(response);
-					var plots_with_details = response.message;
-
-					if (plots_with_details.length === 0) {
-						frm.set_value("plot_no", "");
-						frappe.msgprint(__("No available plots found."));
-					} else {
-						var selectedPlotValue = null;
-						var dialog = new frappe.ui.Dialog({
-							title: __("Select Available Plot"),
-							fields: [
-								{
-									label: __("Available Plots"),
-									fieldname: "selected_plot",
-									fieldtype: "Autocomplete",
-									options: getAllPlotOptions(), // Initially load all plot options
-									depends_on: 'eval:1',
-									onchange: function () {
-										selectedPlotValue = dialog.fields_dict.selected_plot.value;
-									},
-								},
-							],
-							primary_action: function () {
-								if (selectedPlotValue) {
-									frappe.model.set_value(frm.doctype, frm.docname, 'plot_no', selectedPlotValue);
-								}
-								dialog.hide();
-								frm.dialog_opened = false;
-							},
-							primary_action_label: __("Select the Plot"),
-						});
-						function getAllPlotOptions() {
-							return plots_with_details.map(function (plot) {
-								return {
-									value: plot.plot_no,
-									label: `${plot.plot_no}`,
-								};
-							});
-						}
-						dialog.show();
-
-					}
-				}
-			},
-		});
-	},
+        frm.cscript.project_name = function(doc) {
+            if (doc.project_name !== project_name) {
+                frm.prompt_opened = false;
+            }
+        };
+        frm.prompt_opened = true;
+        frappe.prompt({
+            label: __("Select Available Plot"),
+            fieldname: 'selected_plot',
+            fieldtype: "Link",
+            options: "Plot List",
+            get_query: () => ({
+                filters: {
+                    "status": 'Booked', 'project_name': frm.doc.project_name
+                }
+            })
+        }, (values) => {
+            frappe.model.set_value(frm.doctype, frm.docname, 'plot_no', values.selected_plot);
+            frm.prompt_opened = false;
+        }, __('Select Available Plot'));
+    }
 });
-
-cur_frm.cscript.plot_no = function(doc) {
-	frappe.call({
-		method: "realestate_account.realestate_account.doctype.cancellation_property.cancellation_property.get_previous_document_detail",
-		args: {
-			plot_no: doc.plot_no
-		},
-		callback: function(r) {
+	cur_frm.cscript.plot_no = function(doc) {
+		frappe.call({
+			method: "realestate_account.realestate_account.doctype.cancellation_property.cancellation_property.get_previous_document_detail",
+			args: {
+				plot_no: doc.plot_no
+			},
+			callback: function(r) {
 			console.log(r)
 			if (!r.exc && r.message && r.message.length > 0) {
 				if (!r.exc && r.message && r.message.length > 0) {
@@ -100,7 +61,6 @@ cur_frm.cscript.plot_no = function(doc) {
 		}
 	});
 }
-
 
 frappe.ui.form.on('Cancellation Property', {
     deduction: function(frm) {
