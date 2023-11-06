@@ -204,7 +204,6 @@ def get_plot_detail(plot_no):
         frappe.log_error(f"Error in get_available_plots: {str(e)}")
         return []
 
-
 @frappe.whitelist()
 def get_installment_list_from_booking(doc_no):
     try:
@@ -248,7 +247,6 @@ def get_installment_list_from_booking(doc_no):
                 x.receivable_amount <> 0
             ORDER BY x.idx
             limit 5;
-
         """
         results = frappe.db.sql(sql_query, (doc_no), as_dict=True)
         if not results:
