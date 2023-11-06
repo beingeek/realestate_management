@@ -86,18 +86,6 @@ function calculateEndingDate(frm) {
     }
 }
 
-frappe.ui.form.on('Property Transfer', {
-    adjustment: function(frm) {
-        calculate_transfer_amount(frm);
-    }
-});
-
-function calculate_transfer_amount(frm) {
-    var totalTransferAmount = frm.doc.base_doc_total + frm.doc.adjustment;
-    frm.set_value("total_transfer_amount", totalTransferAmount);
-    frm.set_value("transfer_amount", totalTransferAmount);
-}
-
 frappe.ui.form.on('Plot Booking', {
     total_transfer_amount: function(frm) {
         calculateDifference(frm);
@@ -113,15 +101,19 @@ function calculateDifference(frm) {
     
     frm.set_value('difference',difference)
     frm.refresh_field('difference');
-    
 }
 
+
 frappe.ui.form.on('Property Transfer', {
+    refresh: function (frm) {
+        frm.add_custom_button(
+            __("Generate Installments"),
+            function () {
+                frm.trigger("generate_installment");
+            },
+        ).addClass("btn-primary");
+    },
     generate_installment: function(frm) {
-        frm.fields_dict['generate_installment'].$input.css({
-            'background-color': 'blue',
-            'color': 'white'
-        });
             var numberOfMonth           = frm.doc.no_of_month_plan;
             var startDate               = frm.doc.installment_starting_date;
             var bookingDate             = frm.doc.doc_date;
@@ -313,7 +305,6 @@ frappe.ui.form.on("Installment Payment Plan", {
     }
 });
 
-
 /////////////////////////////////// Payment Type //////////////////////////////////////////////
 
 frappe.ui.form.on("Payment Type", "amount", function(frm, cdt, cdn) {
@@ -326,7 +317,6 @@ frappe.ui.form.on("Payment Type", "amount", function(frm, cdt, cdn) {
     frm.doc.payment_type_total_amount = total;
     frm.refresh_field('payment_type_total_amount');
 });
-
 
 frappe.ui.form.on("Payment Type", {
     payment_type_remove: function(frm) {
@@ -363,5 +353,3 @@ frappe.ui.form.on("Property Transfer", {
     }
 });
  
-
-
