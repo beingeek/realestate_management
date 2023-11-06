@@ -93,6 +93,9 @@ class PlotBooking(Document):
         plot_master.save()
         frappe.msgprint(_('{0} unbooked').format(frappe.get_desk_link('Plot List', plot_master.name)))
 
+    def before_insert(self):
+        if self.status != 'Active':
+            frappe.throw(_('The booking status should be Active'))
 
 def validate_accounting_period_open(doc, method=None):
     ap = frappe.qb.DocType("Accounting Period")
@@ -116,3 +119,5 @@ def validate_accounting_period_open(doc, method=None):
             doc.doctype, frappe.bold(accounting_period[0]["name"]),
             ClosedAccountingPeriod
         ))
+
+    
