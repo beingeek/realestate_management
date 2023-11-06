@@ -39,35 +39,36 @@ class PlotBooking(Document):
             frappe.throw(_('Amount of Installment Total and Grand Total is not matched'))
 
     def create_invoice(self):
-        company = frappe.get_doc("Company", self.company)
-        company_default_cost_center = frappe.db.get_value("Company", self.company, 'cost_center')
-        realestate_default_cost_center = frappe.db.get_single_value("Real Estate Settings", "cost_center")
-        default_cost_center = realestate_default_cost_center or company_default_cost_center
-        default_commission_item = frappe.db.get_single_value("Real Estate Settings", "commission_item")
-        if not default_commission_item:
-            frappe.throw('Please set Commission Item in Real Estate Settings')
+        if flt(self.commission_amount) > 0.0:
+            company = frappe.get_doc("Company", self.company)
+            company_default_cost_center = frappe.db.get_value("Company", self.company, 'cost_center')
+            realestate_default_cost_center = frappe.db.get_single_value("Real Estate Settings", "cost_center")
+            default_cost_center = realestate_default_cost_center or company_default_cost_center
+            default_commission_item = frappe.db.get_single_value("Real Estate Settings", "commission_item")
+            if not default_commission_item:
+                frappe.throw('Please set Commission Item in Real Estate Settings')
 
-        invoice = frappe.get_doc({
-            "doctype": "Purchase Invoice",
-            "supplier": self.sales_broker,
-            "posting_date": self.booking_date,
-            "bill_no" : self.plot_no,
-            "project" : self.project_name,
-            "cost_centre" : "",
-            "custom_booking_number":self.name,
-            "company" : company
-        })
+            invoice = frappe.get_doc({
+                "doctype": "Purchase Invoice",
+                "supplier": self.sales_broker,
+                "posting_date": self.booking_date,
+                "bill_no" : self.plot_no,
+                "project" : self.project_name,
+                "cost_centre" : "",
+                "custom_booking_number":self.name,
+                "company" : company
+            })
 
-        invoice.append("items", {
-                    "item_code": default_commission_item, "qty": 1,
-                    "rate": self.commission_amount,
-                    "project" : self.project_name,
-                    "cost_centre" : default_cost_center
-                })
+            invoice.append("items", {
+                        "item_code": default_commission_item, "qty": 1,
+                        "rate": self.commission_amount,
+                        "project" : self.project_name,
+                        "cost_centre" : default_cost_center
+                    })
 
-        invoice.insert(ignore_permissions=True)
-        invoice.submit()
-        frappe.msgprint(_('{0} Broker commission created').format(frappe.get_desk_link('Purchase Invoice', invoice.name)))
+            invoice.insert(ignore_permissions=True)
+            invoice.submit()
+            frappe.msgprint(_('{0} Broker commission created').format(frappe.get_desk_link('Purchase Invoice', invoice.name)))
 
     def book_plot(self):
         plot_master = frappe.get_doc("Plot List", self.plot_no)
