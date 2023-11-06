@@ -13,7 +13,7 @@
   "document_number",
   "document_type",
   "column_break_vvps",
-  "project",
+  "project_name",
   "plot_no",
   "column_break_2ef7h",
   "sales_amount",
@@ -62,15 +62,6 @@
   {
    "fieldname": "column_break_2ef7h",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "project",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Project",
-   "options": "Project",
-   "reqd": 1
   },
   {
    "fieldname": "document_number",
@@ -247,12 +238,21 @@
    "non_negative": 1,
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "project_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-05 22:55:28.168320",
+ "modified": "2023-11-06 01:02:07.940447",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Cancellation Property",
