@@ -3,6 +3,8 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import today, getdate
+from frappe import get_all
+
 
 class ClosedAccountingPeriod(frappe.ValidationError):
 	pass
@@ -15,8 +17,9 @@ class PropertyTransfer(Document):
         self.validate_difference_field()
         self.validate_doc_date()
         self.validate_Check_customer_plot_master_data()
-        self.validate_transfer_amount()
         self.validate_accounting_period()
+        self.validate_received_amount()
+        self.validate_transfer_amount()
 
     def on_submit(self):
         self.make_gl_entries()
@@ -50,10 +53,32 @@ class PropertyTransfer(Document):
             if client_name != self.from_customer:
                 frappe.msgprint('The master data customer does not match the payment customer')
                 frappe.throw('Validation Error: Customer mismatch')
-    
+
+    def validate_received_amount(self):
+        if self.received_amount != 0 :
+            total_payment = 0
+            payment_amount = 0
+            customer_payment = frappe.get_all('Customer Payment', filters={'document_number': self.document_number}, fields=['total_paid_amount'],)
+            for payment in customer_payment:
+                payment_amount += payment.total_paid_amount
+            
+            if self.document_type == "Plot Booking":
+                if payment_amount != self.received_amount:
+                    frappe.throw(f'Customer payment total {payment_amount} & total in received field {self.received_amount} Refresh the document')
+        
+            elif self.document_type == "Property Transfer":            
+                paid_amount = frappe.get_value("Property Transfer", {'name': self.document_number}, 'received_amount')
+                total_payment = payment_amount+paid_amount
+                if  total_payment != self.received_amount:
+                    frappe.throw(f'Customer payment total {total_payment}  & total in received field {self.received_amount} Refresh the document')
+
     def validate_transfer_amount(self):
-        if self.total_transfer_amount == 0:
-            frappe.throw('The Transfer amount should not zero')
+        if self.transfer_charge != 0:
+            total_payment_amount = 0
+            for payment in self.payment_type:
+                total_payment_amount += payment.amount
+            if self.transfer_charge != total_payment_amount:
+                frappe.throw('Total transfer charge must be equal to the sum of payment type amounts')
 
 
     def validate_accounting_period(doc, method=None):
@@ -109,7 +134,7 @@ class PropertyTransfer(Document):
                         "party_type": "Customer",
                         "party": self.from_customer,
                         "against": self.to_customer,
-                        "project": self.project,
+                        "project": self.project_name,
                         "custom_plot_no": self.plot_no,
                         "cost_center": "",
                         "is_advance": 0,
@@ -122,7 +147,7 @@ class PropertyTransfer(Document):
                         "party_type": "Customer",
                         "party": self.to_customer,
                         "against": self.from_customer,
-                        "project": self.project,
+                        "project": self.project_name,
                         "custom_plot_no": self.plot_no,
                         "cost_center": "",
                         "is_advance": 0,
@@ -135,7 +160,7 @@ class PropertyTransfer(Document):
                             "account": payment.ledger,
                             "debit_in_account_currency": payment.amount,
                             "against": default_receivable_account,
-                            "project": self.project,
+                            "project": self.project_name,
                             "custom_plot_no": self.plot_no,
                             "cost_center": "",
                             "is_advance": 0,
@@ -146,7 +171,7 @@ class PropertyTransfer(Document):
                         "account": transfer_account,
                         "credit_in_account_currency": self.transfer_charge,
                         "against": self.from_customer,
-                        "project": self.project,
+                        "project": self.project_name,
                         "custom_plot_no": self.plot_no,
                         "cost_center": cost_center,
                         "is_advance": 0,
@@ -170,7 +195,7 @@ class PropertyTransfer(Document):
                         'father_name': self.to_father_name, 'cnic': self.to_cnic,
                     })
             plot_master.save()
-            frappe.msgprint(_('{0} booked successfully').format(frappe.get_desk_link('Plot List', plot_master.name)))                    
+            frappe.msgprint(_('{0} successfully updated ').format(frappe.get_desk_link('Plot List', plot_master.name)))                    
             if self.document_type == "Plot Booking":
                 booking_doc = frappe.get_doc("Plot Booking", self.document_number)
                 booking_doc.update({'status' : "Property Transfer"})
@@ -183,28 +208,31 @@ class PropertyTransfer(Document):
                 frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link("Property Transfer", trans_doc.name)))
                 
     def update_plot_master_cancel(self):
-        plot_master = frappe.get_doc("Plot List", self.plot_no)
-        if plot_master.status == "Available" and plot_master.hold_for_sale == 0:  
-                plot_master.update({
+        try:    
+            plot_master = frappe.get_doc("Plot List", self.plot_no)
+            plot_master.update({
                                 'status': "Booked", 'client_name': self.from_customer, 'address': self.from_address,
                                 'mobile_no': self.from_mobile_no, 'sales_agent': self.from_sales_broker,
                                 'father_name': self.from_father_name, 'cnic': self.from_cnic,
                             })
-                plot_master.save()
-                frappe.msgprint(_('{0} booked successfully').format(frappe.get_desk_link('Plot List', plot_master.name)))                    
-                if self.document_type == "Plot Booking":
+            plot_master.save()
+            frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link('Plot List', plot_master.name)))                    
+            if self.document_type == "Plot Booking":
                     booking_doc = frappe.get_doc("Plot Booking", self.document_number)
                     booking_doc.update({'status' : "Active"})
                     booking_doc.save()
                     frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link('Plot Booking ', booking_doc.name)))
-                if self.document_type == "Property Transfer":
+            if self.document_type == "Property Transfer":
                     trans_doc = frappe.get_doc("Property Transfer", self.document_number)
                     trans_doc.update({'status' : "Active"})
                     trans_doc.save()
                     frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link("Property Transfer", booking_doc.name)))
-        else:
-            frappe.throw(_("Error: The selected plot is not available for booking."))
-                
+        except Exception as e:
+            frappe.msgprint(f"Error while making update plot master: {str(e)}")
+   
+    def before_insert(self):
+        if self.status != "Active":
+            frappe.throw('The document status should be Active at the time entered in the system')
 
 ################ Get Plot & Base document data for Property Transfer ############
 
@@ -307,7 +335,7 @@ def get_payment_list_from_booking_document(doc_no):
                 x.receivable_amount <> 0
             ORDER BY x.idx
             limit 5;
-"""
+            """
         data = frappe.db.sql(sql_query, (doc_no), as_dict=True)
         return data
  
@@ -351,7 +379,7 @@ def get_payment_list_from_transfer_document(doc_no):
         ) x
         WHERE 
             x.receivable_amount <> 0
-        ORDER BY x.date
+        ORDER BY x.idx
         limit 5;
         """
         data = frappe.db.sql(sql_query, (doc_no), as_dict=True)
