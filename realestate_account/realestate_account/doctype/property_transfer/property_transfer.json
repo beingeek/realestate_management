@@ -10,16 +10,17 @@
   "property_information_tab",
   "section_break_sw5bd",
   "doc_date",
-  "document_number",
   "reference_no",
-  "column_break_b5ps8",
-  "project",
-  "plot_no",
   "document_type",
-  "column_break_udnoi",
+  "column_break_b5ps8",
   "sales_amount",
+  "project_name",
+  "column_break_jnru",
   "received_amount",
+  "plot_no",
+  "column_break_udnoi",
   "balance_transfer",
+  "document_number",
   "transfer_from_customer",
   "from_customer",
   "from_father_name",
@@ -39,11 +40,11 @@
   "to_address",
   "section_break_dykmb",
   "transfer_type",
-  "column_break_bhrcb",
+  "column_break_gndj",
   "transfer_charge",
-  "column_break_hedy7",
+  "column_break_zulk",
   "sales_broker",
-  "section_break_pbxz5",
+  "section_break_btia",
   "payment_type",
   "remarks_section",
   "remarks",
@@ -52,7 +53,6 @@
   "status",
   "column_break_6il7m",
   "company",
-  "payment_type_total_amount",
   "payment_schedule_tab",
   "payment_plan_data_input_section",
   "installment_starting_date",
@@ -68,7 +68,6 @@
   "column_break_qa3ly",
   "half_yearly_installment_amount",
   "yearly_installment_amount",
-  "generate_installment",
   "payment_schedule_section",
   "payment_schedule",
   "payment_plan_reconcilition_section",
@@ -123,13 +122,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "project",
-   "fieldtype": "Link",
-   "label": "Project",
-   "options": "Project",
-   "reqd": 1
-  },
-  {
    "fieldname": "column_break_udnoi",
    "fieldtype": "Column Break"
   },
@@ -155,17 +147,9 @@
    "reqd": 1
   },
   {
-   "fieldname": "column_break_bhrcb",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "transfer_charge",
    "fieldtype": "Currency",
    "label": " Transfer Charge"
-  },
-  {
-   "fieldname": "column_break_hedy7",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "sales_broker",
@@ -390,11 +374,6 @@
    "label": " Yearly installments Amount"
   },
   {
-   "fieldname": "generate_installment",
-   "fieldtype": "Button",
-   "label": " Generate Installment Plan"
-  },
-  {
    "collapsible": 1,
    "fieldname": "payment_schedule_section",
    "fieldtype": "Section Break",
@@ -485,11 +464,6 @@
    "read_only": 1
   },
   {
-   "depends_on": "eval:(doc.transfer_charge !==0)",
-   "fieldname": "section_break_pbxz5",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "payment_type",
    "fieldtype": "Table",
    "label": "Payment Type",
@@ -500,15 +474,9 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "payment_type_total_amount",
-   "fieldtype": "Currency",
-   "hidden": 1,
-   "label": "Payment Type Total"
-  },
-  {
    "fieldname": "reference_no",
    "fieldtype": "Data",
-   "label": "Refernce No"
+   "label": "Refernce Doc No"
   },
   {
    "fieldname": "sales_amount",
@@ -530,6 +498,29 @@
    "non_negative": 1,
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "project_name",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_jnru",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_gndj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_zulk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_btia",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -549,7 +540,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-11-05 21:48:09.395257",
+ "modified": "2023-11-06 16:21:22.437906",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Property Transfer",
