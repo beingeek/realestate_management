@@ -33,16 +33,15 @@ class CancellationProperty(Document):
             if client_name != self.customer:
                 frappe.msgprint('The master data customer does not match the payment customer')
                 frappe.throw('Validation Error: Customer mismatch')
-
+    
     def validate_deduction_amount(self):
         if self.deduction != 0:
             total_payment_amount = 0
             for payment in self.payment_type:
                 total_payment_amount += payment.amount
-
             if self.deduction != total_payment_amount:
                 frappe.throw('Total deduction amount must be equal to the sum of payment type amounts')
-    
+
     def validate_acounting_period(self):
         sql_query = """
             SELECT closed
@@ -89,7 +88,7 @@ class CancellationProperty(Document):
                         "account": payment.ledger,
                         "credit_in_account_currency": payment.amount,
                         "against": default_receivable_account,
-                        "project": self.project,
+                        "project": self.project_name,
                         "custom_plot_no": self.plot_no,
                         "bank_account":payment.bank_account,
                         "cost_center": "",
@@ -102,7 +101,7 @@ class CancellationProperty(Document):
                     "account": deductionAccount,
                     "credit_in_account_currency": self.final_payment,
                     "against": self.customer,
-                    "project": self.project,
+                    "project": self.project_name,
                     "custom_plot_no": self.plot_no,
                     "cost_center": cost_center,
                     "is_advance": 0,
@@ -115,7 +114,7 @@ class CancellationProperty(Document):
                     "debit_in_account_currency": self.received_amount,
                     "party_type": "Customer",
                     "party": self.customer,
-                    "project": self.project,
+                    "project": self.project_name,
                     "custom_plot_no": self.plot_no,
                     "cost_center": "",
                     "is_advance": 0,
@@ -189,6 +188,11 @@ class CancellationProperty(Document):
                 frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link('Plot Booking ', booking_doc.name)))
         else:
             frappe.throw(_("Error: The selected plot is not available for booking.")) 
+
+    def before_insert(self):
+        if self.status != "Active":
+            frappe.throw('The document status should be Active at the time entered in the system')
+
 
 
 @frappe.whitelist()
