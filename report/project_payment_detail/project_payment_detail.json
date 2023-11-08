@@ -2,7 +2,7 @@
  "add_total_row": 1,
  "columns": [
   {
-   "fieldname": "payment_date",
+   "fieldname": "posting_date",
    "fieldtype": "Date",
    "label": "Payment Date",
    "width": 0
@@ -21,7 +21,7 @@
    "width": 0
   },
   {
-   "fieldname": "customer_name",
+   "fieldname": "customer",
    "fieldtype": "Data",
    "label": "Book Number",
    "width": 0
@@ -89,7 +89,7 @@
  "name": "Project Payment Detail",
  "owner": "Administrator",
  "prepared_report": 0,
- "query": "SELECT\n    a.payment_date,\n    a.name,\n    a.book_number,\n    a.customer_name,\n    a.plot_no,\n    b.installment,\n    b.date,\n    b.paid_amount\nFROM\n    `tabCustomer Payment` AS a\nINNER JOIN\n    `tabCustomer Payment Installment` AS b ON a.name = b.parent\nWHERE\n    a.docstatus = 1\n    AND a.project_name = %(project)s\n    AND a.payment_date BETWEEN %(from_date)s AND %(to_date)s\nOrder BY\n\ta.payment_date;",
+ "query": "SELECT\n    a.posting_date,\n    a.name,\n    a.book_number,\n    a.customer,\n    a.plot_no,\n    b.installment,\n    b.date,\n    b.paid_amount\nFROM\n    `tabCustomer Payment` AS a\nINNER JOIN\n    `tabCustomer Payment Installment` AS b ON a.name = b.parent\nWHERE\n    a.docstatus = 1\n    AND a.project = %(project)s\n    AND a.posting_date BETWEEN %(from_date)s AND %(to_date)s\nOrder BY\n\ta.posting_date;",
  "ref_doctype": "Customer Payment",
  "report_name": "Project Payment Detail",
  "report_type": "Query Report",

@@ -116,7 +116,7 @@ frappe.ui.form.on('Property Transfer', {
     generate_installment: function(frm) {
             var numberOfMonth           = frm.doc.no_of_month_plan;
             var startDate               = frm.doc.installment_starting_date;
-            var bookingDate             = frm.doc.doc_date;
+            var bookingDate             = frm.doc.posting_date;
             var bookingAmount           = (frm.doc.booking_amount) ?? 0 ;
             var possessionAmount        = (frm.doc.possession_amount) ?? 0; 
             var monthlyInstallment      = (frm.doc.monthly_installment_amount) ?? 0;

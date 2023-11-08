@@ -15,7 +15,7 @@ class PropertyTransfer(Document):
         self.validate_from_customer_and_to_customer()
         self.validate_transfer_charge_and_payment_type_total()
         self.validate_difference_field()
-        self.validate_doc_date()
+        self.validate_posting_date()
         self.validate_Check_customer_plot_master_data()
         self.validate_accounting_period()
         self.validate_received_amount()
@@ -28,11 +28,11 @@ class PropertyTransfer(Document):
     def on_cancel(self):
         self.update_plot_master_cancel()
     
-    def validate_doc_date(self):
+    def validate_posting_date(self):
         if self.posting_date:
-            doc_date = getdate(self.posting_date)
+            posting_date = getdate(self.posting_date)
             today_date = today()
-        if doc_date and doc_date > getdate(today_date):
+        if posting_date and posting_date > getdate(today_date):
             frappe.throw("Future Document date not Allowed.")
     
     def validate_from_customer_and_to_customer(self):
@@ -93,8 +93,8 @@ class PropertyTransfer(Document):
                 & (ap.company == doc.company)
                 & (cd.closed == 1)
                 & (cd.document_type == doc.doctype)
-                & (doc.doc_date >= ap.start_date)
-                & (doc.doc_date <= ap.end_date)
+                & (doc.posting_date >= ap.start_date)
+                & (doc.posting_date <= ap.end_date)
             )
         ).run(as_dict=1)
         if accounting_period:

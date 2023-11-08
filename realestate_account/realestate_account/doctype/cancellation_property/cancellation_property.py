@@ -10,7 +10,7 @@ class ClosedAccountingPeriod(frappe.ValidationError):
 class CancellationProperty(Document):
    
     def validate(self):
-        self.validate_doc_date()
+        self.validate_posting_date()
         self.validate_Check_customer_plot_master_data()
         self.validate_accounting_period_open()
         self.validate_deduction_amount()
@@ -23,11 +23,11 @@ class CancellationProperty(Document):
     def on_cancel(self):
         self.remove_plot()
 
-    def validate_doc_date(self):
+    def validate_posting_date(self):
         if self.posting_date:
-            doc_date = getdate(self.posting_date)
+            posting_date = getdate(self.posting_date)
             today_date = today()
-        if doc_date and doc_date > getdate(today_date):
+        if posting_date and posting_date > getdate(today_date):
             frappe.throw("Future Document date not Allowed.")
     
     def validate_Check_customer_plot_master_data(self):
@@ -55,7 +55,7 @@ class CancellationProperty(Document):
     #         AND YEAR(tap.end_date) = YEAR(%s)
     #         LIMIT 1;
     #     """
-    #     result = frappe.db.sql(sql_query, (self.doc_date, self.doc_date), as_dict=True)
+    #     result = frappe.db.sql(sql_query, (self.posting_date, self.posting_date), as_dict=True)
     #     if not result:
     #         return {'is_open': None}
     #     if result[0]['closed'] == 1:

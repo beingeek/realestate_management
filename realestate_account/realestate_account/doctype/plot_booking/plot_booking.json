@@ -384,7 +384,7 @@
    "read_only": 1
   },
   {
-   "fetch_from": "project_name.company",
+   "fetch_from": "project.company",
    "fieldname": "company",
    "fieldtype": "Link",
    "label": " Company",

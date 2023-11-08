@@ -164,7 +164,7 @@
    "fieldtype": "Column Break"
   },
   {
-   "fetch_from": "project_name.company",
+   "fetch_from": "project.company",
    "fieldname": "company",
    "fieldtype": "Link",
    "label": "Company",

@@ -69,15 +69,15 @@ class CustomerPayment(Document):
     
     def validate_posting_date(self):
         if self.posting_date:
-            doc_date = getdate(self.posting_date)
+            posting_date = getdate(self.posting_date)
             today_date = today()
-        if doc_date and doc_date > getdate(today_date):
+        if posting_date and posting_date > getdate(today_date):
             frappe.throw("Future document date not Allowed.")
 
     def Check_customer_plot_master_data(self):
-        if self.customer_name:
-            client_name = frappe.get_value('Plot List', {'name': self.plot_no}, 'client_name')
-            if client_name != self.customer_name:
+        if self.customer:
+            customer = frappe.get_value('Plot List', {'name': self.plot_no}, 'customer')
+            if customer != self.customer:
                 frappe.msgprint('The master data customer does not match the payment customer')
                 frappe.throw('Validation Error: Customer mismatch')
 
@@ -174,10 +174,10 @@ def get_plot_detail(plot_no):
                     plot_no, 
                     project as project, 
                     'Plot Booking' as Doc_type, 
-                    client_name as customer, 
+                    customer as customer, 
                     sales_broker, 
                     total_sales_amount as sales_amount, 
-                    booking_date as DocDate,
+                    posting_date as DocDate,
                     address AS address
                 FROM `tabPlot Booking`
                 WHERE status = 'Active' AND docstatus = 1
@@ -190,7 +190,7 @@ def get_plot_detail(plot_no):
                     to_customer as customer, 
                     sales_broker, 
                     sales_amount as sales_amount,
-                    doc_date as DocDate,
+                    posting_date as DocDate,
                     to_address AS address 
                 FROM `tabProperty Transfer`
                 WHERE status = 'Active' AND docstatus = 1) x               

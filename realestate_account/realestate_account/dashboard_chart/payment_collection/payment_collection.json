@@ -1,5 +1,5 @@
 {
- "based_on": "payment_date",
+ "based_on": "posting_date",
  "chart_name": "Payment Collection",
  "chart_type": "Sum",
  "creation": "2023-03-13 18:05:01.004359",
