@@ -119,7 +119,7 @@ class CustomerPayment(Document):
                     "account": payment.ledger,
                     "debit_in_account_currency": payment.amount,
                     "against": default_receivable_account,
-                    "project": self.projec,
+                    "project": self.project,
                     "custom_plot_no": self.plot_no,
                     "cost_center": "",
                     "is_advance": 0,
