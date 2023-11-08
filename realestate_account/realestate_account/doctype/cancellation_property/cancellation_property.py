@@ -32,8 +32,8 @@ class CancellationProperty(Document):
     
     def validate_Check_customer_plot_master_data(self):
         if self.customer:
-            client_name = frappe.get_value('Plot List', {'name': self.plot_no}, 'client_name')
-            if client_name != self.customer:
+            customer = frappe.get_value('Plot List', {'name': self.plot_no}, 'customer')
+            if customer != self.customer:
                 frappe.msgprint('The master data customer does not match the payment customer')
                 frappe.throw('Validation Error: Customer mismatch')
     
@@ -161,7 +161,7 @@ class CancellationProperty(Document):
             plot_master = frappe.get_doc("Plot List", self.plot_no)
             plot_master.update({
                     'status'        : "Available", 
-                    'client_name'   : "", 
+                    'customer'   : "", 
                     'address'       : "",
                     'contact_no'    : "", 
                     'sales_broker'  : "",
