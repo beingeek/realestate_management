@@ -13,7 +13,6 @@ class PropertyTransfer(Document):
     
     def validate(self):
         self.validate_from_customer_and_to_customer()
-        self.validate_transfer_charge_and_payment_type_total()
         self.validate_difference_field()
         self.validate_posting_date()
         self.validate_Check_customer_plot_master_data()
@@ -38,10 +37,6 @@ class PropertyTransfer(Document):
     def validate_from_customer_and_to_customer(self):
         if self.from_customer == self.to_customer:
             frappe.throw('From Customer and To Customer must be different')
-
-    def validate_transfer_charge_and_payment_type_total(self):
-        if self.transfer_charge != self.payment_type_total_amount:
-            frappe.throw('Transfer Charge & Payment type total Should be equal')
 
     def validate_difference_field(self):
         if self.difference != 0:
