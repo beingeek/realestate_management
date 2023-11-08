@@ -10,4 +10,4 @@ class PlotList(Document):
 		self.set_title()
 
 	def set_title(self):
-		self.title = _("{0} - {1} - {2}").format(self.plot_name, self.land_price, self.plot_feature)
+		self.title = _("{0} - {1} - {2}").format(self.plot_name, self.land_area, self.plot_feature)

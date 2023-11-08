@@ -6,17 +6,17 @@ frappe.ui.form.on("Customer Payment", {
 }),
 
 frappe.ui.form.on('Customer Payment', {
-    project_name: function(frm) {
-        var project_name = frm.doc.project_name;
-        if (!frm.doc.project_name) {
+    project: function(frm) {
+        var project_n = frm.doc.project;
+        if (!frm.doc.project) {
             frappe.throw(__("Please select a project."));
             return;
         }
         if (frm.prompt_opened) {
             return;
         }
-        frm.cscript.project_name = function(doc) {
-            if (doc.project_name !== project_name) {
+        frm.cscript.project = function(doc) {
+            if (doc.project !== project_n) {
                 frm.prompt_opened = false;
             }
         };
@@ -28,9 +28,10 @@ frappe.ui.form.on('Customer Payment', {
             options: "Plot List",
             get_query: () => ({
                 filters: {
-                    "status": 'Booked', 'project_name': frm.doc.project_name
+                    "status": 'Booked', 'project': frm.doc.project
                 }
-            })
+            }),
+            display_field: 'name' 
         }, (values) => {
             frappe.model.set_value(frm.doctype, frm.docname, 'plot_no', values.selected_plot);
             frm.prompt_opened = false;
@@ -67,12 +68,10 @@ frappe.ui.form.on('Customer Payment', {
                     cur_frm.refresh_fields("received_amount");
                     cur_frm.set_value("remaining_amount", remaining_amount );
                     cur_frm.refresh_fields("remaining_amount");
-                    cur_frm.set_value("customer_name", customer );
-                    cur_frm.refresh_fields("customer_name");
+                    cur_frm.set_value("customer", customer );
+                    cur_frm.refresh_fields("customer");
                     cur_frm.set_value("address", address);
                     cur_frm.refresh_fields("address");                
-                    cur_frm.set_value('payment_date', frappe.datetime.get_today()); 
-                    cur_frm.refresh_fields('payment_date');
                 }
             }
         });

@@ -10,7 +10,7 @@ class ClosedAccountingPeriod(frappe.ValidationError):
 
 class PlotBooking(Document):
     def validate(self):
-        self.validate_booking_date()
+        self.validate_posting_date()
         validate_accounting_period_open(self)
         self.validate_plot_booking()
         self.validate_amount()
@@ -30,8 +30,8 @@ class PlotBooking(Document):
         if plot_status == 'Booked':
             frappe.throw(_('The {0} is already booked').format(frappe.get_desk_link('Plot List', self.plot_no)))
 
-    def validate_booking_date(self):
-        if self.booking_date > today():
+    def validate_posting_date(self):
+        if self.posting_date > today():
             frappe.throw(_('Future booking date not allowed.'))
 
     def validate_amount(self):
@@ -51,9 +51,9 @@ class PlotBooking(Document):
             invoice = frappe.get_doc({
                 "doctype": "Purchase Invoice",
                 "supplier": self.sales_broker,
-                "posting_date": self.booking_date,
+                "posting_date": self.posting_date,
                 "bill_no" : self.plot_no,
-                "project" : self.project_name,
+                "project" : self.project,
                 "cost_centre" : "",
                 "custom_booking_number":self.name,
                 "company" : company
@@ -62,7 +62,7 @@ class PlotBooking(Document):
             invoice.append("items", {
                         "item_code": default_commission_item, "qty": 1,
                         "rate": self.commission_amount,
-                        "project" : self.project_name,
+                        "project" : self.project,
                         "cost_centre" : default_cost_center
                     })
 
@@ -74,8 +74,8 @@ class PlotBooking(Document):
         plot_master = frappe.get_doc("Plot List", self.plot_no)
         if plot_master.status == "Available" and plot_master.hold_for_sale == 0:
             plot_master.update({
-                'status': "Booked", 'client_name': self.client_name, 'address': self.address,
-                'mobile_no': self.mobile_no, 'sales_agent': self.sales_broker,
+                'status': "Booked", 'customer': self.customer, 'address': self.address,
+                'contact_no': self.contact_no, 'sales_broker': self.sales_broker,
                 'father_name': self.father_name, 'cnic': self.cnic,
             })
             plot_master.save()
@@ -86,8 +86,8 @@ class PlotBooking(Document):
     def unbook_plot(self):
         plot_master = frappe.get_doc("Plot List", self.plot_no)
         plot_master.update({
-            'status': "Available", 'client_name': '', 'address': '',
-            'mobile_no': '', 'sales_agent': '',
+            'status': "Available", 'customer': '', 'address': '',
+            'contact_no': '', 'sales_broker': '',
             'father_name': '',  'cnic': ''
         })
 
@@ -110,8 +110,8 @@ def validate_accounting_period_open(doc, method=None):
             & (ap.company == doc.company)
             & (cd.closed == 1)
             & (cd.document_type == doc.doctype)
-            & (doc.booking_date >= ap.start_date)
-            & (doc.booking_date <= ap.end_date)
+            & (doc.posting_date >= ap.start_date)
+            & (doc.posting_date <= ap.end_date)
         )
     ).run(as_dict=1)
 

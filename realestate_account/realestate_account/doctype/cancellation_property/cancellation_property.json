@@ -9,11 +9,11 @@
  "field_order": [
   "property_information_tab",
   "property_information_section",
-  "doc_date",
+  "posting_date",
   "document_number",
   "document_type",
   "column_break_vvps",
-  "project_name",
+  "project",
   "plot_no",
   "column_break_2ef7h",
   "sales_amount",
@@ -45,12 +45,6 @@
    "fieldname": "property_information_tab",
    "fieldtype": "Tab Break",
    "label": " Property Information"
-  },
-  {
-   "fieldname": "doc_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Doc Date"
   },
   {
    "fieldname": "document_type",
@@ -147,13 +141,15 @@
    "fieldname": "deduction",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Deduction"
+   "label": "Deduction",
+   "no_copy": 1
   },
   {
    "fieldname": "final_payment",
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Final Payment",
+   "no_copy": 1,
    "non_negative": 1,
    "read_only": 1,
    "reqd": 1
@@ -227,6 +223,7 @@
    "fieldname": "sales_amount",
    "fieldtype": "Currency",
    "label": "Sales Amount",
+   "no_copy": 1,
    "non_negative": 1,
    "read_only": 1,
    "reqd": 1
@@ -235,12 +232,23 @@
    "fieldname": "received_amount",
    "fieldtype": "Currency",
    "label": "Received Amount",
+   "no_copy": 1,
    "non_negative": 1,
    "read_only": 1,
    "reqd": 1
   },
   {
-   "fieldname": "project_name",
+   "bold": 1,
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Doc Date",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "project",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
@@ -252,7 +260,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-06 01:02:07.940447",
+ "modified": "2023-11-08 00:50:41.987148",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Cancellation Property",

@@ -11,9 +11,9 @@
  "field_order": [
   "booking_information_tab",
   "booking_information_section",
-  "booking_date",
+  "posting_date",
   "column_break_ilqz",
-  "project_name",
+  "project",
   "plot_no",
   "column_break_kyo0t",
   "land_price",
@@ -22,11 +22,11 @@
   "area",
   "uom",
   "customer_details_section",
-  "client_name",
+  "customer",
   "father_name",
   "column_break_ndce1",
   "cnic",
-  "mobile_no",
+  "contact_no",
   "column_break_6gerh",
   "address",
   "account_information_section",
@@ -92,22 +92,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "client_name",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": " Customer",
-   "options": "Customer",
-   "reqd": 1
-  },
-  {
-   "fieldname": "booking_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": " Booking Date",
-   "reqd": 1
-  },
-  {
    "fetch_from": "plot_no.total",
    "fetch_if_empty": 1,
    "fieldname": "unit_cost",
@@ -152,15 +136,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "project_name",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": " Project Name",
-   "options": "Project",
-   "reqd": 1
-  },
-  {
    "fetch_from": "plot_no.land_price",
    "fieldname": "land_price",
    "fieldtype": "Currency",
@@ -186,36 +161,8 @@
    "label": "Customer Details"
   },
   {
-   "fetch_from": "client_name.custom_address",
-   "fieldname": "address",
-   "fieldtype": "Small Text",
-   "label": "Address",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "client_name.custom_father_name",
-   "fieldname": "father_name",
-   "fieldtype": "Data",
-   "label": " Father Name",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "client_name.custom_cnic",
-   "fieldname": "cnic",
-   "fieldtype": "Data",
-   "label": " CNIC",
-   "read_only": 1
-  },
-  {
    "fieldname": "column_break_6gerh",
    "fieldtype": "Column Break"
-  },
-  {
-   "fetch_from": "client_name.custom_contact_no",
-   "fieldname": "mobile_no",
-   "fieldtype": "Data",
-   "label": "Contact No.",
-   "read_only": 1
   },
   {
    "fieldname": "account_information_section",
@@ -237,7 +184,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "collapsible": 1,
    "fieldname": "section_break_jrmxs",
    "fieldtype": "Section Break",
    "label": "Broker & Broker Detail"
@@ -266,13 +212,13 @@
    "label": " Commission Amount"
   },
   {
-   "allow_on_submit": 1,
    "default": "Active",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": " Status",
+   "no_copy": 1,
    "options": "Active\nProperty Transfer\nCancel",
    "read_only": 1
   },
@@ -472,6 +418,60 @@
   {
    "fieldname": "column_break_ilqz",
    "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": " Booking Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": " Customer",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "customer.custom_cnic",
+   "fieldname": "cnic",
+   "fieldtype": "Data",
+   "label": "CNIC",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "customer.custom_address",
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "customer.custom_father_name",
+   "fieldname": "father_name",
+   "fieldtype": "Data",
+   "label": "Father Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "customer.custom_contact_no",
+   "fieldname": "contact_no",
+   "fieldtype": "Data",
+   "label": "Contact No.",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": " Project",
+   "options": "Project",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -495,7 +495,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-11-04 18:30:54.547991",
+ "modified": "2023-11-08 01:54:26.025471",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot Booking",
@@ -529,7 +529,7 @@
    "write": 1
   }
  ],
- "search_fields": "plot_no,client_name,booking_grand_total",
+ "search_fields": "plot_no",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

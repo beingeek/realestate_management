@@ -29,8 +29,8 @@ class PropertyTransfer(Document):
         self.update_plot_master_cancel()
     
     def validate_doc_date(self):
-        if self.doc_date:
-            doc_date = getdate(self.doc_date)
+        if self.posting_date:
+            doc_date = getdate(self.posting_date)
             today_date = today()
         if doc_date and doc_date > getdate(today_date):
             frappe.throw("Future Document date not Allowed.")
@@ -49,8 +49,8 @@ class PropertyTransfer(Document):
     
     def validate_Check_customer_plot_master_data(self):
         if self.from_customer:
-            client_name = frappe.get_value('Plot List', {'name': self.plot_no}, 'client_name')
-            if client_name != self.from_customer:
+            customer = frappe.get_value('Plot List', {'name': self.plot_no}, 'customer')
+            if customer != self.from_customer:
                 frappe.msgprint('The master data customer does not match the payment customer')
                 frappe.throw('Validation Error: Customer mismatch')
 
@@ -104,7 +104,6 @@ class PropertyTransfer(Document):
         ))
 
     def make_gl_entries(self):
-        try:
             if self.received_amount != 0 or self.transfer_charge != 0:
 
                 company = frappe.defaults.get_user_default("Company")
@@ -121,7 +120,7 @@ class PropertyTransfer(Document):
                     "doctype": "Journal Entry",
                     "voucher_type": "Journal Entry",
                     "voucher_no": self.name,
-                    "posting_date": self.doc_date,
+                    "posting_date": self.posting_date,
                     "user_remark": self.remarks,
                     "custom_document_number": self.name,
                     "custom_document_type": "Property Transfer",
@@ -134,7 +133,7 @@ class PropertyTransfer(Document):
                         "party_type": "Customer",
                         "party": self.from_customer,
                         "against": self.to_customer,
-                        "project": self.project_name,
+                        "project": self.project,
                         "custom_plot_no": self.plot_no,
                         "cost_center": "",
                         "is_advance": 0,
@@ -147,7 +146,7 @@ class PropertyTransfer(Document):
                         "party_type": "Customer",
                         "party": self.to_customer,
                         "against": self.from_customer,
-                        "project": self.project_name,
+                        "project": self.project,
                         "custom_plot_no": self.plot_no,
                         "cost_center": "",
                         "is_advance": 0,
@@ -160,7 +159,7 @@ class PropertyTransfer(Document):
                             "account": payment.ledger,
                             "debit_in_account_currency": payment.amount,
                             "against": default_receivable_account,
-                            "project": self.project_name,
+                            "project": self.project,
                             "custom_plot_no": self.plot_no,
                             "cost_center": "",
                             "is_advance": 0,
@@ -171,7 +170,7 @@ class PropertyTransfer(Document):
                         "account": transfer_account,
                         "credit_in_account_currency": self.transfer_charge,
                         "against": self.from_customer,
-                        "project": self.project_name,
+                        "project": self.project,
                         "custom_plot_no": self.plot_no,
                         "cost_center": cost_center,
                         "is_advance": 0,
@@ -184,14 +183,12 @@ class PropertyTransfer(Document):
 
                 frappe.db.commit()
                 frappe.msgprint(_('Journal Entry {0} created successfully').format(frappe.get_desk_link("Journal Entry", journal_entry.name)))
-        except Exception as e:
-            frappe.msgprint(f"Error while making GL entries: {str(e)}")
-
+        
     def update_plot_master(self):
             plot_master = frappe.get_doc("Plot List", self.plot_no)    
             plot_master.update({
-                        'status': "Booked", 'client_name': self.to_customer, 'address': self.to_address,
-                        'mobile_no': self.to_mobile_no, 'sales_agent': self.sales_broker,
+                        'status': "Booked", 'customer': self.to_customer, 'address': self.to_address,
+                        'contact_no': self.to_contact_no, 'sales_broker': self.sales_broker,
                         'father_name': self.to_father_name, 'cnic': self.to_cnic,
                     })
             plot_master.save()
@@ -211,8 +208,8 @@ class PropertyTransfer(Document):
         try:    
             plot_master = frappe.get_doc("Plot List", self.plot_no)
             plot_master.update({
-                                'status': "Booked", 'client_name': self.from_customer, 'address': self.from_address,
-                                'mobile_no': self.from_mobile_no, 'sales_agent': self.from_sales_broker,
+                                'status': "Booked", 'customer': self.from_customer, 'address': self.from_address,
+                                'contact_no': self.from_contact_no, 'sales_broker': self.from_sales_broker,
                                 'father_name': self.from_father_name, 'cnic': self.from_cnic,
                             })
             plot_master.save()
@@ -264,9 +261,9 @@ def get_previous_document_detail(plot_no):
             SELECT DISTINCT
                 thb.name,
                 thb.plot_no,
-                thb.project_name as project,
+                thb.project as project,
                 'Plot Booking' as Doc_type,
-                thb.client_name as customer,
+                thb.customer as customer,
                 thb.sales_broker,
                 thb.total_sales_amount as sales_amount,
                 IFNULL((

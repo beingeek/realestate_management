@@ -1,4 +1,16 @@
 frappe.ui.form.on("Plot Booking", {
+    refresh: function(frm) {
+        frm.fields_dict['sales_broker'].get_query = function() {
+            return {
+                filters: {
+                    'supplier_group': 'Sales Broker'
+                }
+            };
+        };
+    }
+})
+
+frappe.ui.form.on("Plot Booking", {
     refresh: function (frm) {
         frm.add_custom_button(
             __("Generate Installments"),
@@ -7,10 +19,16 @@ frappe.ui.form.on("Plot Booking", {
             },
         ).addClass("btn-primary");
     },
+   
+    premium_discount: function(frm) {
+        var booking_grand_total = frm.doc.unit_cost + frm.doc.premium_discount;
+        frm.set_value("total_sales_amount", booking_grand_total);
+        frm.set_value("booking_grand_total", booking_grand_total);
+    },
 
-    project_name: function(frm) {
-        var project_name = frm.doc.project_name;
-        if (!frm.doc.project_name) {
+    project: function(frm) {
+        var project = frm.doc.project;
+        if (!frm.doc.project) {
             frappe.throw(__("Please select a project."));
             return;
         }
@@ -18,8 +36,8 @@ frappe.ui.form.on("Plot Booking", {
             return;
         }
 
-        frm.cscript.project_name = function(doc) {
-            if (doc.project_name !== project_name) {
+        frm.cscript.project = function(doc) {
+            if (doc.project !== project) {
                 frm.prompt_opened = false;
             }
         };
@@ -32,19 +50,13 @@ frappe.ui.form.on("Plot Booking", {
             options: "Plot List",
             get_query: () => ({
                 filters: {
-                    "status": 'Available', 'hold_for_sale': 0, 'project_name': frm.doc.project_name
+                    "status": 'Available', 'hold_for_sale': 0, 'project': frm.doc.project
                 }
             })
         }, (values) => {
             frappe.model.set_value(frm.doctype, frm.docname, 'plot_no', values.selected_plot);
             frm.prompt_opened = false;
         }, __('Select Available Plot'));
-    },
-
-    premium_discount: function(frm) {
-        var booking_grand_total = frm.doc.unit_cost + frm.doc.premium_discount;
-        frm.set_value("total_sales_amount", booking_grand_total);
-        frm.set_value("booking_grand_total", booking_grand_total);
     },
 
     //////// working on payment plan//////////
@@ -66,7 +78,7 @@ frappe.ui.form.on("Plot Booking", {
     generate_installment: function(frm) {
         var numberOfMonth           = frm.doc.no_of_month_plan;
         var startDate               = frm.doc.installment_starting_date;
-        var bookingDate             = frm.doc.booking_date;
+        var bookingDate             = frm.doc.posting_date;
         var bookingAmount           = (frm.doc.booking_amount) ?? 0 ;
         var possessionAmount        = (frm.doc.possession_amount) ?? 0;
         var monthlyInstallment      = (frm.doc.monthly_installment_amount) ?? 0;

@@ -7,16 +7,16 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "project_name",
+  "project",
   "plot_no",
   "document_type",
   "get_insallment_information",
   "column_break_pgopo",
-  "payment_date",
+  "posting_date",
   "total_paid_amount",
   "book_number",
   "column_break_yzarc",
-  "customer_name",
+  "customer",
   "address",
   "document_number",
   "column_break_grwe5",
@@ -40,20 +40,12 @@
  ],
  "fields": [
   {
-   "fieldname": "project_name",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Project Name",
-   "options": "Project",
-   "reqd": 1
-  },
-  {
    "fieldname": "plot_no",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Plot No",
+   "no_copy": 1,
    "options": "Plot List",
    "read_only": 1,
    "reqd": 1
@@ -67,13 +59,6 @@
    "options": "Customer Payment",
    "print_hide": 1,
    "read_only": 1
-  },
-  {
-   "fieldname": "payment_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Payment Date",
-   "reqd": 1
   },
   {
    "fieldname": "total_paid_amount",
@@ -135,16 +120,6 @@
    "label": "Payment Type"
   },
   {
-   "fieldname": "customer_name",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Customer Name",
-   "options": "Customer",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
    "fieldname": "payment_type",
    "fieldtype": "Table",
    "label": "Payment Type",
@@ -173,6 +148,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Book Number",
+   "no_copy": 1,
    "reqd": 1
   },
   {
@@ -221,6 +197,7 @@
    "fieldname": "received_amount",
    "fieldtype": "Currency",
    "label": "Received Amount",
+   "no_copy": 1,
    "non_negative": 1,
    "read_only": 1
   },
@@ -238,12 +215,42 @@
    "fieldtype": "Small Text",
    "label": "Address",
    "read_only": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Payment Date",
+   "no_copy": 1,
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Customer Name",
+   "no_copy": 1,
+   "options": "Customer",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Project Name",
+   "options": "Project",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-04 21:44:27.733546",
+ "modified": "2023-11-08 00:52:01.616917",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Customer Payment",

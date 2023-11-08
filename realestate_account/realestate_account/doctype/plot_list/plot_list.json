@@ -9,34 +9,31 @@
  "engine": "InnoDB",
  "field_order": [
   "property_information_tab",
-  "project_name",
-  "column_break_y1nhq",
-  "plot_detail",
-  "column_break_hxyju",
-  "plot_name",
-  "section_break_us9uz",
+  "project",
   "land_price",
   "plot_feature",
   "hold_for_sale",
   "status",
-  "column_break_3bbzj",
+  "column_break_y1nhq",
+  "plot_detail",
   "land_area",
   "uom",
   "reason_for_hold",
-  "column_break_7g6t7",
+  "column_break_hxyju",
+  "plot_name",
   "total",
   "company",
+  "amended_from",
   "current_owner_detail_tab",
-  "client_name",
-  "address",
-  "column_break_ayjoz",
+  "customer",
   "father_name",
+  "column_break_ayjoz",
+  "contact_no",
   "cnic",
   "column_break_5xzlh",
-  "mobile_no",
-  "sales_agent",
+  "address",
+  "sales_broker",
   "connection",
-  "amended_from",
   "title"
  ],
  "fields": [
@@ -44,16 +41,6 @@
    "fieldname": "property_information_tab",
    "fieldtype": "Tab Break",
    "label": "Property Information"
-  },
-  {
-   "fieldname": "project_name",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Project Name",
-   "options": "Project",
-   "read_only_depends_on": "eval:(doc.status === \"Booked\");",
-   "reqd": 1
   },
   {
    "fieldname": "column_break_y1nhq",
@@ -79,10 +66,6 @@
    "unique": 1
   },
   {
-   "fieldname": "section_break_us9uz",
-   "fieldtype": "Section Break"
-  },
-  {
    "fieldname": "land_price",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -103,10 +86,6 @@
    "fieldname": "hold_for_sale",
    "fieldtype": "Check",
    "label": " Hold for Sale"
-  },
-  {
-   "fieldname": "column_break_3bbzj",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "land_area",
@@ -149,15 +128,6 @@
    "label": " Current Ownership Detail"
   },
   {
-   "fieldname": "client_name",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Customer Name",
-   "options": "Customer",
-   "read_only": 1
-  },
-  {
    "fieldname": "address",
    "fieldtype": "Small Text",
    "label": "Address",
@@ -184,21 +154,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "mobile_no",
-   "fieldtype": "Data",
-   "label": "contact No.",
-   "read_only": 1
-  },
-  {
-   "fieldname": "sales_agent",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": " Sales Broker",
-   "options": "Supplier",
-   "read_only": 1
-  },
-  {
    "fieldname": "connection",
    "fieldtype": "Tab Break",
    "label": "Connection",
@@ -214,16 +169,13 @@
    "read_only": 1
   },
   {
-   "fieldname": "column_break_7g6t7",
-   "fieldtype": "Column Break"
-  },
-  {
    "default": "Available",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Property status",
+   "no_copy": 1,
    "options": "Available\nBooked",
    "read_only": 1
   },
@@ -234,6 +186,40 @@
    "label": "Title",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Customer Name",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "contact_no",
+   "fieldtype": "Data",
+   "label": "contact No.",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales_broker",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": " Sales Broker",
+   "options": "Supplier",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Project Name",
+   "options": "Project",
+   "read_only_depends_on": "eval:(doc.status === \"Booked\");",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -264,7 +250,7 @@
    "link_fieldname": "bill_no"
   }
  ],
- "modified": "2023-11-04 20:18:34.838000",
+ "modified": "2023-11-08 01:48:21.333699",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot List",

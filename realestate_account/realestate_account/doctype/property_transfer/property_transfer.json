@@ -9,15 +9,15 @@
  "field_order": [
   "property_information_tab",
   "section_break_sw5bd",
-  "doc_date",
-  "reference_no",
+  "posting_date",
+  "project",
   "document_type",
   "column_break_b5ps8",
   "sales_amount",
-  "project_name",
+  "plot_no",
   "column_break_jnru",
   "received_amount",
-  "plot_no",
+  "reference_no",
   "column_break_udnoi",
   "balance_transfer",
   "document_number",
@@ -26,7 +26,7 @@
   "from_father_name",
   "column_break_pwise",
   "from_cnic",
-  "from_mobile_no",
+  "from_contact_no",
   "column_break_mzmx1",
   "from_address",
   "from_sales_broker",
@@ -35,7 +35,7 @@
   "to_father_name",
   "column_break_mkzq5",
   "to_cnic",
-  "to_mobile_no",
+  "to_contact_no",
   "column_break_f7lhu",
   "to_address",
   "section_break_dykmb",
@@ -95,13 +95,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "doc_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "Doc Date",
-   "reqd": 1
-  },
-  {
    "fieldname": "document_type",
    "fieldtype": "Link",
    "hidden": 1,
@@ -134,7 +127,6 @@
    "reqd": 1
   },
   {
-   "collapsible": 1,
    "fieldname": "section_break_dykmb",
    "fieldtype": "Section Break",
    "label": "Transfer Charge Detail"
@@ -200,13 +192,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fetch_from": "from_customer.custom_contact_no",
-   "fieldname": "from_mobile_no",
-   "fieldtype": "Data",
-   "label": " Contact No.",
-   "read_only": 1
-  },
-  {
    "fieldname": "from_sales_broker",
    "fieldtype": "Link",
    "label": " Sales Broker",
@@ -251,13 +236,6 @@
    "read_only": 1
   },
   {
-   "fetch_from": "to_customer.custom_contact_no",
-   "fieldname": "to_mobile_no",
-   "fieldtype": "Data",
-   "label": " Contact No.",
-   "read_only": 1
-  },
-  {
    "collapsible": 1,
    "fieldname": "remarks_section",
    "fieldtype": "Section Break",
@@ -273,6 +251,7 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
+   "no_copy": 1,
    "options": "Active\nFurther Transferred\nCancel",
    "read_only": 1
   },
@@ -500,13 +479,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "project_name",
-   "fieldtype": "Link",
-   "label": "Project",
-   "options": "Project",
-   "reqd": 1
-  },
-  {
    "fieldname": "column_break_jnru",
    "fieldtype": "Column Break"
   },
@@ -521,6 +493,36 @@
   {
    "fieldname": "section_break_btia",
    "fieldtype": "Section Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Doc Date",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "from_customer.custom_contact_no",
+   "fieldname": "from_contact_no",
+   "fieldtype": "Data",
+   "label": " Contact No.",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "to_customer.",
+   "fieldname": "to_contact_no",
+   "fieldtype": "Data",
+   "label": " Contact No.",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -540,7 +542,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-11-06 16:21:22.437906",
+ "modified": "2023-11-08 01:48:42.763023",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Property Transfer",

@@ -1,8 +1,8 @@
 
 frappe.ui.form.on('Cancellation Property', {
-    project_name: function(frm) {
-        var project_name = frm.doc.project_name;
-        if (!frm.doc.project_name) {
+    project: function(frm) {
+        var project = frm.doc.project;
+        if (!frm.doc.project) {
             frappe.throw(__("Please select a project."));
             return;
         }
@@ -10,8 +10,8 @@ frappe.ui.form.on('Cancellation Property', {
             return;
         }
 
-        frm.cscript.project_name = function(doc) {
-            if (doc.project_name !== project_name) {
+        frm.cscript.project = function(doc) {
+            if (doc.project !== project) {
                 frm.prompt_opened = false;
             }
         };
@@ -23,7 +23,7 @@ frappe.ui.form.on('Cancellation Property', {
             options: "Plot List",
             get_query: () => ({
                 filters: {
-                    "status": 'Booked', 'project_name': frm.doc.project_name
+                    "status": 'Booked', 'project': frm.doc.project
                 }
             })
         }, (values) => {

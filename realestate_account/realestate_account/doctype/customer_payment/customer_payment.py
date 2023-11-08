@@ -10,7 +10,7 @@ class CustomerPayment(Document):
         self.validate_check_duplicate_book_number()
         self.validate_row_paid_amount()
         self.validate_check_paid_amount_installment_amount()
-        self.validate_doc_date()
+        self.validate_posting_date()
         self.validate_check_total_amount()
         self.validate_acounting_period()
 
@@ -21,12 +21,12 @@ class CustomerPayment(Document):
             frappe.msgprint(f"Error while making GL entries: {str(e)}")
  
     def validate_check_duplicate_book_number(self):
-        if self.book_number and self.project_name:
+        if self.book_number and self.project:
             duplicate_payment = frappe.get_value(
                 'Customer Payment',
                 filters={
                     'book_number': self.book_number,
-                    'project_name': self.project_name,
+                    'project': self.project,
                     'name': ('!=', self.name),
                     'docstatus': ('!=', 2)
                 },
@@ -67,12 +67,12 @@ class CustomerPayment(Document):
         if self.total_paid_amount <= 0:
             frappe.throw('Total paid amount is less than or equal to zero')
     
-    def validate_doc_date(self):
-        if self.payment_date:
-            doc_date = getdate(self.payment_date)
+    def validate_posting_date(self):
+        if self.posting_date:
+            doc_date = getdate(self.posting_date)
             today_date = today()
         if doc_date and doc_date > getdate(today_date):
-            frappe.throw("Future Document date not Allowed.")
+            frappe.throw("Future document date not Allowed.")
 
     def Check_customer_plot_master_data(self):
         if self.customer_name:
@@ -91,7 +91,7 @@ class CustomerPayment(Document):
             AND YEAR(tap.end_date) = YEAR(%s)
             LIMIT 1;
         """
-        result = frappe.db.sql(sql_query, (self.payment_date, self.payment_date), as_dict=True)
+        result = frappe.db.sql(sql_query, (self.posting_date, self.posting_date), as_dict=True)
         if not result:
             return {'is_open': None}
         if result[0]['closed'] == 1:
@@ -107,7 +107,7 @@ class CustomerPayment(Document):
                 "doctype": "Journal Entry",
                 "voucher_type": "Journal Entry",
                 "voucher_no": self.name,
-                "posting_date": self.payment_date,  
+                "posting_date": self.posting_date,  
                 "user_remark": self.remarks,
                 "custom_document_number": self.name,
                 "custom_document_type": "Customer Payment",
@@ -119,7 +119,7 @@ class CustomerPayment(Document):
                     "account": payment.ledger,
                     "debit_in_account_currency": payment.amount,
                     "against": default_receivable_account,
-                    "project": self.project_name,
+                    "project": self.projec,
                     "custom_plot_no": self.plot_no,
                     "cost_center": "",
                     "is_advance": 0,
@@ -131,8 +131,8 @@ class CustomerPayment(Document):
                 "account": default_receivable_account,
                 "credit_in_account_currency": self.total_paid_amount,
                 "party_type": "Customer",
-                "party": self.customer_name,
-                "project": self.project_name,
+                "party": self.customer,
+                "project": self.project,
                 "custom_plot_no": self.plot_no,
                 "cost_center": "",
                 "is_advance": 0,
@@ -172,7 +172,7 @@ def get_plot_detail(plot_no):
                 SELECT  
                     DISTINCT name, 
                     plot_no, 
-                    project_name as project, 
+                    project as project, 
                     'Plot Booking' as Doc_type, 
                     client_name as customer, 
                     sales_broker, 
