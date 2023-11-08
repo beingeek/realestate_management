@@ -518,7 +518,7 @@
    "read_only": 1
   },
   {
-   "fetch_from": "to_customer.",
+   "fetch_from": "to_customer.custom_contact_no",
    "fieldname": "to_contact_no",
    "fieldtype": "Data",
    "label": " Contact No.",
@@ -542,7 +542,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-11-08 01:48:42.763023",
+ "modified": "2023-11-08 17:12:39.622149",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Property Transfer",

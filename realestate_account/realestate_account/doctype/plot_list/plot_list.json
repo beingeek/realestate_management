@@ -250,7 +250,7 @@
    "link_fieldname": "bill_no"
   }
  ],
- "modified": "2023-11-08 01:48:21.333699",
+ "modified": "2023-11-08 17:06:46.821091",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot List",
@@ -282,11 +282,10 @@
    "write": 1
   }
  ],
- "show_title_field_in_link": 1,
+ "search_fields": "title",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "title_field": "title",
  "track_changes": 1,
  "track_seen": 1
 }

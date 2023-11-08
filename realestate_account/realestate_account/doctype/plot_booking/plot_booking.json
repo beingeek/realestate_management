@@ -212,6 +212,7 @@
    "label": " Commission Amount"
   },
   {
+   "allow_on_submit": 1,
    "default": "Active",
    "fieldname": "status",
    "fieldtype": "Select",
@@ -495,7 +496,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-11-08 01:54:26.025471",
+ "modified": "2023-11-08 17:16:41.111932",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot Booking",
