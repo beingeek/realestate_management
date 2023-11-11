@@ -110,13 +110,14 @@ frappe.ui.form.on("Plot Booking", {
 
 
 frappe.ui.form.on("Installment Payment Plan", {
-    amount: function(frm, cdt, cdn) {
-        set_payment_details(frm);
-    },
+    // amount: function(frm, cdt, cdn) {
+    //     set_payment_details(frm);
+    // },
 
-    payment_schedule_remove: function(frm, cdt, cdn) {
-        set_payment_details(frm);
-    }
+    // payment_schedule_remove: function(frm, cdt, cdn) {
+    //     set_payment_details(frm);
+    // }
+});
 });
 
 function calculateEndingDate(frm) {
@@ -130,30 +131,30 @@ function calculateEndingDate(frm) {
     }
 }
 
-function set_payment_details(frm) {
-    let totals = {
-        'Booking Amount': 0,
-        'Monthly Installment': 0,
-        'Quarterly Installment': 0,
-        'Half Yearly Installment': 0,
-        'Yearly Installment': 0,
-        'Possession Amount': 0,
-    };
+// function set_payment_details(frm) {
+//     let totals = {
+//         'Booking Amount': 0,
+//         'Monthly Installment': 0,
+//         'Quarterly Installment': 0,
+//         'Half Yearly Installment': 0,
+//         'Yearly Installment': 0,
+//         'Possession Amount': 0,
+//     };
 
-    frm.doc.payment_schedule.forEach(d => {
-        let type = d.installment;
-        totals[type] += flt(d.amount);
-    });
+//     frm.doc.payment_schedule.forEach(d => {
+//         let type = d.installment;
+//         totals[type] += flt(d.amount);
+//     });
 
-    let totalInstallmentAmount = totals['Monthly Installment'] + totals['Quarterly Installment'] + totals['Half Yearly Installment'] + totals['Yearly Installment'];
-    let totalPaymentScheduleAmount =  totalInstallmentAmount + frm.doc.total_booking_amount + frm.doc.total_possession_amount;
-    frm.set_value('total_monthly_installment',totals['Monthly Installment']);
-    frm.set_value('total_quarterly_installment', totals['Quarterly Installment']);
-    frm.set_value('total_half_yearly_installment', totals['Half Yearly Installment']);
-    frm.set_value('total_yearly_installment', totals['Yearly Installment']);
-    frm.set_value('total_booking_amount', totals['Booking Amount']);
-    frm.set_value('total_possession_amount', totals['Possession Amount']);
-    frm.set_value('total_installment_amount', totalInstallmentAmount);
-    frm.set_value('difference', frm.doc.total_sales_amount - totalPaymentScheduleAmount);
-    frm.refresh_fields();
-}
+//     let totalInstallmentAmount = totals['Monthly Installment'] + totals['Quarterly Installment'] + totals['Half Yearly Installment'] + totals['Yearly Installment'];
+//     let totalPaymentScheduleAmount =  totalInstallmentAmount + frm.doc.total_booking_amount + frm.doc.total_possession_amount;
+//     frm.set_value('total_monthly_installment',totals['Monthly Installment']);
+//     frm.set_value('total_quarterly_installment', totals['Quarterly Installment']);
+//     frm.set_value('total_half_yearly_installment', totals['Half Yearly Installment']);
+//     frm.set_value('total_yearly_installment', totals['Yearly Installment']);
+//     frm.set_value('total_booking_amount', totals['Booking Amount']);
+//     frm.set_value('total_possession_amount', totals['Possession Amount']);
+//     frm.set_value('total_installment_amount', totalInstallmentAmount);
+//     frm.set_value('difference', frm.doc.total_sales_amount - totalPaymentScheduleAmount);
+//     frm.refresh_fields();
+// }
