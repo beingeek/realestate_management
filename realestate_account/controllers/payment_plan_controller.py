@@ -3,10 +3,7 @@ from frappe import _
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from frappe.model.document import Document
-from frappe.utils import (
-    flt, cstr, today
-)
-
+from frappe.utils import flt, cstr
 
 
 class PaymentPlanController(Document):

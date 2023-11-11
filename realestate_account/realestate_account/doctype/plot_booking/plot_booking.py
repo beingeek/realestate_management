@@ -1,9 +1,8 @@
 import frappe
 from frappe import _
 from realestate_account.controllers.payment_plan_controller import PaymentPlanController
-from frappe.utils import (
-    flt, cstr, today
-)
+from frappe.utils import flt, cstr, today
+
 
 class ClosedAccountingPeriod(frappe.ValidationError):
     pass
@@ -93,6 +92,7 @@ class PlotBooking(PaymentPlanController):
     def before_insert(self):
         if self.status != 'Active':
             frappe.throw(_('The booking status should be Active'))
+
 
 def validate_accounting_period_open(doc, method=None):
     # refactor this to sql to make it backward compatible 
