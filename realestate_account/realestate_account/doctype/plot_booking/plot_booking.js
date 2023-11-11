@@ -59,14 +59,13 @@ frappe.ui.form.on("Plot Booking", {
         }, __('Select Available Plot'));
     },
 
-    //////// working on payment plan//////////
-    installment_starting_date: function(frm) {
-        calculateEndingDate(frm);
-    },
+    // installment_starting_date: function(frm) {
+    //     calculateEndingDate(frm);
+    // },
 
-    no_of_month_plan: function(frm) {
-        calculateEndingDate(frm);
-    },
+    // no_of_month_plan: function(frm) {
+    //     calculateEndingDate(frm);
+    // },
 
     total_sales_amount: function(frm) {
         let total_schedule_amt = frm.doc.total_booking_amount + frm.doc.total_possession_amount + frm.doc.total_installment_amount;
@@ -128,16 +127,16 @@ frappe.ui.form.on("Payment Plan", {
 	}
 });
 
-function calculateEndingDate(frm) {
-    var startingDate = frm.doc.installment_starting_date;
-    var numberOfMonth = frm.doc.no_of_month_plan;
+// function calculateEndingDate(frm) {
+//     var startingDate = frm.doc.installment_starting_date;
+//     var numberOfMonth = frm.doc.no_of_month_plan;
 
-    if (startingDate && numberOfMonth) {
-        var endingDate = frappe.datetime.add_months(startingDate, numberOfMonth);
+//     if (startingDate && numberOfMonth) {
+//         var endingDate = frappe.datetime.add_months(startingDate, numberOfMonth);
 
-        frm.set_value('installment_ending_date', endingDate);
-    }
-}
+//         frm.set_value('installment_ending_date', endingDate);
+//     }
+// }
 
 // function set_payment_details(frm) {
 //     let totals = {

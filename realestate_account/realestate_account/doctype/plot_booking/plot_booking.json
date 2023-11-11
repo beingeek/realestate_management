@@ -272,7 +272,7 @@
    "fieldname": "installment_ending_date",
    "fieldtype": "Date",
    "label": " Installment Ending Date",
-   "read_only": 1
+   "reqd": 1
   },
   {
    "fieldname": "column_break_v7ici",
@@ -378,7 +378,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-11-11 15:26:10.680890",
+ "modified": "2023-11-11 20:17:23.354412",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot Booking",
