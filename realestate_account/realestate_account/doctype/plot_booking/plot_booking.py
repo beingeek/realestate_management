@@ -1,14 +1,14 @@
 import frappe
 from frappe import _
-from frappe.model.document import Document
+from realestate_account.controllers.payment_plan_controller import PaymentPlanController
 from frappe.utils import (
     flt, cstr, today
 )
 
 class ClosedAccountingPeriod(frappe.ValidationError):
-	pass
+    pass
 
-class PlotBooking(Document):
+class PlotBooking(PaymentPlanController):
     def validate(self):
         self.validate_posting_date()
         validate_accounting_period_open(self)

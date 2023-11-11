@@ -1,0 +1,66 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:plan_type",
+ "creation": "2023-11-04 21:22:28.409839",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "plan_type",
+  "column_break_w5bh",
+  "frequency_in_months",
+  "is_recurring"
+ ],
+ "fields": [
+  {
+   "fieldname": "plan_type",
+   "fieldtype": "Data",
+   "label": "Plan Type",
+   "unique": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_recurring",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Recurring"
+  },
+  {
+   "fieldname": "column_break_w5bh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "frequency_in_months",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Frequency in Months",
+   "mandatory_depends_on": "eval: doc.is_recurring",
+   "read_only_depends_on": "eval: !doc.is_recurring"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2023-11-10 02:19:21.187536",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Payment Plan Type",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
