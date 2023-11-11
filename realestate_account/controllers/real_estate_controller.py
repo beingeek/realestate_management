@@ -6,7 +6,7 @@ from frappe.model.document import Document
 from frappe.utils import flt, cstr
 
 
-class PaymentPlanController(Document):
+class PaymentScheduleController(Document):
     @frappe.whitelist()
     def generate_installment(self):
         self.validate_payment_plan()
