@@ -118,6 +118,14 @@ frappe.ui.form.on("Installment Payment Plan", {
     //     set_payment_details(frm);
     // }
 });
+
+frappe.ui.form.on("Payment Plan", {
+    payment_plan_add: function(frm, cdt, cdn) {
+		let row = locals[cdt][cdn];
+		row.start_date = frm.doc.installment_starting_date;
+		row.end_date = frm.doc.installment_ending_date;
+        frm.refresh_field("payment_plan");
+	}
 });
 
 function calculateEndingDate(frm) {
