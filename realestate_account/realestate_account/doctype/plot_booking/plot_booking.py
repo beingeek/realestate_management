@@ -99,6 +99,7 @@ class PlotBooking(Document):
             frappe.throw(_('The booking status should be Active'))
 
 def validate_accounting_period_open(doc, method=None):
+    # refactor this to sql to make it backward compatible 
     ap = frappe.qb.DocType("Accounting Period")
     cd = frappe.qb.DocType("Closed Document")
     accounting_period = (

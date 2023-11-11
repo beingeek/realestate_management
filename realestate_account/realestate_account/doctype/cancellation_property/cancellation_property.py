@@ -4,15 +4,12 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import today, getdate
 
-class ClosedAccountingPeriod(frappe.ValidationError):
-	pass
-
 class CancellationProperty(Document):
    
     def validate(self):
-        self.validate_posting_date()
+        self.validate_doc_date()
         self.validate_Check_customer_plot_master_data()
-        self.validate_accounting_period_open()
+        self.validate_acounting_period()
         self.validate_deduction_amount()
         
     def on_submit(self):
@@ -23,148 +20,122 @@ class CancellationProperty(Document):
     def on_cancel(self):
         self.remove_plot()
 
-    def validate_posting_date(self):
-        if self.posting_date:
-            posting_date = getdate(self.posting_date)
+    def validate_doc_date(self):
+        if self.doc_date:
+            doc_date = getdate(self.doc_date)
             today_date = today()
-        if posting_date and posting_date > getdate(today_date):
+        if doc_date and doc_date > getdate(today_date):
             frappe.throw("Future Document date not Allowed.")
     
     def validate_Check_customer_plot_master_data(self):
         if self.customer:
-            customer = frappe.get_value('Plot List', {'name': self.plot_no}, 'customer')
-            if customer != self.customer:
+            client_name = frappe.get_value('Plot List', {'name': self.plot_no}, 'client_name')
+            if client_name != self.customer:
                 frappe.msgprint('The master data customer does not match the payment customer')
                 frappe.throw('Validation Error: Customer mismatch')
     
     def validate_deduction_amount(self):
-        if self.deduction != 0:
+        if self.final_payment != 0:
             total_payment_amount = 0
             for payment in self.payment_type:
                 total_payment_amount += payment.amount
-            if self.deduction != total_payment_amount:
+            if self.final_payment != total_payment_amount:
                 frappe.throw('Total deduction amount must be equal to the sum of payment type amounts')
 
-    # def validate_acounting_period(self):
-    #     sql_query = """
-    #         SELECT closed
-    #         FROM `tabAccounting Period` AS tap
-    #         LEFT JOIN `tabClosed Document` AS tcd ON tcd.parent = tap.name
-    #         WHERE tcd.document_type = 'Journal Entry' 
-    #         AND MONTH(tap.end_date) = MONTH(%s) 
-    #         AND YEAR(tap.end_date) = YEAR(%s)
-    #         LIMIT 1;
-    #     """
-    #     result = frappe.db.sql(sql_query, (self.posting_date, self.posting_date), as_dict=True)
-    #     if not result:
-    #         return {'is_open': None}
-    #     if result[0]['closed'] == 1:
-    #         frappe.throw('The accounting period is not open. Please open the accounting period.')
-    #     return {'is_open': 1}
-
-    def validate_accounting_period_open(doc, method=None):
-        ap = frappe.qb.DocType("Accounting Period")
-        cd = frappe.qb.DocType("Closed Document")
-        accounting_period = (
-            frappe.qb.from_(ap)
-            .from_(cd)
-            .select(ap.name)
-            .where(
-                (ap.name == cd.parent)
-                & (ap.company == doc.company)
-                & (cd.closed == 1)
-                & (cd.document_type == doc.doctype)
-                & (doc.posting_date >= ap.start_date)
-                & (doc.posting_date <= ap.end_date)
-            )
-        ).run(as_dict=1)
-
-        if accounting_period:
-            frappe.throw(_("You cannot create a {0} within the closed Accounting Period {1}").format(
-                doc.doctype, frappe.bold(accounting_period[0]["name"]),
-                ClosedAccountingPeriod
-            ))
+    def validate_acounting_period(self):
+        sql_query = """
+            SELECT closed
+            FROM `tabAccounting Period` AS tap
+            LEFT JOIN `tabClosed Document` AS tcd ON tcd.parent = tap.name
+            WHERE tcd.document_type = 'Journal Entry' 
+            AND MONTH(tap.end_date) = MONTH(%s) 
+            AND YEAR(tap.end_date) = YEAR(%s)
+            LIMIT 1;
+        """
+        result = frappe.db.sql(sql_query, (self.doc_date, self.doc_date), as_dict=True)
+        if not result:
+            return {'is_open': None}
+        if result[0]['closed'] == 1:
+            frappe.throw('The accounting period is not open. Please open the accounting period.')
+        return {'is_open': 1}
 
     def make_gl_entries(self):
-        try:
-            if self.received_amount != 0:
-                company = frappe.defaults.get_user_default("Company")
-                default_receivable_account = frappe.get_value("Company", company, "default_receivable_account")
-                
-                deductionAccount = frappe.db.get_single_value("Real Estate Settings", "default_transfer_revenue_account")
-                if not deductionAccount:
-                    frappe.throw('Please set Default deduction Account in Real Estate Settings')
-                cost_center = frappe.db.get_single_value("Real Estate Settings", "cost_center")
-                if not cost_center:
-                    frappe.throw('Please set Cost Centre in Real Estate Settings')
-        
-                journal_entry = frappe.get_doc({
-                    "doctype": "Journal Entry",
-                    "voucher_type": "Journal Entry",
-                    "voucher_no": self.name,
-                    "posting_date": self.posting_date,
-                    "user_remark": self.remarks,
-                    "custom_plot_no": self.plot_no,
-                    "custom_document_number": self.name,
-                    "custom_document_type": "Cancellation Property"
-                })
+        if self.received_amount != 0:
+            company = frappe.defaults.get_user_default("Company")
+            default_receivable_account = frappe.get_value("Company", company, "default_receivable_account")
+            
+            deductionAccount = frappe.db.get_single_value("Real Estate Settings", "default_transfer_revenue_account")
+            if not deductionAccount:
+                frappe.throw('Please set Default deduction Account in Real Estate Settings')
+            cost_center = frappe.db.get_single_value("Real Estate Settings", "cost_center")
+            if not cost_center:
+                frappe.throw('Please set Cost Centre in Real Estate Settings')
+    
+            journal_entry = frappe.get_doc({
+                "doctype": "Journal Entry",
+                "voucher_type": "Journal Entry",
+                "voucher_no": self.name,
+                "posting_date": self.doc_date,
+                "user_remark": self.remarks,
+                "custom_plot_no": self.plot_no,
+                "custom_document_number": self.name,
+                "custom_document_type": "Cancellation Property"
+            })
 
-                for payment in self.payment_type:
-                    journal_entry.append("accounts", {
-                        "account": payment.ledger,
-                        "credit_in_account_currency": payment.amount,
-                        "against": default_receivable_account,
-                        "project": self.project,
-                        "custom_plot_no": self.plot_no,
-                        "bank_account":payment.bank_account,
-                        "cost_center": "",
-                        "is_advance": 0,
-                        "custom_document_number": self.name,
-                        "custom_document_type":"Cancellation Property"
-                    })
-
+            for payment in self.payment_type:
                 journal_entry.append("accounts", {
-                    "account": deductionAccount,
-                    "credit_in_account_currency": self.final_payment,
-                    "against": self.customer,
-                    "project": self.project,
+                    "account": payment.ledger,
+                    "credit_in_account_currency": payment.amount,
+                    "against": default_receivable_account,
+                    "project": self.project_name,
                     "custom_plot_no": self.plot_no,
-                    "cost_center": cost_center,
-                    "is_advance": 0,
-                    "custom_document_number": self.name,
-                    "custom_document_type": "Cancellation Property"
-                })
-
-                journal_entry.append("accounts", {
-                    "account": default_receivable_account,
-                    "debit_in_account_currency": self.received_amount,
-                    "party_type": "Customer",
-                    "party": self.customer,
-                    "project": self.project,
-                    "custom_plot_no": self.plot_no,
+                    "bank_account":payment.bank_account,
                     "cost_center": "",
                     "is_advance": 0,
                     "custom_document_number": self.name,
-                    "custom_document_type": "Cancellation Property"
+                    "custom_document_type":"Cancellation Property"
                 })
 
-                journal_entry.insert(ignore_permissions=True)
-                journal_entry.submit()
+            journal_entry.append("accounts", {
+                "account": deductionAccount,
+                "credit_in_account_currency": self.deduction,
+                "against": self.customer,
+                "project": self.project_name,
+                "custom_plot_no": self.plot_no,
+                "cost_center": cost_center,
+                "is_advance": 0,
+                "custom_document_number": self.name,
+                "custom_document_type": "Cancellation Property"
+            })
 
-                frappe.db.commit()
-                frappe.msgprint(_('Journal Entry {0} created successfully').format(frappe.get_desk_link("Journal Entry", journal_entry.name)))
-        except Exception as e:
-            frappe.msgprint(f"Error while making GL entries: {str(e)}")
+            journal_entry.append("accounts", {
+                "account": default_receivable_account,
+                "debit_in_account_currency": self.received_amount,
+                "party_type": "Customer",
+                "party": self.customer,
+                "project": self.project_name,
+                "custom_plot_no": self.plot_no,
+                "cost_center": "",
+                "is_advance": 0,
+                "custom_document_number": self.name,
+                "custom_document_type": "Cancellation Property"
+            })
+
+            journal_entry.insert(ignore_permissions=True)
+            journal_entry.submit()
+
+            frappe.db.commit()
+            frappe.msgprint(_('Journal Entry {0} created successfully').format(frappe.get_desk_link("Journal Entry", journal_entry.name)))
 
     def update_plot_master(self):
         try:
             plot_master = frappe.get_doc("Plot List", self.plot_no)
             plot_master.update({
                     'status'        : "Available", 
-                    'customer'   : "", 
+                    'client_name'   : "", 
                     'address'       : "",
-                    'contact_no'    : "", 
-                    'sales_broker'  : "",
+                    'mobile_no'     : "", 
+                    'sales_agent'   : "",
                     'father_name'   : "", 
                     'cnic'          : "",
                 })
@@ -191,11 +162,10 @@ class CancellationProperty(Document):
 
     def remove_plot(self):
         plot_master = frappe.get_doc("Plot List", self.plot_no)
-        if plot_master.status == "Available" and plot_master.hold_for_sale == 0:
-            
+        if plot_master.status == "Available":
             plot_master.update({
-                'status': "Booked", 'customer': self.customer, 'address': self.address,
-                'contact_no': self.contact_no, 'sales_broker': self.sales_broker,
+                'status': "Booked", 'client_name': self.customer, 'address': self.address,
+                'mobile_no': self.contact_no, 'sales_agent': self.sales_broker,
                 'father_name': self.father_name, 'cnic': self.cnic,
             })
             plot_master.save()
@@ -215,9 +185,9 @@ class CancellationProperty(Document):
         else:
             frappe.throw(_("Error: The selected plot is not available for booking.")) 
 
-    def before_insert(self):
-        if self.status != "Active":
-            frappe.throw('The document status should be Active at the time entered in the system')
+    # def before_insert(self):
+    #     if self.status != "Active":
+    #         frappe.throw('The document status should be Active at the time entered in the system')
 
 
 
@@ -249,9 +219,9 @@ def get_previous_document_detail(plot_no):
             SELECT DISTINCT
                 thb.name,
                 thb.plot_no,
-                thb.project as project,
+                thb.project_name as project,
                 'Plot Booking' as Doc_type,
-                thb.customer as customer,
+                thb.client_name as customer,
                 thb.sales_broker,
                 thb.total_sales_amount as sales_amount,
                 IFNULL((

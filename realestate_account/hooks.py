@@ -10,14 +10,6 @@ app_license = "MIT"
 # Includes in <head>
 # ------------------
 
-
-# doc_events = {
-#     "Housing Booking": {
-#         "before_submit": "realestate_account.realestate_account.doctype.housing_booking.housing_booking.before_submit",
-#     },
-# }
-
-
 # include js, css files in header of desk.html
 # app_include_css = "/assets/realestate_account/css/realestate_account.css"
 # app_include_js = "/assets/realestate_account/js/realestate_account.js"
@@ -110,13 +102,18 @@ app_license = "MIT"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-#	"*": {
-#		"on_update": "method",
-#		"on_cancel": "method",
-#		"on_trash": "method"
-#	}
-# }
+# period_closing_doctypes = [
+# 	"Plot Booking"
+# ]
+
+doc_events = {
+	# tuple(period_closing_doctypes): {
+	# 	"validate": "erpnext.accounts.doctype.accounting_period.accounting_period.validate_accounting_period_on_doc_save",
+	# },
+    "Journal Entry": {
+        'on_cancel': 'realestate_account.events.journal_entry.check_plot_booking'
+    }
+}
 
 # Scheduled Tasks
 # ---------------
