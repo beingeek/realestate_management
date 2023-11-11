@@ -76,119 +76,36 @@ frappe.ui.form.on("Plot Booking", {
     },
 
     generate_installment: function(frm) {
-        var numberOfMonth           = frm.doc.no_of_month_plan;
-        var startDate               = frm.doc.installment_starting_date;
-        var bookingDate             = frm.doc.posting_date;
-        var bookingAmount           = (frm.doc.booking_amount) ?? 0 ;
-        var possessionAmount        = (frm.doc.possession_amount) ?? 0;
-        var monthlyInstallment      = (frm.doc.monthly_installment_amount) ?? 0;
-        var quarterlyInstallment    = (frm.doc.quarterly_installment_amount) ?? 0;
-        var halfYearlyInstallment   = (frm.doc.half_yearly_installment_amount) ?? 0;
-        var yearlyInstallment       = (frm.doc.yearly_installment_amount) ?? 0;
-        var plotNumber              = frm.doc.plot_no;
-        var totalSalesAmount        = (frm.doc.total_sales_amount) ?? 0;
 
-        var totalMonthlyInstallment             = 0
-        var totalQuarterlyInstallment           = 0
-        var totalHalfYearlyInstallment          = 0
-        var totalYearlyInstallment              = 0
-        var totalInstallmentAmount              = 0
-        var difference                          = 0
+        let plan_totals = {}
+        let totalPaymentScheduleAmount = 0;
 
-        var quarterlyInstallmentCounter         = 1;
-        var halfYearlyInstallmentCounter        = 1;
-        var yearlyInstallmentCounter            = 1;
-
-        if (!monthlyInstallment || !numberOfMonth || !startDate ) {
-            frappe.msgprint(__('Please fill the Starting Date/ No of Month / Monthly Installment fields.'));
-        } else if(!plotNumber || !bookingDate){
-            frappe.msgprint(__('Please fill Plot Number & Booking Date fields.'));
-            return;
-        }
-
-        frm.clear_table('payment_schedule');
-
-        if (bookingAmount  > 0) {
-            frm.add_child('payment_schedule', {
-                installment: 'Booking Amount',
-                date:bookingDate,
-                amount: bookingAmount,
-                installment_name : 'Booking Amount'
-            });
-        }
-
-        for (var i = 0; i < numberOfMonth; i++) {
-            if (monthlyInstallment > 0) {
-                frm.add_child('payment_schedule', {   
-                    installment: 'Monthly Installment',
-                    date: frappe.datetime.add_months(startDate, i),
-                    amount: monthlyInstallment,
-                    installment_name: `Monthly Installment - ${i + 1}`
-                });
-                totalMonthlyInstallment = totalMonthlyInstallment + monthlyInstallment
+        frappe.call({
+            method:"generate_installment",
+            doc:frm.doc,
+            callback(r){
+                if (r.message) {
+                    frm.clear_table('payment_schedule');
+                    $.each(r.message || [], function(i, row) {
+                        frm.add_child('payment_schedule', row);
+                        if (!plan_totals[row.installment]) {
+                            plan_totals[row.installment] = flt(row.amount);
+                        } else {
+                            plan_totals[row.installment] += flt(row.amount);
+                        }
+                        totalPaymentScheduleAmount += flt(row.amount);
+                    })
+                    frm.set_value('difference', frm.doc.total_sales_amount - totalPaymentScheduleAmount);
+                    $.each(frm.doc.payment_plan || [], function(i, row) {
+                        if (plan_totals[row.plan_type]) {
+                            row.total_amount = plan_totals[row.plan_type];
+                        }
+                    })
+                    frm.refresh_fields();
+                }
             }
-
-            if (i >= 2 && (i - 2) % 3 === 0 && quarterlyInstallment > 0) {
-                frm.add_child('payment_schedule', {
-                    installment: 'Quarterly Installment',
-                    date: frappe.datetime.add_months(startDate, i),
-                    amount: quarterlyInstallment,
-                    installment_name :`Quarterly Installment - ${quarterlyInstallmentCounter }`
-                });
-                totalQuarterlyInstallment = totalQuarterlyInstallment + quarterlyInstallment;
-                quarterlyInstallmentCounter ++;
-                
-            }
-            
-            if (i >= 5 && (i - 5) % 6 === 0 && halfYearlyInstallment > 0) {
-                frm.add_child('payment_schedule', {
-                    installment: 'Half Yearly Installment',
-                    date: frappe.datetime.add_months(startDate, i),
-                    amount: halfYearlyInstallment,
-                    installment_name :`Half Yearly Installment - ${halfYearlyInstallmentCounter}`
-
-                });
-                totalHalfYearlyInstallment = totalHalfYearlyInstallment + halfYearlyInstallment;
-                halfYearlyInstallmentCounter ++;
-            }
-
-            if (i >= 11 && (i - 11) % 12 === 0 && yearlyInstallment > 0) {
-                frm.add_child('payment_schedule', {
-                    installment: 'Yearly Installment',
-                    date: frappe.datetime.add_months(startDate, i),
-                    amount: yearlyInstallment,
-                    installment_name :`Yearly Installment - ${yearlyInstallmentCounter }`
-                });
-                totalYearlyInstallment = totalYearlyInstallment + yearlyInstallment
-                yearlyInstallmentCounter ++;
-    }
-
-        }
-
-        if (possessionAmount   > 0) {
-            frm.add_child('payment_schedule', {
-                installment: 'Possession Amount',
-                date:frappe.datetime.add_months(startDate, numberOfMonth),
-                amount: possessionAmount,
-                installment_name : 'Possession Amount'
-            });
-        }
-
-        totalInstallmentAmount = totalMonthlyInstallment + totalHalfYearlyInstallment + totalQuarterlyInstallment + totalYearlyInstallment
-
-        difference = totalSalesAmount - (totalMonthlyInstallment + totalHalfYearlyInstallment + totalQuarterlyInstallment + totalYearlyInstallment + bookingAmount + possessionAmount)
-
-        frm.set_value('total_monthly_installment',totalMonthlyInstallment)
-        frm.set_value('total_quarterly_installment',totalQuarterlyInstallment)
-        frm.set_value('total_half_yearly_installment',totalHalfYearlyInstallment)
-        frm.set_value('total_yearly_installment',totalYearlyInstallment)
-        frm.set_value('total_installment_amount',totalInstallmentAmount)
-        frm.set_value('total_booking_amount',bookingAmount)
-        frm.set_value('total_possession_amount',possessionAmount)
-        frm.set_value('difference',difference)
-
-        frm.refresh_fields()
-    }
+        })
+    },
 });
 
 
