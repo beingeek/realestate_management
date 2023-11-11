@@ -10,7 +10,7 @@ class ClosedAccountingPeriod(frappe.ValidationError):
 
 class PlotBooking(PaymentPlanController):
     def validate(self):
-        self.validate_posting_date()
+        self.validate_booking_date()
         validate_accounting_period_open(self)
         self.validate_plot_booking()
         self.validate_amount()
@@ -30,13 +30,9 @@ class PlotBooking(PaymentPlanController):
         if plot_status == 'Booked':
             frappe.throw(_('The {0} is already booked').format(frappe.get_desk_link('Plot List', self.plot_no)))
 
-    def validate_posting_date(self):
-        if self.posting_date > today():
+    def validate_booking_date(self):
+        if self.booking_date > today():
             frappe.throw(_('Future booking date not allowed.'))
-
-    def validate_amount(self):
-        if flt(self.difference) != 0.0:
-            frappe.throw(_('Amount of Installment Total and Grand Total is not matched'))
 
     def create_invoice(self):
         if flt(self.commission_amount) > 0.0:
@@ -51,7 +47,7 @@ class PlotBooking(PaymentPlanController):
             invoice = frappe.get_doc({
                 "doctype": "Purchase Invoice",
                 "supplier": self.sales_broker,
-                "posting_date": self.posting_date,
+                "booking_date": self.booking_date,
                 "bill_no" : self.plot_no,
                 "project" : self.project,
                 "cost_centre" : "",
@@ -111,8 +107,8 @@ def validate_accounting_period_open(doc, method=None):
             & (ap.company == doc.company)
             & (cd.closed == 1)
             & (cd.document_type == doc.doctype)
-            & (doc.posting_date >= ap.start_date)
-            & (doc.posting_date <= ap.end_date)
+            & (doc.booking_date >= ap.start_date)
+            & (doc.booking_date <= ap.end_date)
         )
     ).run(as_dict=1)
 
@@ -121,5 +117,3 @@ def validate_accounting_period_open(doc, method=None):
             doc.doctype, frappe.bold(accounting_period[0]["name"]),
             ClosedAccountingPeriod
         ))
-
-    

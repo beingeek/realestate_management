@@ -26,9 +26,9 @@ frappe.ui.form.on("Plot Booking", {
         frm.set_value("booking_grand_total", booking_grand_total);
     },
 
-    project: function(frm) {
-        var project = frm.doc.project;
-        if (!frm.doc.project) {
+    project_name: function(frm) {
+        var project_name = frm.doc.project_name;
+        if (!frm.doc.project_name) {
             frappe.throw(__("Please select a project."));
             return;
         }
@@ -36,8 +36,8 @@ frappe.ui.form.on("Plot Booking", {
             return;
         }
 
-        frm.cscript.project = function(doc) {
-            if (doc.project !== project) {
+        frm.cscript.project_name = function(doc) {
+            if (doc.project_name !== project_name) {
                 frm.prompt_opened = false;
             }
         };
@@ -50,7 +50,7 @@ frappe.ui.form.on("Plot Booking", {
             options: "Plot List",
             get_query: () => ({
                 filters: {
-                    "status": 'Available', 'hold_for_sale': 0, 'project': frm.doc.project
+                    "status": 'Available', 'hold_for_sale': 0, 'project_name': frm.doc.project_name
                 }
             })
         }, (values) => {
