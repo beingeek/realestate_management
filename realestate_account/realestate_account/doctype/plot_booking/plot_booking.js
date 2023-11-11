@@ -75,10 +75,6 @@ frappe.ui.form.on("Plot Booking", {
     },
 
     generate_installment: function(frm) {
-
-        let plan_totals = {}
-        let totalPaymentScheduleAmount = 0;
-
         frappe.call({
             method:"generate_installment",
             doc:frm.doc,
@@ -87,20 +83,8 @@ frappe.ui.form.on("Plot Booking", {
                     frm.clear_table('payment_schedule');
                     $.each(r.message || [], function(i, row) {
                         frm.add_child('payment_schedule', row);
-                        if (!plan_totals[row.installment]) {
-                            plan_totals[row.installment] = flt(row.amount);
-                        } else {
-                            plan_totals[row.installment] += flt(row.amount);
-                        }
-                        totalPaymentScheduleAmount += flt(row.amount);
                     })
-                    frm.set_value('difference', frm.doc.total_sales_amount - totalPaymentScheduleAmount);
-                    $.each(frm.doc.payment_plan || [], function(i, row) {
-                        if (plan_totals[row.plan_type]) {
-                            row.total_amount = plan_totals[row.plan_type];
-                        }
-                    })
-                    frm.refresh_fields();
+                    set_payment_plan_summary(frm);
                 }
             }
         })
@@ -109,13 +93,13 @@ frappe.ui.form.on("Plot Booking", {
 
 
 frappe.ui.form.on("Installment Payment Plan", {
-    // amount: function(frm, cdt, cdn) {
-    //     set_payment_details(frm);
-    // },
+    amount: function(frm, cdt, cdn) {
+        set_payment_plan_summary(frm);
+    },
 
-    // payment_schedule_remove: function(frm, cdt, cdn) {
-    //     set_payment_details(frm);
-    // }
+    payment_schedule_remove: function(frm, cdt, cdn) {
+        set_payment_plan_summary(frm);
+    }
 });
 
 frappe.ui.form.on("Payment Plan", {
@@ -138,30 +122,27 @@ frappe.ui.form.on("Payment Plan", {
 //     }
 // }
 
-// function set_payment_details(frm) {
-//     let totals = {
-//         'Booking Amount': 0,
-//         'Monthly Installment': 0,
-//         'Quarterly Installment': 0,
-//         'Half Yearly Installment': 0,
-//         'Yearly Installment': 0,
-//         'Possession Amount': 0,
-//     };
 
-//     frm.doc.payment_schedule.forEach(d => {
-//         let type = d.installment;
-//         totals[type] += flt(d.amount);
-//     });
+function set_payment_plan_summary(frm) {
+    let plan_totals = {}
+    let totalPaymentScheduleAmount = 0;
 
-//     let totalInstallmentAmount = totals['Monthly Installment'] + totals['Quarterly Installment'] + totals['Half Yearly Installment'] + totals['Yearly Installment'];
-//     let totalPaymentScheduleAmount =  totalInstallmentAmount + frm.doc.total_booking_amount + frm.doc.total_possession_amount;
-//     frm.set_value('total_monthly_installment',totals['Monthly Installment']);
-//     frm.set_value('total_quarterly_installment', totals['Quarterly Installment']);
-//     frm.set_value('total_half_yearly_installment', totals['Half Yearly Installment']);
-//     frm.set_value('total_yearly_installment', totals['Yearly Installment']);
-//     frm.set_value('total_booking_amount', totals['Booking Amount']);
-//     frm.set_value('total_possession_amount', totals['Possession Amount']);
-//     frm.set_value('total_installment_amount', totalInstallmentAmount);
-//     frm.set_value('difference', frm.doc.total_sales_amount - totalPaymentScheduleAmount);
-//     frm.refresh_fields();
-// }
+    $.each(frm.doc.payment_schedule || [], function(i, row) {
+        if (!plan_totals[row.installment]) {
+            plan_totals[row.installment] = flt(row.amount);
+        } else {
+            plan_totals[row.installment] += flt(row.amount);
+        }
+        totalPaymentScheduleAmount += flt(row.amount);
+    })
+
+    frm.set_value('difference', frm.doc.total_sales_amount - totalPaymentScheduleAmount);
+
+    $.each(frm.doc.payment_plan || [], function(i, row) {
+        if (plan_totals[row.plan_type]) {
+            row.total_amount = plan_totals[row.plan_type];
+        }
+    })
+    frm.refresh_fields();
+
+}
