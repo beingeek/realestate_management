@@ -39,7 +39,7 @@ def generate_payment_schedule(payment_plan):
                     "date": due_date.strftime("%Y-%m-%d"),
                     'amount': plan.get('installment_amount'),
                     'installment': plan.get('plan_type'),
-                    "installment_amount": float(plan.get('installment_amount')),
+                    "installment_amount": flt(plan.get('installment_amount')),
                     'installment_name': '{0} {1}'.format(plan.get('plan_type'), count)
                 })
 
@@ -51,7 +51,7 @@ def generate_payment_schedule(payment_plan):
                 "date": start_date.strftime("%Y-%m-%d"),
                 'amount': plan.get('installment_amount'),
                 'installment': plan.get('plan_type'),
-                "installment_amount": float(plan.get('installment_amount')),
+                "installment_amount": flt(plan.get('installment_amount')),
                 'installment_name': plan.get('plan_type')
             })
 

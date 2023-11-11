@@ -41,7 +41,7 @@ class PlotBooking(PaymentScheduleController):
             default_cost_center = realestate_default_cost_center or company_default_cost_center
             default_commission_item = frappe.db.get_single_value("Real Estate Settings", "commission_item")
             if not default_commission_item:
-                frappe.throw('Please set Commission Item in Real Estate Settings')
+                frappe.throw(_('Please set Commission Item in Real Estate Settings'))
 
             invoice = frappe.get_doc({
                 "doctype": "Purchase Invoice",
