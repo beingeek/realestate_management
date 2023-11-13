@@ -7,9 +7,12 @@
  "engine": "InnoDB",
  "field_order": [
   "plan_type",
-  "column_break_w5bh",
   "frequency_in_months",
-  "is_recurring"
+  "date_selection",
+  "is_recurring",
+  "column_break_w5bh",
+  "column_break_gczr",
+  "column_break_spxs"
  ],
  "fields": [
   {
@@ -36,11 +39,25 @@
    "label": "Frequency in Months",
    "mandatory_depends_on": "eval: doc.is_recurring",
    "read_only_depends_on": "eval: !doc.is_recurring"
+  },
+  {
+   "fieldname": "date_selection",
+   "fieldtype": "Select",
+   "label": "Date Selection",
+   "options": "Start Date\nEnd Date"
+  },
+  {
+   "fieldname": "column_break_gczr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_spxs",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-10 02:19:21.187536",
+ "modified": "2023-11-13 11:58:49.666805",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Payment Plan Type",
