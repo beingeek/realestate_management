@@ -9,7 +9,7 @@
  "engine": "InnoDB",
  "field_order": [
   "property_information_tab",
-  "project_name",
+  "project",
   "column_break_y1nhq",
   "plot_detail",
   "column_break_hxyju",
@@ -27,14 +27,14 @@
   "total",
   "company",
   "current_owner_detail_tab",
-  "client_name",
+  "customer",
   "address",
   "column_break_ayjoz",
   "father_name",
   "cnic",
   "column_break_5xzlh",
-  "mobile_no",
-  "sales_agent",
+  "contact_no",
+  "sales_broker",
   "connection",
   "amended_from",
   "title"
@@ -46,7 +46,7 @@
    "label": "Property Information"
   },
   {
-   "fieldname": "project_name",
+   "fieldname": "project",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
@@ -149,15 +149,6 @@
    "label": " Current Ownership Detail"
   },
   {
-   "fieldname": "client_name",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Customer Name",
-   "options": "Customer",
-   "read_only": 1
-  },
-  {
    "fieldname": "address",
    "fieldtype": "Small Text",
    "label": "Address",
@@ -182,21 +173,6 @@
   {
    "fieldname": "column_break_5xzlh",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "mobile_no",
-   "fieldtype": "Data",
-   "label": "contact No.",
-   "read_only": 1
-  },
-  {
-   "fieldname": "sales_agent",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": " Sales Broker",
-   "options": "Supplier",
-   "read_only": 1
   },
   {
    "fieldname": "connection",
@@ -234,6 +210,30 @@
    "label": "Title",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Customer Name",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "contact_no",
+   "fieldtype": "Data",
+   "label": "contact No.",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales_broker",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": " Sales Broker",
+   "options": "Supplier",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -264,7 +264,7 @@
    "link_fieldname": "bill_no"
   }
  ],
- "modified": "2023-11-09 13:55:52.431214",
+ "modified": "2023-11-12 03:11:01.689660",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot List",

@@ -7,7 +7,7 @@ from frappe.utils import today, getdate
 class CancellationProperty(Document):
    
     def validate(self):
-        self.validate_doc_date()
+        self.validate_posting_date()
         self.validate_Check_customer_plot_master_data()
         self.validate_acounting_period()
         self.validate_deduction_amount()
@@ -20,17 +20,17 @@ class CancellationProperty(Document):
     def on_cancel(self):
         self.remove_plot()
 
-    def validate_doc_date(self):
-        if self.doc_date:
-            doc_date = getdate(self.doc_date)
+    def validate_posting_date(self):
+        if self.posting_date:
+            posting_date = getdate(self.posting_date)
             today_date = today()
-        if doc_date and doc_date > getdate(today_date):
+        if posting_date and posting_date > getdate(today_date):
             frappe.throw("Future Document date not Allowed.")
     
     def validate_Check_customer_plot_master_data(self):
         if self.customer:
-            client_name = frappe.get_value('Plot List', {'name': self.plot_no}, 'client_name')
-            if client_name != self.customer:
+            customer = frappe.get_value('Plot List', {'name': self.plot_no}, 'customer')
+            if customer != self.customer:
                 frappe.msgprint('The master data customer does not match the payment customer')
                 frappe.throw('Validation Error: Customer mismatch')
     
@@ -52,7 +52,7 @@ class CancellationProperty(Document):
             AND YEAR(tap.end_date) = YEAR(%s)
             LIMIT 1;
         """
-        result = frappe.db.sql(sql_query, (self.doc_date, self.doc_date), as_dict=True)
+        result = frappe.db.sql(sql_query, (self.posting_date, self.posting_date), as_dict=True)
         if not result:
             return {'is_open': None}
         if result[0]['closed'] == 1:
@@ -64,7 +64,7 @@ class CancellationProperty(Document):
             company = frappe.defaults.get_user_default("Company")
             default_receivable_account = frappe.get_value("Company", company, "default_receivable_account")
             
-            deductionAccount = frappe.db.get_single_value("Real Estate Settings", "default_transfer_revenue_account")
+            deductionAccount = frappe.db.get_single_value("Real Estate Settings", "default_deduction_revenue_account")
             if not deductionAccount:
                 frappe.throw('Please set Default deduction Account in Real Estate Settings')
             cost_center = frappe.db.get_single_value("Real Estate Settings", "cost_center")
@@ -75,7 +75,7 @@ class CancellationProperty(Document):
                 "doctype": "Journal Entry",
                 "voucher_type": "Journal Entry",
                 "voucher_no": self.name,
-                "posting_date": self.doc_date,
+                "posting_date": self.posting_date,
                 "user_remark": self.remarks,
                 "custom_plot_no": self.plot_no,
                 "custom_document_number": self.name,
@@ -87,7 +87,7 @@ class CancellationProperty(Document):
                     "account": payment.ledger,
                     "credit_in_account_currency": payment.amount,
                     "against": default_receivable_account,
-                    "project": self.project_name,
+                    "project": self.project,
                     "custom_plot_no": self.plot_no,
                     "bank_account":payment.bank_account,
                     "cost_center": "",
@@ -100,7 +100,7 @@ class CancellationProperty(Document):
                 "account": deductionAccount,
                 "credit_in_account_currency": self.deduction,
                 "against": self.customer,
-                "project": self.project_name,
+                "project": self.project,
                 "custom_plot_no": self.plot_no,
                 "cost_center": cost_center,
                 "is_advance": 0,
@@ -113,7 +113,7 @@ class CancellationProperty(Document):
                 "debit_in_account_currency": self.received_amount,
                 "party_type": "Customer",
                 "party": self.customer,
-                "project": self.project_name,
+                "project": self.project,
                 "custom_plot_no": self.plot_no,
                 "cost_center": "",
                 "is_advance": 0,
@@ -132,10 +132,10 @@ class CancellationProperty(Document):
             plot_master = frappe.get_doc("Plot List", self.plot_no)
             plot_master.update({
                     'status'        : "Available", 
-                    'client_name'   : "", 
+                    'customer'      : "", 
                     'address'       : "",
-                    'mobile_no'     : "", 
-                    'sales_agent'   : "",
+                    'contact_no'    : "", 
+                    'sales_broker'  : "",
                     'father_name'   : "", 
                     'cnic'          : "",
                 })
@@ -164,8 +164,8 @@ class CancellationProperty(Document):
         plot_master = frappe.get_doc("Plot List", self.plot_no)
         if plot_master.status == "Available":
             plot_master.update({
-                'status': "Booked", 'client_name': self.customer, 'address': self.address,
-                'mobile_no': self.contact_no, 'sales_agent': self.sales_broker,
+                'status': "Booked", 'customer': self.customer, 'address': self.address,
+                'contact_no': self.contact_no, 'sales_agent': self.sales_broker,
                 'father_name': self.father_name, 'cnic': self.cnic,
             })
             plot_master.save()
@@ -219,9 +219,9 @@ def get_previous_document_detail(plot_no):
             SELECT DISTINCT
                 thb.name,
                 thb.plot_no,
-                thb.project_name as project,
+                thb.project as project,
                 'Plot Booking' as Doc_type,
-                thb.client_name as customer,
+                thb.customer as customer,
                 thb.sales_broker,
                 thb.total_sales_amount as sales_amount,
                 IFNULL((

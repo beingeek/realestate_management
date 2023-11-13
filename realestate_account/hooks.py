@@ -105,15 +105,20 @@ app_license = "MIT"
 # period_closing_doctypes = [
 # 	"Plot Booking"
 # ]
-
 doc_events = {
-	# tuple(period_closing_doctypes): {
-	# 	"validate": "erpnext.accounts.doctype.accounting_period.accounting_period.validate_accounting_period_on_doc_save",
-	# },
     "Journal Entry": {
-        'on_cancel': 'realestate_account.events.journal_entry.check_plot_booking'
+        'on_cancel': [
+            'realestate_account.events.journal_entry.check_plot_booking',
+            'realestate_account.events.journal_entry.check_document_status'
+        ]
     }
 }
+
+
+
+
+
+
 
 # Scheduled Tasks
 # ---------------

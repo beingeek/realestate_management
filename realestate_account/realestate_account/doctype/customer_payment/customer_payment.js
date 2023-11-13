@@ -1,9 +1,9 @@
 
-frappe.ui.form.on("Customer Payment", {
+frappe.ui.form.on('Customer Payment', {
     onload: function (frm) {
-        frm.toggle_display(['get_insallment_information'], frm.doc.__islocal);
+        frm.toggle_display(['get_installment_information'], frm.doc.__islocal);
     }
-}),
+});
 
 frappe.ui.form.on('Customer Payment', {
     project: function(frm) {
@@ -115,8 +115,6 @@ frappe.ui.form.on('Customer Payment', {
                         receivable_total = receivable_total + data.message[i].receivable_amount;
                     }
                 }
-                frm.doc.total_remaining_balance = receivable_total;
-                frm.refresh_fields("total_remaining_balance");
 
                 frm.set_value("total_paid_amount", 0);
                 frm.refresh_fields("total_paid_amount");
@@ -156,11 +154,7 @@ frappe.ui.form.on("Customer Payment Installment", "paid_amount", function(frm, c
     if(item.paid_amount > item.receivable_amount)
     {
         frappe.model.set_value(cdt, cdn,'paid_amount',0) ;
-        frappe.msgprint({
-            title: __('Message'),
-            indicator: 'green',
-            message: __('paid amount is greater than receivable amount')
-        });
+        frappe.msgprint('paid amount is greater than receivable amount')     
     }
     else
     {
@@ -189,10 +183,7 @@ frappe.ui.form.on("Customer Payment Installment", {
              total = total + flt(d.paid_amount);
              receivable = receivable + flt(d.receivable_amount);
         })
-        
-        frm.doc.total_remaining_balance  = receivable;
-        frm.refresh_fields("total_remaining_balance");
-        
+                
         frm.doc.total_paid_amount = total;
         frm.refresh_field('total_paid_amount');
         
@@ -200,28 +191,6 @@ frappe.ui.form.on("Customer Payment Installment", {
         frm.refresh_field('installment_total');
     }
 });
-
-
-
- 
-
-frappe.ui.form.on('Customer Payment', {
-    validate: function(frm) {
-        removeUnpaidInstallments(frm);
-    },
-});
-
-function removeUnpaidInstallments(frm) {
-    for (let i = frm.doc.installment.length - 1; i >= 0; i--) {
-        let installment = frm.doc.installment[i];
-        if (installment.paid_amount === 0) {
-            frm.doc.installment.splice(i, 1);
-        }
-    }
-    frm.refresh_field('installment');
-}
-
-
 
 
 /////////////////////////////////// Payment Type //////////////////////////////////////////////
@@ -254,10 +223,7 @@ frappe.ui.form.on("Payment Type", {
 frappe.ui.form.on('Customer Payment', {
     refresh: function(frm) {
         frm.fields_dict['payment_type'].grid.get_field('ledger').get_query = function(doc, cdt, cdn) {
-                    // Access the child object
             var child = locals[cdt][cdn];
-        
-                    // Your dynamic query logic based on the child object
             var filters = {};
             if (child.mode_of_payment === 'Cash') {
                 filters = {

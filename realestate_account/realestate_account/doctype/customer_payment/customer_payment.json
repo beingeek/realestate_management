@@ -7,16 +7,16 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "project_name",
+  "project",
   "plot_no",
   "document_type",
   "get_insallment_information",
   "column_break_pgopo",
-  "payment_date",
+  "posting_date",
   "total_paid_amount",
   "book_number",
   "column_break_yzarc",
-  "customer_name",
+  "customer",
   "address",
   "document_number",
   "column_break_grwe5",
@@ -35,12 +35,11 @@
   "column_break_g9jop",
   "installment_total",
   "column_break_l64qv",
-  "payment_type_total_amount",
-  "tab_2_tab"
+  "payment_type_total_amount"
  ],
  "fields": [
   {
-   "fieldname": "project_name",
+   "fieldname": "project",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
@@ -69,7 +68,8 @@
    "read_only": 1
   },
   {
-   "fieldname": "payment_date",
+   "default": "Today",
+   "fieldname": "posting_date",
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Payment Date",
@@ -135,16 +135,6 @@
    "label": "Payment Type"
   },
   {
-   "fieldname": "customer_name",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Customer Name",
-   "options": "Customer",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
    "fieldname": "payment_type",
    "fieldtype": "Table",
    "label": "Payment Type",
@@ -188,18 +178,13 @@
    "fieldtype": "Column Break"
   },
   {
-   "fetch_from": "project_name.company",
+   "fetch_from": "project.company",
    "fieldname": "company",
    "fieldtype": "Link",
    "label": "Company",
    "options": "Company",
    "read_only": 1,
    "reqd": 1
-  },
-  {
-   "fieldname": "tab_2_tab",
-   "fieldtype": "Tab Break",
-   "label": "Tab 2"
   },
   {
    "fieldname": "installment_total",
@@ -238,12 +223,22 @@
    "fieldtype": "Small Text",
    "label": "Address",
    "read_only": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Customer Name",
+   "options": "Customer",
+   "read_only": 1,
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-07 00:29:41.906835",
+ "modified": "2023-11-12 13:17:09.919504",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Customer Payment",

@@ -9,10 +9,12 @@ class ClosedAccountingPeriod(frappe.ValidationError):
 
 class PlotBooking(PaymentScheduleController):
     def validate(self):
-        self.validate_booking_date()
+        self.validate_posting_date()
         validate_accounting_period_open(self)
         self.validate_plot_booking()
         self.validate_amount()
+        self.validate_Payment_schedule_Sales_Amount()
+        self.validate_Payment_Plan_Sales_Amount()
 
     def on_submit(self):
         self.create_invoice()
@@ -29,9 +31,20 @@ class PlotBooking(PaymentScheduleController):
         if plot_status == 'Booked':
             frappe.throw(_('The {0} is already booked').format(frappe.get_desk_link('Plot List', self.plot_no)))
 
-    def validate_booking_date(self):
-        if self.booking_date > today():
-            frappe.throw(_('Future booking date not allowed.'))
+    # def validate_posting_date(self):
+    #     if self.posting_date > today():
+    #         frappe.throw(_('Future booking date not allowed.'))
+
+
+    def validate_Payment_schedule_Sales_Amount(self):
+        total_payment_schedule_amount = sum(row.amount for row in self.payment_schedule)
+        if flt(total_payment_schedule_amount) != flt(self.total_sales_amount):
+            frappe.throw(_('Total Sales Amount does not match the sum of Payment Schedule amounts'))
+
+    def validate_Payment_Plan_Sales_Amount(self):
+        total_payment_plan_amount = sum(row.total_amount for row in self.payment_plan)
+        if flt(total_payment_plan_amount) != flt(self.total_sales_amount):
+            frappe.throw(_('Total Sales Amount does not match the sum of Payment Plan amounts'))
 
     def create_invoice(self):
         if flt(self.commission_amount) > 0.0:
@@ -46,7 +59,7 @@ class PlotBooking(PaymentScheduleController):
             invoice = frappe.get_doc({
                 "doctype": "Purchase Invoice",
                 "supplier": self.sales_broker,
-                "booking_date": self.booking_date,
+                "posting_date": self.posting_date,
                 "bill_no" : self.plot_no,
                 "project" : self.project,
                 "cost_centre" : "",
@@ -95,7 +108,6 @@ class PlotBooking(PaymentScheduleController):
 
 
 def validate_accounting_period_open(doc, method=None):
-    # refactor this to sql to make it backward compatible 
     ap = frappe.qb.DocType("Accounting Period")
     cd = frappe.qb.DocType("Closed Document")
     accounting_period = (
@@ -107,8 +119,8 @@ def validate_accounting_period_open(doc, method=None):
             & (ap.company == doc.company)
             & (cd.closed == 1)
             & (cd.document_type == doc.doctype)
-            & (doc.booking_date >= ap.start_date)
-            & (doc.booking_date <= ap.end_date)
+            & (doc.posting_date >= ap.start_date)
+            & (doc.posting_date <= ap.end_date)
         )
     ).run(as_dict=1)
 

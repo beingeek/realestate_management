@@ -4,22 +4,28 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import today, getdate
 
-class CustomerPayment(Document):
 
+class ClosedAccountingPeriod(frappe.ValidationError):
+    pass
+
+
+class CustomerPayment(Document):
     def validate(self):
         self.validate_check_duplicate_book_number()
         self.validate_row_paid_amount()
         self.validate_check_paid_amount_installment_amount()
         self.validate_posting_date()
         self.validate_check_total_amount()
-        self.validate_acounting_period()
+        self.remove_unpaid_installments()
+        self.check_parent_document_status()
+        validate_accounting_period_open(self)
 
     def on_submit(self):
-        try:
-            self.make_gl_entries()
-        except Exception as e:
-            frappe.msgprint(f"Error while making GL entries: {str(e)}")
- 
+        self.make_gl_entries()
+    
+    def on_cancel(self):
+        self.check_parent_document_status()
+       
     def validate_check_duplicate_book_number(self):
         if self.book_number and self.project:
             duplicate_payment = frappe.get_value(
@@ -81,23 +87,21 @@ class CustomerPayment(Document):
                 frappe.msgprint('The master data customer does not match the payment customer')
                 frappe.throw('Validation Error: Customer mismatch')
 
-    def validate_acounting_period(self):
-        sql_query = """
-            SELECT closed
-            FROM `tabAccounting Period` AS tap
-            LEFT JOIN `tabClosed Document` AS tcd ON tcd.parent = tap.name
-            WHERE tcd.document_type = 'Journal Entry' 
-            AND MONTH(tap.end_date) = MONTH(%s) 
-            AND YEAR(tap.end_date) = YEAR(%s)
-            LIMIT 1;
-        """
-        result = frappe.db.sql(sql_query, (self.posting_date, self.posting_date), as_dict=True)
-        if not result:
-            return {'is_open': None}
-        if result[0]['closed'] == 1:
-            frappe.throw('The accounting period is not open. Please open the accounting period.')
-        return {'is_open': 1}
-	        
+    def check_parent_document_status(self):
+        doc_type = self.document_type
+        doc_number = self.document_number
+
+        if doc_type in ['Plot Booking', 'Property Transfer']:
+            doc_status = frappe.get_value(doc_type, {'name': doc_number}, 'status')
+            if doc_status != 'Active':
+                frappe.throw(f'The parent document {doc_type} with name {doc_number} is not Active')
+
+    def remove_unpaid_installments(self):
+        for i in reversed(range(len(self.installment))):
+            installment = self.installment[i]
+            if installment.paid_amount == 0:
+                self.installment.pop(i)
+        
     def make_gl_entries(self):
         if self.total_paid_amount > 0:
             default_company = frappe.defaults.get_user_default("Company")
@@ -144,6 +148,30 @@ class CustomerPayment(Document):
 
             frappe.db.commit()
             frappe.msgprint(_('Journal Entry {0} created successfully').format(frappe.get_desk_link("Journal Entry", journal_entry.name)))
+
+def validate_accounting_period_open(doc, method=None):
+    ap = frappe.qb.DocType("Accounting Period")
+    cd = frappe.qb.DocType("Closed Document")
+    accounting_period = (
+        frappe.qb.from_(ap)
+        .from_(cd)
+        .select(ap.name)
+        .where(
+            (ap.name == cd.parent)
+            & (ap.company == doc.company)
+            & (cd.closed == 1)
+            & (cd.document_type == doc.doctype)
+            & (doc.posting_date >= ap.start_date)
+            & (doc.posting_date <= ap.end_date)
+        )
+    ).run(as_dict=1)
+
+    if accounting_period:
+        frappe.throw(_("You cannot create a {0} within the closed Accounting Period {1}").format(
+            doc.doctype, frappe.bold(accounting_period[0]["name"]),
+            ClosedAccountingPeriod
+        ))
+
             
 
 @frappe.whitelist()

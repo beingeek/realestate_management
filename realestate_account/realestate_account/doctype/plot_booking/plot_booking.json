@@ -11,9 +11,9 @@
  "field_order": [
   "booking_information_tab",
   "booking_information_section",
-  "booking_date",
+  "posting_date",
   "column_break_ilqz",
-  "project_name",
+  "project",
   "plot_no",
   "column_break_kyo0t",
   "land_price",
@@ -22,11 +22,11 @@
   "area",
   "uom",
   "customer_details_section",
-  "client_name",
+  "customer",
   "father_name",
   "column_break_ndce1",
   "cnic",
-  "mobile_no",
+  "contact_no",
   "column_break_6gerh",
   "address",
   "account_information_section",
@@ -47,9 +47,13 @@
   "payment_plan_detail_tab",
   "payment_plan_reconcilition_section",
   "installment_starting_date",
+  "column_break_pbpt",
+  "no_of_month_plan",
+  "column_break_bpsd",
   "installment_ending_date",
   "column_break_v7ici",
   "total_sales_amount",
+  "column_break_cjgl",
   "difference",
   "payment_schedule_section",
   "payment_plan",
@@ -73,7 +77,7 @@
    "reqd": 1
   },
   {
-   "fieldname": "client_name",
+   "fieldname": "customer",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
@@ -82,7 +86,7 @@
    "reqd": 1
   },
   {
-   "fieldname": "booking_date",
+   "fieldname": "posting_date",
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": " Booking Date",
@@ -133,7 +137,7 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "project_name",
+   "fieldname": "project",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
@@ -167,21 +171,21 @@
    "label": "Customer Details"
   },
   {
-   "fetch_from": "client_name.custom_address",
+   "fetch_from": "customer.custom_address",
    "fieldname": "address",
    "fieldtype": "Small Text",
    "label": "Address",
    "read_only": 1
   },
   {
-   "fetch_from": "client_name.custom_father_name",
+   "fetch_from": "customer.custom_father_name",
    "fieldname": "father_name",
    "fieldtype": "Data",
    "label": " Father Name",
    "read_only": 1
   },
   {
-   "fetch_from": "client_name.custom_cnic",
+   "fetch_from": "customer.custom_cnic",
    "fieldname": "cnic",
    "fieldtype": "Data",
    "label": " CNIC",
@@ -192,8 +196,8 @@
    "fieldtype": "Column Break"
   },
   {
-   "fetch_from": "client_name.custom_contact_no",
-   "fieldname": "mobile_no",
+   "fetch_from": "customer.custom_contact_no",
+   "fieldname": "contact_no",
    "fieldtype": "Data",
    "label": "Contact No.",
    "read_only": 1
@@ -289,7 +293,6 @@
    "reqd": 1
   },
   {
-   "collapsible": 1,
    "fieldname": "payment_schedule_section",
    "fieldtype": "Section Break",
    "label": " Payment Schedule"
@@ -309,12 +312,12 @@
   {
    "fieldname": "difference",
    "fieldtype": "Currency",
-   "label": "Difference (Total Sales Amount- Total Payment Schdule Amount)",
+   "label": "Difference (Sales - Payment Schedule)",
    "options": "Company:company:default_currency",
    "read_only": 1
   },
   {
-   "fetch_from": "project_name.company",
+   "fetch_from": "project.company",
    "fieldname": "company",
    "fieldtype": "Link",
    "label": " Company",
@@ -355,6 +358,24 @@
    "label": "Payment Plan",
    "options": "Payment Plan",
    "reqd": 1
+  },
+  {
+   "fieldname": "column_break_pbpt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "no_of_month_plan",
+   "fieldtype": "Int",
+   "label": "Payment Plan Month",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_bpsd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_cjgl",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -378,7 +399,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-11-11 20:17:23.354412",
+ "modified": "2023-11-12 03:18:39.121050",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot Booking",
@@ -413,7 +434,7 @@
    "write": 1
   }
  ],
- "search_fields": "plot_no,client_name,booking_grand_total",
+ "search_fields": "plot_no,customer,booking_grand_total",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

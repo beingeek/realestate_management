@@ -9,11 +9,11 @@
  "field_order": [
   "property_information_tab",
   "property_information_section",
-  "doc_date",
+  "posting_date",
   "document_number",
   "document_type",
   "column_break_vvps",
-  "project_name",
+  "project",
   "plot_no",
   "column_break_2ef7h",
   "sales_amount",
@@ -47,7 +47,7 @@
    "label": " Property Information"
   },
   {
-   "fieldname": "doc_date",
+   "fieldname": "posting_date",
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Doc Date"
@@ -240,7 +240,7 @@
    "reqd": 1
   },
   {
-   "fieldname": "project_name",
+   "fieldname": "project",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,

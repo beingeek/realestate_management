@@ -1,22 +1,20 @@
 
 import frappe
 from frappe import _
-from frappe.model.document import Document
-from frappe.utils import today, getdate
-from frappe import get_all
+from realestate_account.controllers.real_estate_controller import PaymentScheduleController
+from frappe.utils import flt, cstr, today, getdate
 
 
 class ClosedAccountingPeriod(frappe.ValidationError):
 	pass
 
-class PropertyTransfer(Document):
-    
+class PropertyTransfer(PaymentScheduleController):
     def validate(self):
+        self.validate_posting_date()
+        validate_accounting_period_open(self)
         self.validate_from_customer_and_to_customer()
-        self.validate_difference_field()
         self.validate_posting_date()
         self.validate_Check_customer_plot_master_data()
-        self.validate_accounting_period()
         self.validate_received_amount()
         self.validate_transfer_amount()
 
@@ -26,21 +24,12 @@ class PropertyTransfer(Document):
         
     def on_cancel(self):
         self.update_plot_master_cancel()
-    
-    def validate_posting_date(self):
-        if self.posting_date:
-            posting_date = getdate(self.posting_date)
-            today_date = today()
-        if posting_date and posting_date > getdate(today_date):
-            frappe.throw("Future Document date not Allowed.")
+  
     
     def validate_from_customer_and_to_customer(self):
         if self.from_customer == self.to_customer:
             frappe.throw('From Customer and To Customer must be different')
 
-    def validate_difference_field(self):
-        if self.difference != 0:
-            frappe.throw('Difference field should be zero')
     
     def validate_Check_customer_plot_master_data(self):
         if self.from_customer:
@@ -73,30 +62,7 @@ class PropertyTransfer(Document):
             for payment in self.payment_type:
                 total_payment_amount += payment.amount
             if self.transfer_charge != total_payment_amount:
-                frappe.throw('Total transfer charge must be equal to the sum of payment type amounts')
-
-
-    def validate_accounting_period(doc, method=None):
-        ap = frappe.qb.DocType("Accounting Period")
-        cd = frappe.qb.DocType("Closed Document")
-        accounting_period = (
-            frappe.qb.from_(ap)
-            .from_(cd)
-            .select(ap.name)
-            .where(
-                (ap.name == cd.parent)
-                & (ap.company == doc.company)
-                & (cd.closed == 1)
-                & (cd.document_type == doc.doctype)
-                & (doc.posting_date >= ap.start_date)
-                & (doc.posting_date <= ap.end_date)
-            )
-        ).run(as_dict=1)
-        if accounting_period:
-            frappe.throw(_("You cannot create a {0} within the closed Accounting Period {1}").format(
-                doc.doctype, frappe.bold(accounting_period[0]["name"]),
-            ClosedAccountingPeriod
-        ))
+                frappe.throw('Total transfer charge must be equal to the sum of payment type amounts') 
 
     def make_gl_entries(self):
             if self.received_amount != 0 or self.transfer_charge != 0:
@@ -182,7 +148,7 @@ class PropertyTransfer(Document):
     def update_plot_master(self):
             plot_master = frappe.get_doc("Plot List", self.plot_no)    
             plot_master.update({
-                        'status': "Booked", 'customer': self.to_customer, 'address': self.to_address,
+                        'customer': self.to_customer, 'address': self.to_address,
                         'contact_no': self.to_contact_no, 'sales_broker': self.sales_broker,
                         'father_name': self.to_father_name, 'cnic': self.to_cnic,
                     })
@@ -203,7 +169,7 @@ class PropertyTransfer(Document):
         try:    
             plot_master = frappe.get_doc("Plot List", self.plot_no)
             plot_master.update({
-                                'status': "Booked", 'customer': self.from_customer, 'address': self.from_address,
+                                'customer': self.from_customer, 'address': self.from_address,
                                 'contact_no': self.from_contact_no, 'sales_broker': self.from_sales_broker,
                                 'father_name': self.from_father_name, 'cnic': self.from_cnic,
                             })
@@ -225,6 +191,31 @@ class PropertyTransfer(Document):
     def before_insert(self):
         if self.status != "Active":
             frappe.throw('The document status should be Active at the time entered in the system')
+
+
+def validate_accounting_period_open(doc, method=None):
+        ap = frappe.qb.DocType("Accounting Period")
+        cd = frappe.qb.DocType("Closed Document")
+        accounting_period = (
+            frappe.qb.from_(ap)
+            .from_(cd)
+            .select(ap.name)
+            .where(
+                (ap.name == cd.parent)
+                & (ap.company == doc.company)
+                & (cd.closed == 1)
+                & (cd.document_type == doc.doctype)
+                & (doc.posting_date >= ap.start_date)
+                & (doc.posting_date <= ap.end_date)
+            )
+        ).run(as_dict=1)
+
+        if accounting_period:
+            frappe.throw(_("You cannot create a {0} within the closed Accounting Period {1}").format(
+                doc.doctype, frappe.bold(accounting_period[0]["name"]),
+                ClosedAccountingPeriod
+            ))
+
 
 ################ Get Plot & Base document data for Property Transfer ############
 

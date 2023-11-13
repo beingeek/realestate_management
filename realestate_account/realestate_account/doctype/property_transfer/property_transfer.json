@@ -56,32 +56,17 @@
   "payment_schedule_tab",
   "payment_plan_data_input_section",
   "installment_starting_date",
-  "no_of_month_plan",
-  "installment_ending_date",
   "column_break_fd3g8",
-  "total_transfer_amount",
-  "booking_amount",
-  "possession_amount",
+  "no_of_month_plan",
   "column_break_wic5h",
-  "monthly_installment_amount",
-  "quarterly_installment_amount",
+  "installment_ending_date",
   "column_break_qa3ly",
-  "half_yearly_installment_amount",
-  "yearly_installment_amount",
-  "payment_schedule_section",
-  "payment_schedule",
-  "payment_plan_reconcilition_section",
-  "total_monthly_installment",
-  "total_booking_amount",
-  "column_break_eqv0b",
-  "total_quarterly_installment",
-  "total_installment_amount",
-  "column_break_lq5je",
-  "total_half_yearly_installment",
-  "total_possession_amount",
-  "column_break_wl9fx",
-  "total_yearly_installment",
+  "total_transfer_amount",
+  "column_break_utmx",
   "difference",
+  "payment_schedule_section",
+  "payment_plan",
+  "payment_schedule",
   "connection"
  ],
  "fields": [
@@ -320,40 +305,14 @@
    "read_only": 1
   },
   {
-   "fieldname": "possession_amount",
-   "fieldtype": "Currency",
-   "label": "Possession Amount"
-  },
-  {
    "fieldname": "column_break_wic5h",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "monthly_installment_amount",
-   "fieldtype": "Currency",
-   "label": " Monthly Installments Amount"
-  },
-  {
-   "fieldname": "quarterly_installment_amount",
-   "fieldtype": "Currency",
-   "label": " Quarterly Instalment Amount"
   },
   {
    "fieldname": "column_break_qa3ly",
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "half_yearly_installment_amount",
-   "fieldtype": "Currency",
-   "label": "Half Yearly installments Amount"
-  },
-  {
-   "fieldname": "yearly_installment_amount",
-   "fieldtype": "Currency",
-   "label": " Yearly installments Amount"
-  },
-  {
-   "collapsible": 1,
    "fieldname": "payment_schedule_section",
    "fieldtype": "Section Break",
    "label": " Payment Schedule"
@@ -366,63 +325,9 @@
    "reqd": 1
   },
   {
-   "fieldname": "payment_plan_reconcilition_section",
-   "fieldtype": "Section Break",
-   "label": "Payment Plan Reconcilition"
-  },
-  {
-   "fieldname": "total_monthly_installment",
-   "fieldtype": "Currency",
-   "label": " Total Monthly Installment",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_eqv0b",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "total_quarterly_installment",
-   "fieldtype": "Currency",
-   "label": " Total Quarterly Installment",
-   "read_only": 1
-  },
-  {
-   "fieldname": "total_installment_amount",
-   "fieldtype": "Currency",
-   "label": " Total Installment Amount",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_lq5je",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "total_half_yearly_installment",
-   "fieldtype": "Currency",
-   "label": " Total Half Yearly Installment",
-   "read_only": 1
-  },
-  {
-   "fieldname": "total_possession_amount",
-   "fieldtype": "Currency",
-   "label": " Total Possession Amount",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_wl9fx",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "total_yearly_installment",
-   "fieldtype": "Currency",
-   "label": "Total Yearly Installment",
-   "read_only": 1
-  },
-  {
    "fieldname": "difference",
    "fieldtype": "Currency",
-   "label": "Difference (Total Transfer Amount- Total Payment Schdule Amount)",
-   "options": "Company:company:default_currency",
+   "label": "Difference (Transfer - Schdule)",
    "read_only": 1
   },
   {
@@ -430,17 +335,6 @@
    "fieldtype": "Tab Break",
    "label": "Connection",
    "show_dashboard": 1
-  },
-  {
-   "fieldname": "booking_amount",
-   "fieldtype": "Currency",
-   "label": "Advance Amount"
-  },
-  {
-   "fieldname": "total_booking_amount",
-   "fieldtype": "Currency",
-   "label": " Total Advance Amount",
-   "read_only": 1
   },
   {
    "fieldname": "payment_type",
@@ -523,6 +417,17 @@
    "fieldtype": "Data",
    "label": " Contact No.",
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_utmx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_plan",
+   "fieldtype": "Table",
+   "label": " Payment",
+   "options": "Payment Plan",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -542,7 +447,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-11-10 13:04:14.069105",
+ "modified": "2023-11-12 13:07:55.608953",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Property Transfer",

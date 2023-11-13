@@ -1,5 +1,39 @@
-
 frappe.ui.form.on('Property Transfer', {
+    refresh: function (frm) {
+        frm.add_custom_button(
+            __("Generate Installments"),
+            function () {
+                frm.trigger("generate_installment");
+            },
+        ).addClass("btn-primary");
+    },
+
+    generate_installment: function(frm) {
+        frappe.call({
+            method:"generate_installment",
+            doc:frm.doc,
+            callback(r){
+                if (r.message) {
+                    r.message.sort(function(a, b) {
+                        return new Date(a.date) - new Date(b.date);
+                    });
+
+                    frm.clear_table('payment_schedule');
+                    $.each(r.message || [], function(i, row) {
+                        frm.add_child('payment_schedule', row);
+                    })
+                    set_payment_plan_summary(frm);
+                }
+            }
+        })
+    },
+    installment_starting_date: function(frm) {
+        calculateEndingDate(frm);
+    },
+    no_of_month_plan: function(frm) {
+        calculateEndingDate(frm);
+    },
+
     project: function(frm) {
         var project = frm.doc.project;
         if (!frm.doc.project) {
@@ -39,7 +73,6 @@ frappe.ui.form.on('Property Transfer', {
                 plot_no: doc.plot_no
             },
             callback: function(r) {
-                console.log(r)
                 if (!r.exc && r.message && r.message.length > 0) {
                     if (!r.exc && r.message && r.message.length > 0) {
                         var name = r.message[0].name;
@@ -65,16 +98,6 @@ frappe.ui.form.on('Property Transfer', {
     });
 }
 
-//////////////////Payment Schedule ////////////////////////////////////////////
-
-frappe.ui.form.on('Property Transfer', {
-    installment_starting_date: function(frm) {
-        calculateEndingDate(frm);
-    },
-    no_of_month_plan: function(frm) {
-        calculateEndingDate(frm);
-    }
-});
 function calculateEndingDate(frm) {
     var startingDate = frm.doc.installment_starting_date;
     var numberOfMonth = frm.doc.no_of_month_plan;
@@ -86,249 +109,75 @@ function calculateEndingDate(frm) {
     }
 }
 
-frappe.ui.form.on('Plot Booking', {
-    total_transfer_amount: function(frm) {
-        calculateDifference(frm);
-    }
-});
-function calculateDifference(frm) {
-    var totalBookingAmount      = (frm.doc.total_booking_amount) ?? 0 ;
-    var totalPossessionAmount   = (frm.doc.total_possession_amount) ?? 0;
-    var totalInstallmentAmount  = (frm.doc.total_installment_amount) ?? 0; 
-    var totalSalesAmount        = (frm.doc.total_sales_amount) ?? 0; 
+function set_payment_plan_summary(frm) {
+    let plan_totals = {}
+    let totalPaymentScheduleAmount = 0;
 
-    var difference              = totalSalesAmount - (totalBookingAmount+totalInstallmentAmount+totalPossessionAmount)
-    
-    frm.set_value('difference',difference)
-    frm.refresh_field('difference');
+    $.each(frm.doc.payment_schedule || [], function(i, row) {
+        if (!plan_totals[row.installment]) {
+            plan_totals[row.installment] = flt(row.amount);
+        } else {
+            plan_totals[row.installment] += flt(row.amount);
+        }
+        totalPaymentScheduleAmount += flt(row.amount);
+    })
+
+    frm.set_value('difference', frm.doc.total_transfer_amount - totalPaymentScheduleAmount);
+
+    $.each(frm.doc.payment_plan || [], function(i, row) {
+        if (plan_totals[row.plan_type]) {
+            row.total_amount = plan_totals[row.plan_type];
+        }
+    })
+    frm.refresh_fields();
 }
 
-
-frappe.ui.form.on('Property Transfer', {
-    refresh: function (frm) {
-        frm.add_custom_button(
-            __("Generate Installments"),
-            function () {
-                frm.trigger("generate_installment");
-            },
-        ).addClass("btn-primary");
-    },
-    generate_installment: function(frm) {
-            var numberOfMonth           = frm.doc.no_of_month_plan;
-            var startDate               = frm.doc.installment_starting_date;
-            var bookingDate             = frm.doc.posting_date;
-            var bookingAmount           = (frm.doc.booking_amount) ?? 0 ;
-            var possessionAmount        = (frm.doc.possession_amount) ?? 0; 
-            var monthlyInstallment      = (frm.doc.monthly_installment_amount) ?? 0;
-            var quarterlyInstallment    = (frm.doc.quarterly_installment_amount) ?? 0;
-            var halfYearlyInstallment   = (frm.doc.half_yearly_installment_amount) ?? 0;
-            var yearlyInstallment       = (frm.doc.yearly_installment_amount) ?? 0;
-            var plotNumber              = frm.doc.plot_no;
-            var totalSalesAmount        = (frm.doc.total_transfer_amount) ?? 0; 
-
-            if (!monthlyInstallment || !numberOfMonth || !startDate ) {
-                frappe.msgprint(__('Please fill the Starting Date/ No of Month / Monthly Installment fields.'));
-            } else if(!plotNumber || !bookingDate){
-                frappe.msgprint(__('Please fill Plot Number & Doc Date fields.'));
-                return;
-            }
-                    
-            frm.clear_table('payment_schedule');
-          
-            var totalMonthlyInstallment             = 0
-            var totalQuarterlyInstallment           = 0
-            var totalHalfYearlyInstallment          = 0
-            var totalYearlyInstallment              = 0
-            var totalInstallmentAmount              = 0
-            var difference                          = 0            
-            var quarterlyInstallmentCounter         = 1; 
-            var halfYearlyInstallmentCounter        = 1; 
-            var yearlyInstallmentCounter            = 1; 
-
-
-
-            frm.clear_table('payment_schedule');
-
-            if (bookingAmount  > 0) {
-                frm.add_child('payment_schedule', {   
-                    installment: 'Booking Amount',
-                    date:bookingDate,
-                    amount: bookingAmount,
-                    installment_name : 'Booking Amount'
-                });
-            }
-
-            for (var i = 0; i < numberOfMonth; i++) {
-                if (monthlyInstallment > 0) {
-                    frm.add_child('payment_schedule', {   
-                        installment: 'Monthly Installment',
-                        date: frappe.datetime.add_months(startDate, i),
-                        amount: monthlyInstallment,
-                        installment_name: `Monthly Installment - ${i + 1}`
-                    });
-                    totalMonthlyInstallment = totalMonthlyInstallment + monthlyInstallment 
-                }
-  
-                if (i >= 2 && (i - 2) % 3 === 0 && quarterlyInstallment > 0) {
-                    frm.add_child('payment_schedule', {   
-                        installment: 'Quarterly Installment',
-                        date: frappe.datetime.add_months(startDate, i),
-                        amount: quarterlyInstallment,
-                        installment_name :`Quarterly Installment - ${quarterlyInstallmentCounter }`   
-                    });
-                    totalQuarterlyInstallment = totalQuarterlyInstallment + quarterlyInstallment;
-                    quarterlyInstallmentCounter ++;
-                }
-                
-                if (i >= 5 && (i - 5) % 6 === 0 && halfYearlyInstallment > 0) {
-                    frm.add_child('payment_schedule', {   
-                        installment: 'Half Yearly Installment',
-                        date: frappe.datetime.add_months(startDate, i),
-                        amount: halfYearlyInstallment,
-                        installment_name :`Half Yearly Installment - ${halfYearlyInstallmentCounter}`
-                    });
-                    totalHalfYearlyInstallment = totalHalfYearlyInstallment + halfYearlyInstallment;
-                    halfYearlyInstallmentCounter ++;
-                }
-   
-                if (i >= 11 && (i - 11) % 12 === 0 && yearlyInstallment > 0) {
-                    frm.add_child('payment_schedule', {   
-                        installment: 'Yearly Installment',
-                        date: frappe.datetime.add_months(startDate, i),
-                        amount: yearlyInstallment,
-                        installment_name :`Yearly Installment - ${yearlyInstallmentCounter }`  
-                    });
-                    totalYearlyInstallment = totalYearlyInstallment + yearlyInstallment
-                    yearlyInstallmentCounter ++;
-                }
-  
-            }
-            
-            if (possessionAmount   > 0) {
-                frm.add_child('payment_schedule', {   
-                    installment: 'Possession Amount',
-                    date:frappe.datetime.add_months(startDate, numberOfMonth),
-                    amount: possessionAmount,
-                    installment_name : 'Possession Amount'  
-                });
-            }          
-
-            totalInstallmentAmount = totalMonthlyInstallment + totalHalfYearlyInstallment + totalQuarterlyInstallment 
-                                    + totalYearlyInstallment
-                                    
-            difference = totalSalesAmount - (totalMonthlyInstallment + totalHalfYearlyInstallment + totalQuarterlyInstallment 
-                                            + totalYearlyInstallment + bookingAmount + possessionAmount)
-
-            frm.refresh_field('payment_schedule');
-
-            frm.set_value('total_monthly_installment',totalMonthlyInstallment)
-            frm.refresh_field('total_monthly_installment');
-
-            frm.set_value('total_quarterly_installment',totalQuarterlyInstallment)
-            frm.refresh_field('total_quarterly_installment');
-
-            frm.set_value('total_half_yearly_installment',totalHalfYearlyInstallment)
-            frm.refresh_field('total_half_yearly_installment');
-            
-            frm.set_value('total_yearly_installment',totalYearlyInstallment)
-            frm.refresh_field('total_yearly_installment');
-            
-            frm.set_value('total_installment_amount',totalInstallmentAmount)
-            frm.refresh_field('total_installment_amount');
-
-            frm.set_value('total_booking_amount',bookingAmount)
-            frm.refresh_field('total_booking_amount');
-
-            frm.set_value('total_possession_amount',possessionAmount)
-            frm.refresh_field('total_possession_amount');
-
-            frm.set_value('difference',difference)
-            frm.refresh_field('difference');
-            
-        }
-    });
-
 frappe.ui.form.on("Installment Payment Plan", {
+    amount: function(frm, cdt, cdn) {
+        set_payment_plan_summary(frm);
+    },
+
     payment_schedule_remove: function(frm, cdt, cdn) {
-                
-        let totals = {
-            'Booking Amount': 0,
-            'Monthly Installment': 0,
-            'Quarterly Installment': 0,
-            'Half Yearly Installment': 0,
-            'Yearly Installment': 0,
-            'Possession Amount': 0,
-        };
-
-        frm.doc.payment_schedule.forEach(d => {
-            let type = d.installment;
-            totals[type] += flt(d.amount);
-        });
-
-        frm.doc.total_monthly_installment = totals['Monthly Installment'];
-        frm.refresh_field('total_monthly_installment');
-
-        frm.doc.total_quarterly_installment = totals['Quarterly Installment'];
-        frm.refresh_field('total_quarterly_installment');
-    
-        frm.doc.total_half_yearly_installment = totals['Half Yearly Installment'];
-        frm.refresh_field('total_half_yearly_installment');
-      
-        frm.doc.total_yearly_installment = totals['Yearly Installment'];
-        frm.refresh_field('total_yearly_installment');
-
-        frm.doc.total_booking_amount = totals['Booking Amount'];
-        frm.refresh_field('total_booking_amount');
-
-        frm.doc.total_possession_amount = totals['Possession Amount'];
-        frm.refresh_field('total_possession_amount');
-        
-        let totalInstallmentAmount = totals['Monthly Installment'] +
-                                     totals['Quarterly Installment'] +
-                                     totals['Half Yearly Installment'] +
-                                     totals['Yearly Installment'];
-
-        frm.doc.total_installment_amount = totalInstallmentAmount;
-        frm.refresh_field('total_installment_amount');
-        
-        let totalSalesAmount = (frm.doc.total_sales_amount) ?? 0;
-        let totalPaymentScheduleAmount = totals['Monthly Installment'] +
-                                         totals['Quarterly Installment'] +
-                                         totals['Half Yearly Installment'] +
-                                         totals['Yearly Installment'] +
-                                         totals['Booking Amount'] +
-                                         totals['Possession Amount'];
-    
-        frm.doc.difference = totalSalesAmount - totalPaymentScheduleAmount;
-        frm.refresh_field('difference');
-        
+        set_payment_plan_summary(frm);
     }
 });
 
-/////////////////////////////////// Payment Type //////////////////////////////////////////////
-
-frappe.ui.form.on("Payment Type", "amount", function(frm, cdt, cdn) {
-    let item = locals[cdt][cdn]; 
-    let total = 0;
-    frm.doc.payment_type.forEach(d => {
-        total = total + parseFloat(d.amount);
-    });
-    
-    frm.doc.payment_type_total_amount = total;
-    frm.refresh_field('payment_type_total_amount');
+frappe.ui.form.on("Payment Plan", {
+    payment_plan_add: function(frm, cdt, cdn) {
+		let row = locals[cdt][cdn];
+		row.start_date = frm.doc.installment_starting_date;
+		row.end_date = frm.doc.installment_ending_date;
+        frm.refresh_field("payment_plan");
+	}
 });
 
-frappe.ui.form.on("Payment Type", {
-    payment_type_remove: function(frm) {
-        let total = 0;
 
-        frm.doc.payment_type.forEach(d=>{
-             total = total + flt(d.amount);
-        })            
-        frm.doc.payment_type_total_amount = total;
-        frm.refresh_field('payment_type_total_amount');
-    }
-});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 frappe.ui.form.on("Property Transfer", {
     refresh: function(frm) {

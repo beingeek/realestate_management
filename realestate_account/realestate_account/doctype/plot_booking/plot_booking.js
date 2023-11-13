@@ -26,9 +26,9 @@ frappe.ui.form.on("Plot Booking", {
         frm.set_value("booking_grand_total", booking_grand_total);
     },
 
-    project_name: function(frm) {
-        var project_name = frm.doc.project_name;
-        if (!frm.doc.project_name) {
+    project: function(frm) {
+        var project = frm.doc.project;
+        if (!frm.doc.project) {
             frappe.throw(__("Please select a project."));
             return;
         }
@@ -36,8 +36,8 @@ frappe.ui.form.on("Plot Booking", {
             return;
         }
 
-        frm.cscript.project_name = function(doc) {
-            if (doc.project_name !== project_name) {
+        frm.cscript.project = function(doc) {
+            if (doc.project !== project) {
                 frm.prompt_opened = false;
             }
         };
@@ -50,7 +50,7 @@ frappe.ui.form.on("Plot Booking", {
             options: "Plot List",
             get_query: () => ({
                 filters: {
-                    "status": 'Available', 'hold_for_sale': 0, 'project_name': frm.doc.project_name
+                    "status": 'Available', 'hold_for_sale': 0, 'project': frm.doc.project
                 }
             })
         }, (values) => {
@@ -59,35 +59,33 @@ frappe.ui.form.on("Plot Booking", {
         }, __('Select Available Plot'));
     },
 
-    // installment_starting_date: function(frm) {
-    //     calculateEndingDate(frm);
-    // },
 
-    // no_of_month_plan: function(frm) {
-    //     calculateEndingDate(frm);
-    // },
+    installment_starting_date: function(frm) {
+        calculateEndingDate(frm);
+    },
 
-    total_sales_amount: function(frm) {
-        let total_schedule_amt = frm.doc.total_booking_amount + frm.doc.total_possession_amount + frm.doc.total_installment_amount;
-        var difference = frm.doc.total_sales_amount - total_schedule_amt;
-        frm.set_value('difference',difference)
-        frm.refresh_field('difference');
+    no_of_month_plan: function(frm) {
+        calculateEndingDate(frm);
     },
 
     generate_installment: function(frm) {
         frappe.call({
-            method:"generate_installment",
-            doc:frm.doc,
-            callback(r){
+            method: "generate_installment",
+            doc: frm.doc,
+            callback: function(r) {
                 if (r.message) {
+                    r.message.sort(function(a, b) {
+                        return new Date(a.date) - new Date(b.date);
+                    });
+    
                     frm.clear_table('payment_schedule');
                     $.each(r.message || [], function(i, row) {
                         frm.add_child('payment_schedule', row);
-                    })
+                    });
                     set_payment_plan_summary(frm);
                 }
             }
-        })
+        });
     },
 });
 
@@ -111,17 +109,16 @@ frappe.ui.form.on("Payment Plan", {
 	}
 });
 
-// function calculateEndingDate(frm) {
-//     var startingDate = frm.doc.installment_starting_date;
-//     var numberOfMonth = frm.doc.no_of_month_plan;
+function calculateEndingDate(frm) {
+    var startingDate = frm.doc.installment_starting_date;
+    var numberOfMonth = frm.doc.no_of_month_plan;
 
-//     if (startingDate && numberOfMonth) {
-//         var endingDate = frappe.datetime.add_months(startingDate, numberOfMonth);
+    if (startingDate && numberOfMonth) {
+        var endingDate = frappe.datetime.add_months(startingDate, numberOfMonth);
 
-//         frm.set_value('installment_ending_date', endingDate);
-//     }
-// }
-
+        frm.set_value('installment_ending_date', endingDate);
+    }
+}
 
 function set_payment_plan_summary(frm) {
     let plan_totals = {}
@@ -146,3 +143,6 @@ function set_payment_plan_summary(frm) {
     frm.refresh_fields();
 
 }
+
+
+ 
