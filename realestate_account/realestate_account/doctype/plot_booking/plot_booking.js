@@ -143,8 +143,4 @@ function set_payment_plan_summary(frm) {
         }
     })
     frm.refresh_fields();
-
 }
-
-
- 

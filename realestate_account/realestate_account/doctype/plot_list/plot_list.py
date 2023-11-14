@@ -7,9 +7,3 @@ from frappe.model.document import Document
 
 class PlotList(Document):
 	pass
- 
-# 	def validate(self):
-# 		self.set_title()
-
-# 	def set_title(self):
-# 		self.title = _("{0} - {1} - {2}").format(self.plot_name, self.land_area, self.plot_feature)
