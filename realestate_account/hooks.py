@@ -102,9 +102,31 @@ app_license = "MIT"
 # ---------------
 # Hook on document methods and events
 
-# period_closing_doctypes = [
-# 	"Plot Booking"
-# ]
+period_closing_doctypes = [
+	"Sales Invoice",
+	"Purchase Invoice",
+	"Journal Entry",
+	"Bank Clearance",
+	"Stock Entry",
+	"Dunning",
+	"Invoice Discounting",
+	"Payment Entry",
+	"Period Closing Voucher",
+	"Process Deferred Accounting",
+	"Asset",
+	"Asset Capitalization",
+	"Asset Repair",
+	"Delivery Note",
+	"Landed Cost Voucher",
+	"Purchase Receipt",
+	"Stock Reconciliation",
+	"Subcontracting Receipt",
+	"Plot Booking",
+	"Customer Payment",
+	"Property Transfer",
+	"Cancellation Property"
+]
+
 doc_events = {
     "Journal Entry": {
         'on_cancel': [
