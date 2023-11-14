@@ -1,16 +1,8 @@
 frappe.ui.form.on("Plot Booking", {
-    refresh: function(frm) {
-        frm.fields_dict['sales_broker'].get_query = function() {
-            return {
-                filters: {
-                    'supplier_group': 'Sales Broker'
-                }
-            };
-        };
-    }
-})
+	setup(frm) {
+		frm.trigger("set_queries");
+	},
 
-frappe.ui.form.on("Plot Booking", {
     refresh: function (frm) {
         frm.add_custom_button(
             __("Generate Installments"),
@@ -19,6 +11,16 @@ frappe.ui.form.on("Plot Booking", {
             },
         ).addClass("btn-primary");
     },
+
+	set_queries(frm) {
+		frm.set_query("sales_broker", function(frm) {
+            return {
+                filters: {
+                    'supplier_group': 'Sales Broker'
+                }
+            };
+		});
+	},
    
     premium_discount: function(frm) {
         var booking_grand_total = frm.doc.unit_cost + frm.doc.premium_discount;
