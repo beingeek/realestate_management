@@ -36,7 +36,6 @@ class PaymentScheduleController(Document):
         if posting_date and posting_date > getdate(today_date):
             frappe.throw("Future Document date not Allowed.")
 
-
     def validate_amount(self):
         if flt(self.difference) != 0.0:
             frappe.throw(_('Amount of Total Payment Schedule and Total Sales Amout is not matched'))

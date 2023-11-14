@@ -24,8 +24,7 @@ class PropertyTransfer(PaymentScheduleController):
         
     def on_cancel(self):
         self.update_plot_master_cancel()
-  
-    
+
     def validate_from_customer_and_to_customer(self):
         if self.from_customer == self.to_customer:
             frappe.throw('From Customer and To Customer must be different')
