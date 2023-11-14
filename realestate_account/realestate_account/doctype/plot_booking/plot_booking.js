@@ -4,12 +4,14 @@ frappe.ui.form.on("Plot Booking", {
 	},
 
     refresh: function (frm) {
-        frm.add_custom_button(
-            __("Generate Installments"),
-            function () {
-                frm.trigger("generate_installment");
-            },
-        ).addClass("btn-primary");
+        if (frm.doc.doc_status === 0) {
+            frm.add_custom_button(
+                __("Generate Installments"),
+                function () {
+                    frm.trigger("generate_installment");
+                },
+            ).addClass("btn-primary");
+        }
     },
 
 	set_queries(frm) {
