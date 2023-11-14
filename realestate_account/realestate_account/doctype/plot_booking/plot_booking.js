@@ -62,14 +62,18 @@ frappe.ui.form.on("Plot Booking", {
             frm.prompt_opened = false;
         }, __('Select Available Plot'));
     },
-
-
+	
     installment_starting_date: function(frm) {
         calculateEndingDate(frm);
+        replicateDates(frm);
     },
 
     no_of_month_plan: function(frm) {
         calculateEndingDate(frm);
+    },
+
+    installment_ending_date: function(frm) {
+        replicateDates(frm);
     },
 
     generate_installment: function(frm) {
@@ -145,4 +149,14 @@ function set_payment_plan_summary(frm) {
         }
     })
     frm.refresh_fields();
+}
+
+function replicateDates(frm) {
+    if (frm.doc.payment_plan && frm.doc.payment_plan.length > 0) {
+        frm.doc.payment_plan.forEach(function(row) {
+            row.start_date = frm.doc.installment_starting_date;
+            row.end_date = frm.doc.installment_ending_date;
+        });
+        frm.refresh_field("payment_plan");
+    }
 }
