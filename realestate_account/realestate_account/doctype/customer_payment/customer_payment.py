@@ -229,7 +229,7 @@ def get_plot_detail(plot_no):
             return []
         return results
     except Exception as e:
-        frappe.log_error(f"Error in get_available_plots: {str(e)}")
+        frappe.throw(f"Error in get_available_plots: {str(e)}")
         return []
 
 @frappe.whitelist()
@@ -281,7 +281,7 @@ def get_installment_list_from_booking(doc_no):
             return []
         return results
     except Exception as e:
-        frappe.log_error(f"Error in get_available_plots: {str(e)}")
+        frappe.throw(f"Error in get_available_plots: {str(e)}")
         return []
 
 @frappe.whitelist()
@@ -333,7 +333,7 @@ def get_installment_list_from_transfer(doc_no):
             return []
         return results
     except Exception as e:
-        frappe.log_error(f"Error in get_available_plots: {str(e)}")
+        frappe.throw(f"Error in get_available_plots: {str(e)}")
         return []
   
 
