@@ -77,3 +77,19 @@ def generate_payment_schedule(payment_plan):
             })
     return payment_schedule
 
+
+@frappe.whitelist()
+def get_payment_plan(plan_template):
+    try:
+        results = frappe.get_all(
+            'Payment Plan Template - Child',
+            filters={'parent': plan_template},
+            fields=['*'],
+            order_by='idx'
+        )
+        return results
+    except Exception as e:
+        frappe.throw(f"'Payment Plan not found': {str(e)}")
+        return []
+
+

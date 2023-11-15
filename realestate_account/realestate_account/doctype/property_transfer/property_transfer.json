@@ -55,10 +55,11 @@
   "company",
   "payment_schedule_tab",
   "payment_plan_data_input_section",
-  "installment_starting_date",
+  "payment_plan_template",
   "column_break_fd3g8",
-  "no_of_month_plan",
+  "installment_starting_date",
   "column_break_wic5h",
+  "no_of_month_plan",
   "installment_ending_date",
   "column_break_qa3ly",
   "total_transfer_amount",
@@ -291,6 +292,7 @@
   {
    "fieldname": "installment_ending_date",
    "fieldtype": "Date",
+   "hidden": 1,
    "label": " Installment Ending Date",
    "read_only": 1
   },
@@ -428,6 +430,13 @@
    "label": " Payment",
    "options": "Payment Plan",
    "reqd": 1
+  },
+  {
+   "fieldname": "payment_plan_template",
+   "fieldtype": "Link",
+   "label": "Payment Plan Template",
+   "options": "Payment Plan Template",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -447,7 +456,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-11-12 13:07:55.608953",
+ "modified": "2023-11-15 18:59:08.370838",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Property Transfer",

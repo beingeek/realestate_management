@@ -46,10 +46,11 @@
   "remarks",
   "payment_plan_detail_tab",
   "payment_plan_reconcilition_section",
-  "installment_starting_date",
+  "payment_plan_template",
   "column_break_pbpt",
-  "no_of_month_plan",
+  "installment_starting_date",
   "column_break_bpsd",
+  "no_of_month_plan",
   "installment_ending_date",
   "column_break_v7ici",
   "total_sales_amount",
@@ -275,8 +276,8 @@
   {
    "fieldname": "installment_ending_date",
    "fieldtype": "Date",
-   "label": " Installment Ending Date",
-   "reqd": 1
+   "hidden": 1,
+   "label": " Installment Ending Date"
   },
   {
    "fieldname": "column_break_v7ici",
@@ -376,6 +377,13 @@
   {
    "fieldname": "column_break_cjgl",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_plan_template",
+   "fieldtype": "Link",
+   "label": "Payment Plan Template",
+   "options": "Payment Plan Template",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -399,7 +407,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-11-12 03:18:39.121050",
+ "modified": "2023-11-15 18:55:02.786386",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot Booking",

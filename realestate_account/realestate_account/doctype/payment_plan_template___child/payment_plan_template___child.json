@@ -1,0 +1,96 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-11-15 15:56:16.870689",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "plan_type",
+  "frequency_in_months",
+  "column_break_zoed",
+  "installment_amount",
+  "date_selection",
+  "column_break_evqm",
+  "start_data",
+  "is_recurring",
+  "column_break_yzmx",
+  "end_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "plan_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Plan Type",
+   "options": "Payment Plan Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_zoed",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "installment_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Installment Amount",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "column_break_evqm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "start_data",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Start Date",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "column_break_yzmx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "End Date",
+   "non_negative": 1
+  },
+  {
+   "fetch_from": "plan_type.frequency_in_months",
+   "fieldname": "frequency_in_months",
+   "fieldtype": "Int",
+   "label": "Frequency in Months",
+   "non_negative": 1,
+   "read_only": 1
+  },
+  {
+   "fetch_from": "plan_type.date_selection",
+   "fieldname": "date_selection",
+   "fieldtype": "Data",
+   "label": "Date Selection"
+  },
+  {
+   "default": "0",
+   "fetch_from": "plan_type.is_recurring",
+   "fieldname": "is_recurring",
+   "fieldtype": "Check",
+   "label": "Is Recurring"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-11-15 21:49:50.838236",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Payment Plan Template - Child",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

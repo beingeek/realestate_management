@@ -1,0 +1,165 @@
+<div class="print-heading">
+    <img src="/private/files/logo.png" alt="TBD">
+    <div class="text-container">
+        <h3>{{doc.company}}</h3>
+        <h4>Plot Booking</h4>
+    </div>
+</div>
+
+    <!-- Content Section -->
+    <br>
+    <div class="row section-break">
+        <div class="col-xs-6 column-break">
+            <!-- Customer Details -->
+            <div class="row">
+                <div class="col-xs-5 text-left">
+                    <label>Customer Name</label>
+                </div>
+                <div class="col-xs-6 value">
+                    {{doc.customer}} 
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-5 text-left">
+                    <label>Father Name</label>
+                </div>
+                <div class="col-xs-6 value">
+                    {{doc.father_name}} 
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-5 text-left">
+                    <label>CNIC </label>
+                </div>
+                <div class="col-xs-6 value">
+                    {{doc.cnic}} 
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-5 text-left">
+                    <label>Contact No.</label>
+                </div>
+                <div class="col-xs-6 value">
+                    {{doc.contact_no}} 
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-5 text-left">
+                    <label>Address.</label>
+                </div>
+                <div class="col-xs-6 value">
+                    {{doc.address}} 
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xs-6 column-break">
+            <!-- Booking Date and Plot Details -->
+            <div class="row">
+                <div class="col-xs-5 text-left">
+                    <label>Booking No & Date</label>
+                </div>
+                <div class="col-xs-6 value">
+                    {{doc.name}} - {{frappe.utils.formatdate(doc.posting_date)}}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-5 text-left">
+                    <label>Scheme</label>
+                </div>
+                <div class="col-xs-6 value">
+                    {{doc.project}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-5 text-left">
+                    <label>Plot Number</label>
+                </div>
+                <div class="col-xs-6 value">
+                    {{doc.plot_no}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-5 text-left">
+                    <label>Plot Area</label>
+                </div>
+                <div class="col-xs-6 value">
+                    {{doc.area}} - {{doc.uom}}
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-xs-5 text-left">
+                    <label>Plot Price & Feature</label>
+                </div>
+                <div class="col-xs-6 value">
+                    {{doc.get_formatted("land_price", doc) }} - {{doc.plot_feature}}
+                </div>
+            </div>   
+        </div>
+    </div>
+        
+    <div class="row" style="text-align: center; font-weight: bold;">
+        <h4>Payment Plan</h4>
+    </div>
+    <!-- Payment Schedule Table -->
+    <table class="custom-table">
+        <tbody>
+            <tr>
+                <th>Sr</th>
+                <th>Payment Plan Type </th>
+                <th class="text-right"> Ins. Amount</th>
+                <th> Start Date</th>
+                <th> End Date</th>
+                <th> Payment Type Installment Total</th>
+
+            </tr>
+            {%- for row in doc.payment_plan -%}
+            <tr>
+                <td>{{ row.idx }}</td>
+                <td>{{ row.plan_type }}</td>  
+                <td>{{ row.get_formatted("installment_amount", doc) }}</td>
+                <td>{{frappe.utils.formatdate(row.start_date)}}</td>
+                <td>{{frappe.utils.formatdate(row.end_date)}}</td> 
+                <td>{{ row.get_formatted("total_amount", doc) }}</td>               
+            </tr>
+            {%- endfor -%}
+        </tbody>
+    </table>
+    
+    <!-- Payment Schedule Table -->
+    <div class="row" style="text-align: center; font-weight: bold;">
+        <h4>Payment Detail Schedule</h4>
+    </div>
+    
+    <!-- Payment Schedule Table -->
+    <table class="custom-table">
+        <tbody>
+            <tr>
+                <th>Sr</th>
+                <th>Ins. Due Date</th>
+                <th>Description</th>
+                <th class="text-right"> Ins. Amount</th>
+            </tr>
+            {%- for row in doc.payment_schedule -%}
+            <tr class="{% if row.installment == 'Half Yearly' %}bold-row{% endif %}">
+                <td>{{ row.idx }}</td>
+                <td>{{frappe.utils.formatdate(row.date)}}</td>
+                <td>{{ row.installment_name }}</td>
+                <td>{{ row.get_formatted("amount", doc) }}</td>
+            </tr>
+            {%- endfor -%}
+        </tbody>
+    </table>
+     
+    
+
+    
+
+
+    
+ 
+
+

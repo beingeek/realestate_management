@@ -27,6 +27,23 @@ frappe.ui.form.on('Property Transfer', {
             }
         })
     },
+
+    payment_plan_template: function(frm) {
+        frappe.call({
+            method: 'realestate_account.controllers.real_estate_controller.get_payment_plan',
+            args: {
+                plan_template:frm.doc.payment_plan_template  
+            },
+            callback: function(r) {
+                frm.clear_table('payment_plan');
+                $.each(r.message || [], function(i, row) {
+                    frm.add_child('payment_plan', row);
+                });
+                frm.refresh_fields('payment_plan');  
+            }
+        });
+    },
+
     installment_starting_date: function(frm) {
         calculateEndingDate(frm);
     },

@@ -4,14 +4,14 @@ frappe.ui.form.on("Plot Booking", {
 	},
 
     refresh: function (frm) {
-        if (frm.doc.doc_status === 0) {
+        // if (frm.doc.doc_status === 0) {
             frm.add_custom_button(
                 __("Generate Installments"),
                 function () {
                     frm.trigger("generate_installment");
                 },
             ).addClass("btn-primary");
-        }
+        // }
     },
 
 	set_queries(frm) {
@@ -63,6 +63,22 @@ frappe.ui.form.on("Plot Booking", {
         }, __('Select Available Plot'));
     },
 	
+    payment_plan_template: function(frm) {
+        frappe.call({
+            method: 'realestate_account.controllers.real_estate_controller.get_payment_plan',
+            args: {
+                plan_template:frm.doc.payment_plan_template  
+            },
+            callback: function(r) {
+                frm.clear_table('payment_plan');
+                $.each(r.message || [], function(i, row) {
+                    frm.add_child('payment_plan', row);
+                });
+                frm.refresh_fields('payment_plan');  
+            }
+        });
+    },
+
     installment_starting_date: function(frm) {
         calculateEndingDate(frm);
         replicateDates(frm);
@@ -81,6 +97,7 @@ frappe.ui.form.on("Plot Booking", {
             method: "generate_installment",
             doc: frm.doc,
             callback: function(r) {
+                console.log(r);
                 if (r.message) {
                     r.message.sort(function(a, b) {
                         return new Date(a.date) - new Date(b.date);
@@ -94,7 +111,7 @@ frappe.ui.form.on("Plot Booking", {
                 }
             }
         });
-    },
+    } 
 });
 
 
