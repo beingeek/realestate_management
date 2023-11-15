@@ -1,4 +1,8 @@
 frappe.ui.form.on('Property Transfer', {
+    setup(frm) {
+	frm.trigger("set_queries");
+	},
+
     refresh: function (frm) {
         frm.add_custom_button(
             __("Generate Installments"),
@@ -6,6 +10,36 @@ frappe.ui.form.on('Property Transfer', {
                 frm.trigger("generate_installment");
             },
         ).addClass("btn-primary");
+    },
+	set_queries(frm) {
+		frm.set_query("sales_broker", function(frm) {
+            return {
+                filters: {
+                    'supplier_group': 'Sales Broker'
+                }
+            };
+		});
+	},
+
+    refresh: function(frm) {
+        frm.fields_dict['payment_type'].grid.get_field('ledger').get_query = function(doc, cdt, cdn) {
+            var child = locals[cdt][cdn];
+            var filters = {};
+            if (child.mode_of_payment === 'Cash') {
+                filters = {
+                    account_type: 'Cash',
+                    is_group: 0 
+                    };
+            } else if (child.mode_of_payment === 'Cheque' || child.mode_of_payment === 'Bank Transfer') {
+                filters = {
+                account_type: 'Bank',
+                is_group: 0 
+                };
+            }
+            return {
+                filters: filters
+            };
+        };
     },
 
     generate_installment: function(frm) {
@@ -95,22 +129,15 @@ frappe.ui.form.on('Property Transfer', {
             callback: function(r) {
                 if (!r.exc && r.message && r.message.length > 0) {
                     if (!r.exc && r.message && r.message.length > 0) {
-                        var name = r.message[0].name;
-                        var customer = r.message[0].customer;
-                        var docType = r.message[0].Doc_type;
-                        var salesBroker = r.message[0].sales_broker;
-                        var salesAmount = r.message[0].sales_amount;
-                        var receivedAmount = r.message[0].received_amount;
                         var balanceTransferAmount = salesAmount - receivedAmount
-                        
-                        cur_frm.set_value('document_type', docType);
-                        cur_frm.set_value('document_number', name);
-                        cur_frm.set_value('sales_amount', salesAmount);
-                        cur_frm.set_value('received_amount', receivedAmount);
+                        cur_frm.set_value("document_type", r.message[0].Doc_type);
+                        cur_frm.set_value("document_number", r.message[0].name);
+                        cur_frm.set_value("sales_amount", r.message[0].sales_amount);
+                        cur_frm.set_value("received_amount", r.message[0].received_amount);
                         cur_frm.set_value("balance_transfer", balanceTransferAmount);
                         cur_frm.set_value("total_transfer_amount", balanceTransferAmount);
-                        cur_frm.set_value("from_sales_broker", salesBroker);
-                        cur_frm.set_value('from_customer', customer);
+                        cur_frm.set_value("from_sales_broker", r.message[0].sales_broker);
+                        cur_frm.set_value('from_customer', r.message[0].customer);
                         cur_frm.refresh_field('from_customer');              
                 }
             }
@@ -177,28 +204,3 @@ frappe.ui.form.on("Payment Plan", {
         frm.refresh_field("payment_plan");
 	}
 });
-
-
-frappe.ui.form.on("Property Transfer", {
-    refresh: function(frm) {
-        frm.fields_dict['payment_type'].grid.get_field('ledger').get_query = function(doc, cdt, cdn) {
-            var child = locals[cdt][cdn];
-            var filters = {};
-            if (child.mode_of_payment === 'Cash') {
-                filters = {
-                    account_type: 'Cash',
-                    is_group: 0 
-                    };
-            } else if (child.mode_of_payment === 'Cheque' || child.mode_of_payment === 'Bank Transfer') {
-                filters = {
-                account_type: 'Bank',
-                is_group: 0 
-                };
-            }
-            return {
-                filters: filters
-            };
-        };
-    }
-});
- 
