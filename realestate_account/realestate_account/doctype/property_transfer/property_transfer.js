@@ -46,11 +46,14 @@ frappe.ui.form.on('Property Transfer', {
 
     installment_starting_date: function(frm) {
         calculateEndingDate(frm);
+        replicateDates(frm);
     },
     no_of_month_plan: function(frm) {
         calculateEndingDate(frm);
     },
-
+    installment_ending_date: function(frm) {
+        replicateDates(frm);
+    },
     project: function(frm) {
         var project = frm.doc.project;
         if (!frm.doc.project) {
@@ -118,11 +121,18 @@ frappe.ui.form.on('Property Transfer', {
 function calculateEndingDate(frm) {
     var startingDate = frm.doc.installment_starting_date;
     var numberOfMonth = frm.doc.no_of_month_plan;
-
     if (startingDate && numberOfMonth) {
         var endingDate = frappe.datetime.add_months(startingDate, numberOfMonth);
-
         frm.set_value('installment_ending_date', endingDate);
+    }
+}
+function replicateDates(frm) {
+    if (frm.doc.payment_plan && frm.doc.payment_plan.length > 0) {
+        frm.doc.payment_plan.forEach(function(row) {
+            row.start_date = frm.doc.installment_starting_date;
+            row.end_date = frm.doc.installment_ending_date;
+        });
+        frm.refresh_field("payment_plan");
     }
 }
 
@@ -167,33 +177,6 @@ frappe.ui.form.on("Payment Plan", {
         frm.refresh_field("payment_plan");
 	}
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 frappe.ui.form.on("Property Transfer", {
