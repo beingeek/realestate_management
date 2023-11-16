@@ -129,17 +129,24 @@ frappe.ui.form.on('Property Transfer', {
             callback: function(r) {
                 if (!r.exc && r.message && r.message.length > 0) {
                     if (!r.exc && r.message && r.message.length > 0) {
+                        var name = r.message[0].name;
+                        var customer = r.message[0].customer;
+                        var docType = r.message[0].Doc_type;
+                        var salesBroker = r.message[0].sales_broker;
+                        var salesAmount = r.message[0].sales_amount;
+                        var receivedAmount = r.message[0].received_amount;
                         var balanceTransferAmount = salesAmount - receivedAmount
-                        cur_frm.set_value("document_type", r.message[0].Doc_type);
-                        cur_frm.set_value("document_number", r.message[0].name);
-                        cur_frm.set_value("sales_amount", r.message[0].sales_amount);
-                        cur_frm.set_value("received_amount", r.message[0].received_amount);
+                        
+                        cur_frm.set_value('document_type', docType);
+                        cur_frm.set_value('document_number', name);
+                        cur_frm.set_value('sales_amount', salesAmount);
+                        cur_frm.set_value('received_amount', receivedAmount);
                         cur_frm.set_value("balance_transfer", balanceTransferAmount);
                         cur_frm.set_value("total_transfer_amount", balanceTransferAmount);
-                        cur_frm.set_value("from_sales_broker", r.message[0].sales_broker);
-                        cur_frm.set_value('from_customer', r.message[0].customer);
-                        cur_frm.refresh_field('from_customer');              
-                }
+                        cur_frm.set_value("from_sales_broker", salesBroker);
+                        cur_frm.set_value('from_customer', customer);
+                        cur_frm.refresh_field('from_customer');
+                    }
             }
         }
     });
