@@ -1,8 +1,4 @@
-frappe.ui.form.on('Property Transfer', {
-    setup(frm) {
-	frm.trigger("set_queries");
-	},
-
+frappe.ui.form.on("Property Transfer", {
     refresh: function (frm) {
         frm.add_custom_button(
             __("Generate Installments"),
@@ -10,7 +6,13 @@ frappe.ui.form.on('Property Transfer', {
                 frm.trigger("generate_installment");
             },
         ).addClass("btn-primary");
-    },
+    }
+});
+
+frappe.ui.form.on("Property Transfer", {
+	setup(frm) {
+		frm.trigger("set_queries");
+	},
 	set_queries(frm) {
 		frm.set_query("sales_broker", function(frm) {
             return {
@@ -68,14 +70,21 @@ frappe.ui.form.on('Property Transfer', {
             args: {
                 plan_template:frm.doc.payment_plan_template  
             },
-            callback: function(r) {
+            callback: function(data) {
                 frm.clear_table('payment_plan');
-                $.each(r.message || [], function(i, row) {
-                    frm.add_child('payment_plan', row);
-                });
-                frm.refresh_fields('payment_plan');  
+                for (let i = 0; i < data.message.length; i++) {
+                    var row = frm.add_child('payment_plan');
+                    row.plan_type = data.message[i].plan_type;
+                    row.installment_amount = data.message[i].installment_amount;
+                    row.start_date = data.message[i].start_date;
+                    row.end_date = data.message[i].end_date;
+                    row.is_recurring = data.message[i].is_recurring;
+                    row.frequency_in_months = data.message[i].frequency_in_months;
+                    row.date_selection = data.message[i].date_selection;
+                }
+                frm.refresh_fields('payment_plan');        
             }
-        });
+        })
     },
 
     installment_starting_date: function(frm) {
@@ -128,29 +137,28 @@ frappe.ui.form.on('Property Transfer', {
             },
             callback: function(r) {
                 if (!r.exc && r.message && r.message.length > 0) {
-                    if (!r.exc && r.message && r.message.length > 0) {
-                        var name = r.message[0].name;
-                        var customer = r.message[0].customer;
-                        var docType = r.message[0].Doc_type;
-                        var salesBroker = r.message[0].sales_broker;
-                        var salesAmount = r.message[0].sales_amount;
-                        var receivedAmount = r.message[0].received_amount;
-                        var balanceTransferAmount = salesAmount - receivedAmount
+                    var name = r.message[0].name;
+                    var customer = r.message[0].customer;
+                    var docType = r.message[0].Doc_type;
+                    var salesBroker = r.message[0].sales_broker;
+                    var salesAmount = r.message[0].sales_amount;
+                    var receivedAmount = r.message[0].received_amount;
+                    var balanceTransferAmount = salesAmount - receivedAmount
                         
-                        cur_frm.set_value('document_type', docType);
-                        cur_frm.set_value('document_number', name);
-                        cur_frm.set_value('sales_amount', salesAmount);
-                        cur_frm.set_value('received_amount', receivedAmount);
-                        cur_frm.set_value("balance_transfer", balanceTransferAmount);
-                        cur_frm.set_value("total_transfer_amount", balanceTransferAmount);
-                        cur_frm.set_value("from_sales_broker", salesBroker);
-                        cur_frm.set_value('from_customer', customer);
-                        cur_frm.refresh_field('from_customer');
-                    }
+                    cur_frm.set_value('document_type', docType);
+                    cur_frm.set_value('document_number', name);
+                    cur_frm.set_value('sales_amount', salesAmount);
+                    cur_frm.set_value('received_amount', receivedAmount);
+                    cur_frm.set_value("balance_transfer", balanceTransferAmount);
+                    cur_frm.set_value("total_transfer_amount", balanceTransferAmount);
+                    cur_frm.set_value("from_sales_broker", salesBroker);
+                    cur_frm.set_value('from_customer', customer);
+                    cur_frm.refresh_field('from_customer');
+                }
             }
-        }
-    });
-}
+        
+        });
+    }
 
 function calculateEndingDate(frm) {
     var startingDate = frm.doc.installment_starting_date;
