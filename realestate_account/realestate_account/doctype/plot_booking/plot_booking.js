@@ -4,14 +4,12 @@ frappe.ui.form.on("Plot Booking", {
 	},
 
     refresh: function (frm) {
-        // if (frm.doc.doc_status === 0) {
             frm.add_custom_button(
                 __("Generate Installments"),
                 function () {
                     frm.trigger("generate_installment");
                 },
             ).addClass("btn-primary");
-        // }
     },
 
 	set_queries(frm) {
@@ -69,16 +67,22 @@ frappe.ui.form.on("Plot Booking", {
             args: {
                 plan_template:frm.doc.payment_plan_template  
             },
-            callback: function(r) {
+            callback: function(data) {
                 frm.clear_table('payment_plan');
-                $.each(r.message || [], function(i, row) {
-                    frm.add_child('payment_plan', row);
-                });
-                frm.refresh_fields('payment_plan');  
+                for (let i = 0; i < data.message.length; i++) {
+                    var row = frm.add_child('payment_plan');
+                    row.plan_type = data.message[i].plan_type;
+                    row.installment_amount = data.message[i].installment_amount;
+                    row.start_date = data.message[i].start_date;
+                    row.end_date = data.message[i].end_date;
+                    row.is_recurring = data.message[i].is_recurring;
+                    row.frequency_in_months = data.message[i].frequency_in_months;
+                    row.date_selection = data.message[i].date_selection;
+                }
+                frm.refresh_fields('payment_plan');        
             }
-        });
+        })
     },
-
     installment_starting_date: function(frm) {
         calculateEndingDate(frm);
         replicateDates(frm);
@@ -121,7 +125,7 @@ frappe.ui.form.on("Installment Payment Plan", {
     },
 
     payment_schedule_remove: function(frm, cdt, cdn) {
-        set_payment_plan_summary(frm);
+        st_payment_plan_summary(frm);
     }
 });
 
