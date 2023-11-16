@@ -63,14 +63,15 @@ app_license = "MIT"
 # Installation
 # ------------
 
-# before_install = "realestate_account.install.before_install"
-# after_install = "realestate_account.install.after_install"
+after_migrate = "realestate_account.setup.install.after_migrate"
+after_install = "realestate_account.setup.install.after_migrate"
 
 # Uninstallation
 # ------------
 
-# before_uninstall = "realestate_account.uninstall.before_uninstall"
+before_uninstall = "realestate_account.setup.install.before_uninstall"
 # after_uninstall = "realestate_account.uninstall.after_uninstall"
+
 
 # Desk Notifications
 # ------------------

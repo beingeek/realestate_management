@@ -61,15 +61,14 @@ class CancellationProperty(Document):
 
     def make_gl_entries(self):
         if self.received_amount != 0:
-            company = frappe.defaults.get_user_default("Company")
-            default_receivable_account = frappe.get_value("Company", company, "default_receivable_account")
+            default_receivable_account = frappe.get_value("Company", self.company, "default_receivable_account")
             
-            deductionAccount = frappe.db.get_single_value("Real Estate Settings", "default_deduction_revenue_account")
+            deductionAccount = frappe.get_value("Company", self.company, "default_deduction_revenue_account")
             if not deductionAccount:
-                frappe.throw('Please set Default deduction Account in Real Estate Settings')
-            cost_center = frappe.db.get_single_value("Real Estate Settings", "cost_center")
+                frappe.throw('Please set Default deduction Account in Company Settings')
+            cost_center = frappe.get_value("Company", self.company, "real_estate_cost_center")
             if not cost_center:
-                frappe.throw('Please set Cost Centre in Real Estate Settings')
+                frappe.throw('Please set Cost Centre in Company Settings')
     
             journal_entry = frappe.get_doc({
                 "doctype": "Journal Entry",

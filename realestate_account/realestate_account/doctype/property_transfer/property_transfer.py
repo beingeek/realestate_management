@@ -69,12 +69,14 @@ class PropertyTransfer(PaymentScheduleController):
                 company = frappe.defaults.get_user_default("Company")
                 default_receivable_account = frappe.get_value("Company", company, "default_receivable_account")
                 
-                transfer_account = frappe.db.get_single_value("Real Estate Settings", "default_transfer_revenue_account")
+                transfer_account = frappe.get_value("Company", self.company, "default_transfer_revenue_account")
+
                 if not transfer_account:
-                    frappe.throw('Please set Default Transfer Revenue Account in Real Estate Settings')
-                cost_center = frappe.db.get_single_value("Real Estate Settings", "cost_center")
+                    frappe.throw('Please set Default Transfer Revenue Account in Company Settings')
+
+                cost_center = frappe.get_value("Company", self.company, "real_estate_cost_center")
                 if not cost_center:
-                    frappe.throw('Please set Cost Centre in Real Estate Settings')
+                    frappe.throw('Please set Cost Centre in Company Settings')
 
                 journal_entry = frappe.get_doc({
                     "doctype": "Journal Entry",
