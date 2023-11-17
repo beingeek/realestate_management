@@ -1,16 +1,15 @@
 
 import frappe
 from frappe import _
-from frappe.model.document import Document
-from frappe.utils import today, getdate
+from frappe.utils import flt
+from realestate_account.controllers.real_estate_controller import RealEstateController, validate_accounting_period_open
 
-class CancellationProperty(Document):
-   
+class CancellationProperty(RealEstateController):  
     def validate(self):
         self.validate_posting_date()
-        self.validate_Check_customer_plot_master_data()
-        self.validate_acounting_period()
+        self.Check_customer_plot_master_data()
         self.validate_deduction_amount()
+        validate_accounting_period_open(self)
         
     def on_submit(self):
         self.make_gl_entries()
@@ -19,50 +18,20 @@ class CancellationProperty(Document):
     
     def on_cancel(self):
         self.remove_plot()
-
-    def validate_posting_date(self):
-        if self.posting_date:
-            posting_date = getdate(self.posting_date)
-            today_date = today()
-        if posting_date and posting_date > getdate(today_date):
-            frappe.throw("Future Document date not Allowed.")
-    
-    def validate_Check_customer_plot_master_data(self):
-        if self.customer:
-            customer = frappe.get_value('Plot List', {'name': self.plot_no}, 'customer')
-            if customer != self.customer:
-                frappe.msgprint('The master data customer does not match the payment customer')
-                frappe.throw('Validation Error: Customer mismatch')
     
     def validate_deduction_amount(self):
-        if self.final_payment != 0:
-            total_payment_amount = 0
+        if flt(self.final_payment) != 0.0:
+            total_payment_amount = 0.0
             for payment in self.payment_type:
                 total_payment_amount += payment.amount
             if self.final_payment != total_payment_amount:
                 frappe.throw('Total deduction amount must be equal to the sum of payment type amounts')
 
-    def validate_acounting_period(self):
-        sql_query = """
-            SELECT closed
-            FROM `tabAccounting Period` AS tap
-            LEFT JOIN `tabClosed Document` AS tcd ON tcd.parent = tap.name
-            WHERE tcd.document_type = 'Journal Entry' 
-            AND MONTH(tap.end_date) = MONTH(%s) 
-            AND YEAR(tap.end_date) = YEAR(%s)
-            LIMIT 1;
-        """
-        result = frappe.db.sql(sql_query, (self.posting_date, self.posting_date), as_dict=True)
-        if not result:
-            return {'is_open': None}
-        if result[0]['closed'] == 1:
-            frappe.throw('The accounting period is not open. Please open the accounting period.')
-        return {'is_open': 1}
-
     def make_gl_entries(self):
-        if self.received_amount != 0:
-            default_receivable_account = frappe.get_value("Company", self.company, "default_receivable_account")
-            
+        if flt(self.received_amount) != 0.0:
+            company = frappe.get_doc("Company", self.company)
+
+            default_receivable_account = frappe.get_value(company, self.company, "default_receivable_account")
             deductionAccount = frappe.get_value("Company", self.company, "default_deduction_revenue_account")
             if not deductionAccount:
                 frappe.throw('Please set Default deduction Account in Company Settings')
@@ -183,11 +152,6 @@ class CancellationProperty(Document):
                 frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link('Plot Booking ', booking_doc.name)))
         else:
             frappe.throw(_("Error: The selected plot is not available for booking.")) 
-
-    # def before_insert(self):
-    #     if self.status != "Active":
-    #         frappe.throw('The document status should be Active at the time entered in the system')
-
 
 
 @frappe.whitelist()

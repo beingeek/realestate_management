@@ -1,11 +1,10 @@
 
 import frappe
 from frappe import _
-from frappe.model.document import Document
-from frappe.utils import today, getdate
-from realestate_account.controllers.real_estate_controller import validate_accounting_period_open
+from frappe.utils import flt
+from realestate_account.controllers.real_estate_controller import RealEstateController, validate_accounting_period_open
 
-class CustomerPayment(Document):
+class CustomerPayment(RealEstateController):
     def validate(self):
         self.validate_check_duplicate_book_number()
         self.validate_row_paid_amount()
@@ -14,6 +13,7 @@ class CustomerPayment(Document):
         self.validate_check_total_amount()
         self.remove_unpaid_installments()
         self.check_parent_document_status()
+        self.Check_customer_plot_master_data()
         validate_accounting_period_open(self)
 
     def on_submit(self):
@@ -66,23 +66,9 @@ class CustomerPayment(Document):
     def validate_check_total_amount(self):
         if not self.total_paid_amount:
             frappe.throw('Total paid amount should be set.')
-        if self.total_paid_amount <= 0:
+        if flt(self.total_paid_amount) <= 0.0:
             frappe.throw('Total paid amount is less than or equal to zero')
     
-    def validate_posting_date(self):
-        if self.posting_date:
-            posting_date = getdate(self.posting_date)
-            today_date = today()
-        if posting_date and posting_date > getdate(today_date):
-            frappe.throw("Future document date not Allowed.")
-
-    def Check_customer_plot_master_data(self):
-        if self.customer:
-            customer = frappe.get_value('Plot List', {'name': self.plot_no}, 'customer')
-            if customer != self.customer:
-                frappe.msgprint('The master data customer does not match the payment customer')
-                frappe.throw('Validation Error: Customer mismatch')
-
     def check_parent_document_status(self):
         doc_type = self.document_type
         doc_number = self.document_number
@@ -99,9 +85,9 @@ class CustomerPayment(Document):
                 self.installment.pop(i)
         
     def make_gl_entries(self):
-        if self.total_paid_amount > 0:
-            default_company = frappe.defaults.get_user_default("Company")
-            default_receivable_account = frappe.get_value("Company", default_company, "default_receivable_account")
+        if flt(self.total_paid_amount) > 0.0:
+            company = frappe.get_doc("Company", self.company)
+            default_receivable_account = frappe.get_value("Company", company, "default_receivable_account")
 
             journal_entry = frappe.get_doc({
                 "doctype": "Journal Entry",

@@ -7,6 +7,8 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
+  "column_break_topj",
+  "company",
   "section_break_uwls",
   "payment_plan"
  ],
@@ -26,12 +28,25 @@
   {
    "fieldname": "payment_plan",
    "fieldtype": "Table",
-   "options": "Payment Plan Template - Child"
+   "options": "Payment Plan"
+  },
+  {
+   "fieldname": "column_break_topj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "unique": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-15 16:02:59.549207",
+ "modified": "2023-11-17 12:08:22.425164",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Payment Plan Template",

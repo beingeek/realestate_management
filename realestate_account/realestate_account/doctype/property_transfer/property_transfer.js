@@ -65,26 +65,37 @@ frappe.ui.form.on("Property Transfer", {
     },
 
     payment_plan_template: function(frm) {
+        if (!frm.doc.payment_plan_template) {
+            frappe.throw(__("Please select payment plan template."));
+        }
+        if (!frm.doc.company) {
+            frappe.throw(__("Please select company."));
+        }
         frappe.call({
             method: 'realestate_account.controllers.real_estate_controller.get_payment_plan',
             args: {
-                plan_template:frm.doc.payment_plan_template  
+                plan_template: frm.doc.payment_plan_template,
+                company: frm.doc.company
             },
             callback: function(data) {
-                frm.clear_table('payment_plan');
-                for (let i = 0; i < data.message.length; i++) {
-                    var row = frm.add_child('payment_plan');
-                    row.plan_type = data.message[i].plan_type;
-                    row.installment_amount = data.message[i].installment_amount;
-                    row.start_date = data.message[i].start_date;
-                    row.end_date = data.message[i].end_date;
-                    row.is_recurring = data.message[i].is_recurring;
-                    row.frequency_in_months = data.message[i].frequency_in_months;
-                    row.date_selection = data.message[i].date_selection;
+                if (data.message) {
+                    frm.clear_table('payment_plan');
+                    for (let i = 0; i < data.message.length; i++) {
+                        var row = frm.add_child('payment_plan');
+                        row.plan_type = data.message[i].plan_type;
+                        row.installment_amount = data.message[i].installment_amount;
+                        row.start_date = data.message[i].start_date;
+                        row.end_date = data.message[i].end_date;
+                        row.is_recurring = data.message[i].is_recurring;
+                        row.frequency_in_months = data.message[i].frequency_in_months;
+                        row.date_selection = data.message[i].date_selection;
+                    }
+                    frm.refresh_fields('payment_plan');        
+                } else {
+                    frappe.msgprint(__('Error: ') + data.exc);
                 }
-                frm.refresh_fields('payment_plan');        
             }
-        })
+        });
     },
 
     installment_starting_date: function(frm) {

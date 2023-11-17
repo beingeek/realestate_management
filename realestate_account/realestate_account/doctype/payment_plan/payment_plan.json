@@ -21,8 +21,7 @@
    "fieldname": "installment_amount",
    "fieldtype": "Currency",
    "in_list_view": 1,
-   "label": "Installment Amount",
-   "reqd": 1
+   "label": "Installment Amount"
   },
   {
    "fieldname": "total_amount",
@@ -63,15 +62,13 @@
    "fieldname": "end_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "End Date",
-   "reqd": 1
+   "label": "End Date"
   },
   {
    "fieldname": "start_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Start Date",
-   "reqd": 1
+   "label": "Start Date"
   },
   {
    "fetch_from": "plan_type.date_selection",
@@ -84,7 +81,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-11-12 01:02:21.715582",
+ "modified": "2023-11-17 12:06:07.666163",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Payment Plan",

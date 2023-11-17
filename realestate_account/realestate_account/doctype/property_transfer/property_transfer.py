@@ -1,22 +1,19 @@
 
 import frappe
 from frappe import _
-from realestate_account.controllers.real_estate_controller import PaymentScheduleController, validate_accounting_period_open
-from frappe.utils import flt, cstr, today, getdate
+from realestate_account.controllers.real_estate_controller import RealEstateController, validate_accounting_period_open
+from frappe.utils import flt
 
-
-class ClosedAccountingPeriod(frappe.ValidationError):
-	pass
-
-class PropertyTransfer(PaymentScheduleController):
+class PropertyTransfer(RealEstateController):
     def validate(self):
         self.validate_posting_date()
         validate_accounting_period_open(self)
         self.validate_from_customer_and_to_customer()
-        self.validate_posting_date()
-        self.validate_Check_customer_plot_master_data()
+        self.validate_check_customer_master_data_transfer()
         self.validate_received_amount()
         self.validate_transfer_amount()
+        self.validate_payment_plan_transfer_amount()
+        self.validate_payment_schedule_transfer_amount()
 
     def on_submit(self):
         self.make_gl_entries()
@@ -28,9 +25,18 @@ class PropertyTransfer(PaymentScheduleController):
     def validate_from_customer_and_to_customer(self):
         if self.from_customer == self.to_customer:
             frappe.throw('From Customer and To Customer must be different')
-
     
-    def validate_Check_customer_plot_master_data(self):
+    def validate_payment_schedule_transfer_amount(self):
+        total_payment_schedule_amount = sum(row.amount for row in self.payment_schedule)
+        if flt(total_payment_schedule_amount) != flt(self.total_transfer_amount):
+            frappe.throw(_('Total Sales Amount does not match the sum of Payment Schedule amounts'))
+
+    def validate_payment_plan_transfer_amount(self):
+        total_payment_plan_amount = sum(row.total_amount for row in self.payment_plan)
+        if flt(total_payment_plan_amount) != flt(self.total_transfer_amount):
+            frappe.throw(_('Total Sales Amount does not match the sum of Payment Plan amounts'))
+
+    def validate_check_customer_master_data_transfer(self):
         if self.from_customer:
             customer = frappe.get_value('Plot List', {'name': self.plot_no}, 'customer')
             if customer != self.from_customer:
@@ -66,14 +72,14 @@ class PropertyTransfer(PaymentScheduleController):
     def make_gl_entries(self):
             if self.received_amount != 0 or self.transfer_charge != 0:
 
-                company = frappe.defaults.get_user_default("Company")
+                company = frappe.get_doc("Company", self.company)
                 default_receivable_account = frappe.get_value("Company", company, "default_receivable_account")
-                
                 transfer_account = frappe.get_value("Company", self.company, "default_transfer_revenue_account")
 
+                if not default_receivable_account:
+                    frappe.throw('Please set Default Receivable Account in Company Settings')
                 if not transfer_account:
                     frappe.throw('Please set Default Transfer Revenue Account in Company Settings')
-
                 cost_center = frappe.get_value("Company", self.company, "real_estate_cost_center")
                 if not cost_center:
                     frappe.throw('Please set Cost Centre in Company Settings')

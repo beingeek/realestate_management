@@ -9,7 +9,7 @@ from frappe.utils import flt, getdate, today
 class ClosedAccountingPeriod(frappe.ValidationError):
     pass
 
-class PaymentScheduleController(Document):
+class RealEstateController(Document):
     @frappe.whitelist()
     def generate_installment(self):
         self.validate_payment_plan()
@@ -29,9 +29,6 @@ class PaymentScheduleController(Document):
             if not plan.get('installment_amount') or flt(plan.get('installment_amount')) <= 0:
                 frappe.throw(_('Valid installment amount is required for each installment'))
 
-    def validate_payment_schedule(self):
-        pass
-    
     def validate_posting_date(self):
         if self.posting_date:
             posting_date = getdate(self.posting_date)
@@ -42,6 +39,13 @@ class PaymentScheduleController(Document):
     def validate_amount(self):
         if flt(self.difference) != 0.0:
             frappe.throw(_('Amount of Total Payment Schedule and Total Sales Amout is not matched'))
+
+    def Check_customer_plot_master_data(self):
+        if self.customer:
+            customer = frappe.get_value('Plot List', {'name': self.plot_no}, 'customer')
+            if customer != self.customer:
+                frappe.msgprint('The master data customer does not match the payment customer')
+                frappe.throw('Validation Error: Customer mismatch')
 
 def generate_payment_schedule(payment_plan):
     payment_schedule = []
@@ -80,22 +84,27 @@ def generate_payment_schedule(payment_plan):
             })
     return payment_schedule
 
-
 @frappe.whitelist()
-def get_payment_plan(plan_template):
+def get_payment_plan(plan_template, company):
+
+    if not plan_template or not company:
+        frappe.throw(_("'Payment plan template' and 'company' are required to get payment plan."))
     try:
         results = frappe.get_all(
-            'Payment Plan Template - Child',
-            filters={'parent': plan_template},
+            'Payment Plan',
+            filters={'parent': plan_template, 'company': company},
             fields=['*'],
-            order_by='idx'
+            order_by='idx',
+            join={
+                'table': 'tabPayment Plan Template',
+                'condition': 'tabPayment Plan Template.name = tabPayment Plan.parent'
+            }
         )
         return results
     except Exception as e:
         frappe.throw(f"'Payment Plan not found': {str(e)}")
         return []
-
-
+    
 def validate_accounting_period_open(doc, method=None):
     ap = frappe.qb.DocType("Accounting Period")
     cd = frappe.qb.DocType("Closed Document")
