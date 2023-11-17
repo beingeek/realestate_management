@@ -69,12 +69,95 @@ def get_custom_fields():
         {
             "label": "Father Name",
             "fieldname": "father_name",
-            "fieldtype": "data",
+            "fieldtype": "Data",
             "insert_after": "territory",
+			"allow_in_quick_entry":1,
+        },
+		{
+            "label": "ID Card No",
+            "fieldname": "id_card_no",
+            "fieldtype": "Data",
+            "allow_in_quick_entry":1,
+            "insert_after": "father_name",
+        },
+		{
+            "label": "Next of Kin",
+            "fieldname": "next_of_kin",
+            "fieldtype": "Data",
+            "allow_in_quick_entry":1,
+            "insert_after": "id_card_no",
+        }
+    ]
+
+    custom_fields_Journal_Entry = [
+        {
+            "label": "Document Type",
+            "fieldname": "document_type",
+            "fieldtype": "Link",
+			"options": "DocType",
+			"read_only":1,
+            "insert_after": "cheque_date",
+        },
+		{
+            "label": "Document Number",
+            "fieldname": "document_number",
+            "fieldtype": "Dynamic Link",
+			"options": "document_type",
+			"read_only":1,
+            "insert_after": "document_type",
+        },
+		{
+            "label": "Real Estate Inventory No.",
+            "fieldname": "real_estate_inventory_no",
+            "fieldtype": "Link",
+			"options": "Plot List",
+			"read_only":1,
+            "insert_after": "document_number",
+        }
+    ]
+
+    custom_fields_Journal_Entry_account = [
+        {
+            "label": "Document Type",
+            "fieldname": "document_type",
+            "fieldtype": "Link",
+			"options": "DocType",
+			"read_only":1,
+            "insert_after": "cheque_date",
+        },
+		{
+            "label": "Document Number",
+            "fieldname": "document_number",
+            "fieldtype": "Dynamic Link",
+			"options": "document_type",
+			"read_only":1,
+            "insert_after": "document_type",
+        },
+		{
+            "label": "Real Estate Inventory No.",
+            "fieldname": "real_estate_inventory_no",
+            "fieldtype": "Link",
+			"options": "Plot List",
+			"read_only":1,
+            "insert_after": "document_number",
+        }
+    ]
+
+    custom_fields_purchase_invoice = [
+        {
+            "label": "Document Number",
+            "fieldname": "document_number",
+            "fieldtype": "Link",
+			"options": "Plot Booking",
+			"read_only":1,
+            "insert_after": "project",
         }
     ]
 
     return {
         "Company": custom_fields_company,
-        "Customer": custom_fields_customer
+        "Customer": custom_fields_customer,
+		"Journal Entry": custom_fields_Journal_Entry,
+		"Journal Entry Account" : custom_fields_Journal_Entry_account,
+		"Purchase Invoice": custom_fields_purchase_invoice
     }

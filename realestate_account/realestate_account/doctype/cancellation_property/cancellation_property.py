@@ -45,9 +45,9 @@ class CancellationProperty(RealEstateController):
                 "voucher_no": self.name,
                 "posting_date": self.posting_date,
                 "user_remark": self.remarks,
-                "custom_plot_no": self.plot_no,
-                "custom_document_number": self.name,
-                "custom_document_type": "Cancellation Property"
+                "real_estate_inventory_no": self.plot_no,
+                "document_number": self.name,
+                "document_type": "Cancellation Property"
             })
 
             for payment in self.payment_type:
@@ -56,12 +56,12 @@ class CancellationProperty(RealEstateController):
                     "credit_in_account_currency": payment.amount,
                     "against": default_receivable_account,
                     "project": self.project,
-                    "custom_plot_no": self.plot_no,
+                    "real_estate_inventory_no": self.plot_no,
                     "bank_account":payment.bank_account,
                     "cost_center": "",
                     "is_advance": 0,
-                    "custom_document_number": self.name,
-                    "custom_document_type":"Cancellation Property"
+                    "document_number": self.name,
+                    "document_type":"Cancellation Property"
                 })
 
             journal_entry.append("accounts", {
@@ -69,11 +69,11 @@ class CancellationProperty(RealEstateController):
                 "credit_in_account_currency": self.deduction,
                 "against": self.customer,
                 "project": self.project,
-                "custom_plot_no": self.plot_no,
+                "real_estate_inventory_no": self.plot_no,
                 "cost_center": cost_center,
                 "is_advance": 0,
-                "custom_document_number": self.name,
-                "custom_document_type": "Cancellation Property"
+                "document_number": self.name,
+                "document_type": "Cancellation Property"
             })
 
             journal_entry.append("accounts", {
@@ -82,11 +82,11 @@ class CancellationProperty(RealEstateController):
                 "party_type": "Customer",
                 "party": self.customer,
                 "project": self.project,
-                "custom_plot_no": self.plot_no,
+                "real_estate_inventory_no": self.plot_no,
                 "cost_center": "",
                 "is_advance": 0,
-                "custom_document_number": self.name,
-                "custom_document_type": "Cancellation Property"
+                "document_number": self.name,
+                "document_type": "Cancellation Property"
             })
 
             journal_entry.insert(ignore_permissions=True)

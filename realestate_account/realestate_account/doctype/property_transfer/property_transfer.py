@@ -90,9 +90,9 @@ class PropertyTransfer(RealEstateController):
                     "voucher_no": self.name,
                     "posting_date": self.posting_date,
                     "user_remark": self.remarks,
-                    "custom_document_number": self.name,
-                    "custom_document_type": "Property Transfer",
-                    "custom_plot_no": self.plot_no
+                    "document_number": self.name,
+                    "document_type": "Property Transfer",
+                    "real_estate_inventory_no": self.plot_no
                 })
                 if self.received_amount > 0:
                     journal_entry.append("accounts", {
@@ -102,11 +102,11 @@ class PropertyTransfer(RealEstateController):
                         "party": self.from_customer,
                         "against": self.to_customer,
                         "project": self.project,
-                        "custom_plot_no": self.plot_no,
+                        "real_estate_inventory_no": self.plot_no,
                         "cost_center": "",
                         "is_advance": 0,
-                        "custom_document_number": self.name,
-                        "custom_document_type": "Property Transfer"
+                        "document_number": self.name,
+                        "document_type": "Property Transfer"
                     })
                     journal_entry.append("accounts", {
                         "account": default_receivable_account,
@@ -115,11 +115,11 @@ class PropertyTransfer(RealEstateController):
                         "party": self.to_customer,
                         "against": self.from_customer,
                         "project": self.project,
-                        "custom_plot_no": self.plot_no,
+                        "real_estate_inventory_no": self.plot_no,
                         "cost_center": "",
                         "is_advance": 0,
-                        "custom_document_number": self.name,
-                        "custom_document_type": "Property Transfer"
+                        "document_number": self.name,
+                        "document_type": "Property Transfer"
                     })
                 if self.transfer_charge > 0:
                     for payment in self.payment_type:
@@ -128,22 +128,22 @@ class PropertyTransfer(RealEstateController):
                             "debit_in_account_currency": payment.amount,
                             "against": default_receivable_account,
                             "project": self.project,
-                            "custom_plot_no": self.plot_no,
+                            "real_estate_inventory_no": self.plot_no,
                             "cost_center": "",
                             "is_advance": 0,
-                            "custom_document_number": self.name,
-                            "custom_document_type": "Property Transfer"
+                            "document_number": self.name,
+                            "document_type": "Property Transfer"
                         })
                     journal_entry.append("accounts", {
                         "account": transfer_account,
                         "credit_in_account_currency": self.transfer_charge,
                         "against": self.from_customer,
                         "project": self.project,
-                        "custom_plot_no": self.plot_no,
+                        "real_estate_inventory_no": self.plot_no,
                         "cost_center": cost_center,
                         "is_advance": 0,
-                        "custom_document_number": self.name,
-                        "custom_document_type": "Property Transfer"
+                        "document_number": self.name,
+                        "document_type": "Property Transfer"
                     })
 
                 journal_entry.insert(ignore_permissions=True)
@@ -280,9 +280,9 @@ def get_payment_list_from_booking_document(doc_no):
                             INNER JOIN `tabCustomer Payment Installment` AS b
                             ON a.name = b.parent
                             WHERE a.docstatus = 1
-                            AND a.a.custom_document_number = c.name
+                            AND a.a.document_number = c.name
                             AND b.base_doc_idx = d.idx
-                            AND a.custom_plot_no = c.plot_no
+                            AND a.real_estate_inventory_no = c.plot_no
                         ),
                         0
                     ) AS receivable_amount
@@ -326,9 +326,9 @@ def get_payment_list_from_transfer_document(doc_no):
                             INNER JOIN `tabCustomer Payment Installment` AS b
                             ON a.name = b.parent
                             WHERE a.docstatus = 1
-                            AND a.custom_document_number = c.name
+                            AND a.document_number = c.name
                             AND b.base_doc_idx = d.idx
-                            AND a.custom_plot_no = c.plot_no
+                            AND a.real_estate_inventory_no = c.plot_no
                             ),
                             0
                         ) AS receivable_amount

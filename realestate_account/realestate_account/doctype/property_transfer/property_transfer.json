@@ -445,7 +445,7 @@
  "links": [
   {
    "link_doctype": "Journal Entry",
-   "link_fieldname": "custom_document_number"
+   "link_fieldname": "document_number"
   },
   {
    "link_doctype": "Customer Payment",
