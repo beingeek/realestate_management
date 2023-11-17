@@ -5,7 +5,6 @@ from dateutil.relativedelta import relativedelta
 from frappe.model.document import Document
 from frappe.utils import flt, getdate, today
 
-
 class ClosedAccountingPeriod(frappe.ValidationError):
     pass
 
