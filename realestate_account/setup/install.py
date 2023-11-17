@@ -69,7 +69,7 @@ def get_custom_fields():
         {
             "label": "Father Name",
             "fieldname": "father_name",
-            "fieldtype": "data",
+            "fieldtype": "Data",
             "insert_after": "territory",
         }
     ]
