@@ -89,19 +89,22 @@ def get_payment_plan(plan_template, company):
     if not plan_template or not company:
         frappe.throw(_("'Payment plan template' and 'company' are required to get payment plan."))
     try:
-        results = frappe.get_all(
-            'Payment Plan',
-            filters={'parent': plan_template, 'company': company},
-            fields=['*'],
-            order_by='idx',
-            join={
-                'table': 'tabPayment Plan Template',
-                'condition': 'tabPayment Plan Template.name = tabPayment Plan.parent'
-            }
-        )
+        sql_query = """
+
+        SELECT y.plan_type, y.start_date, y.end_date, y.installment_amount,
+        y.frequency_in_months, y.is_recurring, y.date_selection, x.name, y.idx
+        from `tabPayment Plan Template` x 
+        INNER JOIN `tabPayment Plan` y on x.name  = y.parent 
+        Where x.name = %s 
+        and x.company = %s
+        Order by y.idx 
+        """
+        results = frappe.db.sql(sql_query, (plan_template, company), as_dict=True)
+        if not results:
+            return []
         return results
     except Exception as e:
-        frappe.throw(f"'Payment Plan not found': {str(e)}")
+        frappe.throw(f"Error in get_available_plots: {str(e)}")
         return []
     
 def validate_accounting_period_open(doc, method=None):

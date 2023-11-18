@@ -134,13 +134,13 @@ doc_events = {
             'realestate_account.events.journal_entry.check_plot_booking',
             'realestate_account.events.journal_entry.check_document_status'
         ]
-    }
+    },
+    "Customer": {
+        'validate': [
+            'realestate_account.events.journal_entry.validate_id_card_number_format'
+        ]
+    },
 }
-
-
-
-
-
 
 
 # Scheduled Tasks

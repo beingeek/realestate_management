@@ -12,38 +12,43 @@
   "booking_information_tab",
   "booking_information_section",
   "posting_date",
+  "customer_type",
   "column_break_ilqz",
   "project",
   "plot_no",
+  "unit_cost",
   "column_break_kyo0t",
   "land_price",
   "plot_feature",
+  "premium_discount",
   "column_break_jku2i",
   "area",
   "uom",
+  "booking_grand_total",
   "customer_details_section",
   "customer",
+  "share_percentage",
+  "column_break_jqwp",
   "father_name",
-  "column_break_ndce1",
   "cnic",
+  "column_break_yyna",
   "contact_no",
-  "column_break_6gerh",
+  "column_break_ndce1",
   "address",
-  "account_information_section",
-  "unit_cost",
-  "column_break_e6ssq",
-  "premium_discount",
-  "column_break_nwt64",
-  "booking_grand_total",
+  "section_break_xgve",
+  "customer_partnership",
   "section_break_jrmxs",
   "sales_broker",
-  "status",
-  "amended_from",
-  "column_break_dfvwv",
+  "column_break_efzq",
   "commission_amount",
-  "company",
+  "column_break_dfvwv",
+  "status",
   "column_break_4wmrw",
+  "company",
+  "section_break_fabl",
   "remarks",
+  "column_break_spas",
+  "amended_from",
   "payment_plan_detail_tab",
   "payment_plan_reconcilition_section",
   "payment_plan_template",
@@ -83,10 +88,12 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": " Customer",
+   "no_copy": 1,
    "options": "Customer",
    "reqd": 1
   },
   {
+   "default": "Today",
    "fieldname": "posting_date",
    "fieldtype": "Date",
    "in_list_view": 1,
@@ -166,51 +173,39 @@
    "read_only": 1
   },
   {
-   "collapsible": 1,
    "fieldname": "customer_details_section",
    "fieldtype": "Section Break",
-   "label": "Customer Details"
+   "label": "Customer"
   },
   {
-   "fetch_from": "customer.custom_address",
+   "fetch_from": "customer.primary_address",
    "fieldname": "address",
    "fieldtype": "Small Text",
    "label": "Address",
    "read_only": 1
   },
   {
-   "fetch_from": "customer.custom_father_name",
+   "fetch_from": "customer.father_name",
    "fieldname": "father_name",
    "fieldtype": "Data",
    "label": " Father Name",
    "read_only": 1
   },
   {
-   "fetch_from": "customer.custom_cnic",
+   "fetch_from": "customer.id_card_no",
    "fieldname": "cnic",
    "fieldtype": "Data",
-   "label": " CNIC",
+   "hidden": 1,
+   "label": "CNIC",
+   "no_copy": 1,
    "read_only": 1
   },
   {
-   "fieldname": "column_break_6gerh",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fetch_from": "customer.custom_contact_no",
+   "fetch_from": "customer.mobile_no",
    "fieldname": "contact_no",
    "fieldtype": "Data",
    "label": "Contact No.",
    "read_only": 1
-  },
-  {
-   "fieldname": "account_information_section",
-   "fieldtype": "Section Break",
-   "label": "Account Information"
-  },
-  {
-   "fieldname": "column_break_e6ssq",
-   "fieldtype": "Column Break"
   },
   {
    "depends_on": "eval:(doc.unit_cost > 0)",
@@ -219,14 +214,8 @@
    "label": " Premium (Discount)"
   },
   {
-   "fieldname": "column_break_nwt64",
-   "fieldtype": "Column Break"
-  },
-  {
-   "collapsible": 1,
    "fieldname": "section_break_jrmxs",
-   "fieldtype": "Section Break",
-   "label": "Broker & Broker Detail"
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "sales_broker",
@@ -239,7 +228,7 @@
   },
   {
    "fieldname": "remarks",
-   "fieldtype": "Small Text",
+   "fieldtype": "Data",
    "label": " Remarks"
   },
   {
@@ -321,7 +310,7 @@
    "fetch_from": "project.company",
    "fieldname": "company",
    "fieldtype": "Link",
-   "label": " Company",
+   "label": "Company",
    "options": "Company",
    "read_only": 1,
    "reqd": 1
@@ -384,6 +373,59 @@
    "label": "Payment Plan Template",
    "options": "Payment Plan Template",
    "reqd": 1
+  },
+  {
+   "fieldname": "column_break_jqwp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval: doc.customer_type === 'Partnership'",
+   "fieldname": "section_break_xgve",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval: doc.customer_type === 'Partnership'",
+   "fieldname": "customer_partnership",
+   "fieldtype": "Table",
+   "label": "Customer Partnership",
+   "mandatory_depends_on": "eval: doc.customer_type == 'Partnership'",
+   "options": "Customer Partnership"
+  },
+  {
+   "default": "Individual",
+   "fieldname": "customer_type",
+   "fieldtype": "Select",
+   "label": "Customer Type",
+   "options": "Individual\nPartnership",
+   "reqd": 1
+  },
+  {
+   "default": "100.00",
+   "depends_on": "eval: doc.customer_type == 'Partnership'",
+   "fieldname": "share_percentage",
+   "fieldtype": "Float",
+   "label": "Share Percentage",
+   "mandatory_depends_on": "eval: doc.customer_type == 'Partnership'",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only_depends_on": "eval: doc.customer_type == 'Individual'",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_yyna",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_efzq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_fabl",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_spas",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -392,7 +434,7 @@
  "links": [
   {
    "link_doctype": "Purchase Invoice",
-   "link_fieldname": "custom_booking_number"
+   "link_fieldname": "document_number"
   },
   {
    "link_doctype": "Property Transfer",
@@ -407,7 +449,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-11-15 18:55:02.786386",
+ "modified": "2023-11-19 01:42:47.219151",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot Booking",

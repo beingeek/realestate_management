@@ -14,6 +14,8 @@ class PropertyTransfer(RealEstateController):
         self.validate_transfer_amount()
         self.validate_payment_plan_transfer_amount()
         self.validate_payment_schedule_transfer_amount()
+        self.validate_duplicates_customer_in_partnership()
+        self.validate_share_percentage()
 
     def on_submit(self):
         self.make_gl_entries()
@@ -68,6 +70,34 @@ class PropertyTransfer(RealEstateController):
                 total_payment_amount += payment.amount
             if self.transfer_charge != total_payment_amount:
                 frappe.throw('Total transfer charge must be equal to the sum of payment type amounts') 
+
+    def validate_share_percentage(self):
+        if self.to_customer_type == "Individual":
+            if flt(self.to_share_percentage) != 100.0:
+                frappe.throw(_('The Individual customer share percentage must be equal to 100. Current total: {0:.2f}').format(self.to_share_percentage))
+            rows = len([row.customer for row in self.to_customer_partnership])
+            if rows > 0:
+                frappe.throw(_('Remove the rows in the customer partnership table.'))
+        
+        elif self.to_customer_type == "Partnership":
+            share_percentage = flt(self.to_share_percentage) + flt(sum(row.share_percentage for row in self.to_customer_partnership))
+            
+            if flt(share_percentage) != 100.0:
+                frappe.throw(_('The Partnership customers share percentage must be equal to 100. Current total: {0:.2f}').format(share_percentage))
+            if any(row.share_percentage == 0.0 for row in self.to_customer_partnership):
+                frappe.throw(_('Share percentage for Partnership customers cannot be 0.0'))
+            if flt(self.to_share_percentage) == 0.0:
+                frappe.throw(_('Share percentage for Main customers cannot be 0.0'))
+
+    def validate_duplicates_customer_in_partnership(self):
+        partnership_customer = [row.customer for row in self.to_customer_partnership]
+        duplicates_in_partnership = set(x for x in partnership_customer if partnership_customer.count(x) > 1)
+        
+        if duplicates_in_partnership:
+            frappe.throw(_('Duplicate customers found in the customer partnership table: {0}').format(', '.join(duplicates_in_partnership)))
+        
+        if self.to_customer in partnership_customer:
+            frappe.throw(_('Duplicate customer found in the customer partnership table.'))
 
     def make_gl_entries(self):
             if self.received_amount != 0 or self.transfer_charge != 0:

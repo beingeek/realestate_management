@@ -62,12 +62,6 @@ frappe.ui.form.on("Plot Booking", {
     },
 	
     payment_plan_template: function(frm) {
-        if (!frm.doc.payment_plan_template) {
-            frappe.throw(__("Please select payment plan template."));
-        }
-        if (!frm.doc.company) {
-            frappe.throw(__("Please select company."));
-        }
         frappe.call({
             method: 'realestate_account.controllers.real_estate_controller.get_payment_plan',
             args: {

@@ -40,13 +40,12 @@
    "in_list_view": 1,
    "label": "Company",
    "options": "Company",
-   "reqd": 1,
-   "unique": 1
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-17 12:08:22.425164",
+ "modified": "2023-11-17 21:42:50.395506",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Payment Plan Template",

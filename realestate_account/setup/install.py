@@ -72,6 +72,7 @@ def get_custom_fields():
             "fieldtype": "Data",
             "insert_after": "territory",
 			"allow_in_quick_entry":1,
+			"reqd":1,
         },
 		{
             "label": "ID Card No",
@@ -79,6 +80,7 @@ def get_custom_fields():
             "fieldtype": "Data",
             "allow_in_quick_entry":1,
             "insert_after": "father_name",
+			"reqd":1,
         },
 		{
             "label": "Next of Kin",
@@ -86,6 +88,7 @@ def get_custom_fields():
             "fieldtype": "Data",
             "allow_in_quick_entry":1,
             "insert_after": "id_card_no",
+			"reqd":1,
         }
     ]
 
@@ -154,10 +157,28 @@ def get_custom_fields():
         }
     ]
 
+    # records = [
+	# 		# Department
+	# 		{
+	# 			"doctype": "Department",
+	# 			"department_name": _("All Departments"),
+	# 			"is_group": 1,
+	# 			"parent_department": "",
+	# 			"__condition": lambda: not frappe.db.exists("Department", _("All Departments")),
+	# 		},
+	# 		{
+	# 			"doctype": "Department",
+	# 			"department_name": _("Accounts"),
+	# 			"parent_department": _("All Departments"),
+	# 			"company": name,
+	# 		}
+	# ]
+
     return {
         "Company": custom_fields_company,
         "Customer": custom_fields_customer,
 		"Journal Entry": custom_fields_Journal_Entry,
 		"Journal Entry Account" : custom_fields_Journal_Entry_account,
-		"Purchase Invoice": custom_fields_purchase_invoice
+		"Purchase Invoice": custom_fields_purchase_invoice,
+        # "": records
     }
