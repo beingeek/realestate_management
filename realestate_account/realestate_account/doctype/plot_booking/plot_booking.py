@@ -83,7 +83,7 @@ class PlotBooking(RealEstateController):
                 "bill_no" : self.plot_no,
                 "project" : self.project,
                 "cost_centre" : "",
-                "custom_booking_number":self.name,
+                "document_number":self.name,
                 "company" : company
             })
 
@@ -100,12 +100,31 @@ class PlotBooking(RealEstateController):
 
     def book_plot(self):
         plot_master = frappe.get_doc("Plot List", self.plot_no)
+        
         if plot_master.status == "Available" and plot_master.hold_for_sale == 0:
-            plot_master.update({
-                'status': "Booked", 'customer': self.customer, 'address': self.address,
-                'contact_no': self.contact_no, 'sales_broker': self.sales_broker,
-                'father_name': self.father_name, 'cnic': self.cnic,
+            plot_master.update({      
+                'status': "Booked",
+                'customer': self.customer,
+                'address': self.address,
+                'contact_no': self.contact_no,
+                'sales_broker': self.sales_broker,
+                'father_name': self.father_name,
+                'cnic': self.cnic,
+                'customer_type': self.customer_type,
+                'share_percentage': self.share_percentage,
             })
+
+            if self.customer_type == "Partnership":
+                for customer in self.customer_partnership:
+                    plot_master.append("customer_partnership", {
+                    'customer': customer.customer,
+                    'address': customer.address,
+                    'mobile_no': customer.mobile_no,
+                    'father_name': customer.father_name,
+                    'id_card_no': customer.id_card_no,
+                    'share_percentage': customer.share_percentage,
+            })
+
             plot_master.save()
             frappe.msgprint(_('{0} booked successfully').format(frappe.get_desk_link('Plot List', plot_master.name)))
         else:
@@ -114,10 +133,19 @@ class PlotBooking(RealEstateController):
     def unbook_plot(self):
         plot_master = frappe.get_doc("Plot List", self.plot_no)
         plot_master.update({
-            'status': "Available", 'customer': '', 'address': '',
-            'contact_no': '', 'sales_broker': '',
-            'father_name': '',  'cnic': ''
+            'status': "Available",
+            'customer': '',
+            'address': '',
+            'contact_no': '',
+            'sales_broker': '',
+            'father_name': '',
+            'cnic': '',
+            'customer_type': '',
+            'share_percentage': '',
         })
+
+        if self.customer_type == "Partnership":
+            plot_master.set("customer_partnership", [])
 
         plot_master.save()
         frappe.msgprint(_('{0} unbooked').format(frappe.get_desk_link('Plot List', plot_master.name)))

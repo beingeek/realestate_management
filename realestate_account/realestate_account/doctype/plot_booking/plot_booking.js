@@ -23,11 +23,17 @@ frappe.ui.form.on("Plot Booking", {
 	},
    
     premium_discount: function(frm) {
-        var booking_grand_total = frm.doc.unit_cost + frm.doc.premium_discount;
-        frm.set_value("total_sales_amount", booking_grand_total);
+        var booking_grand_total = frm.doc.unit_cost + frm.doc.premium_discount ;
         frm.set_value("booking_grand_total", booking_grand_total);
+        var total_sales_amount = frm.doc.unit_cost + frm.doc.premium_discount - frm.doc.token_amount;
+        frm.set_value("total_sales_amount", total_sales_amount);
     },
 
+    difference: function(frm) {
+        var total_sales_amount = frm.doc.unit_cost + frm.doc.premium_discount - frm.doc.token_amount;
+        frm.set_value("total_sales_amount", total_sales_amount);
+    },
+    
     project: function(frm) {
         var project = frm.doc.project;
         if (!frm.doc.project) {
@@ -52,7 +58,9 @@ frappe.ui.form.on("Plot Booking", {
             options: "Plot List",
             get_query: () => ({
                 filters: {
-                    "status": 'Available', 'hold_for_sale': 0, 'project': frm.doc.project
+                    "status": ["in", ["Available", "Token"]],
+                    "hold_for_sale": 0,
+                    "project": frm.doc.project
                 }
             })
         }, (values) => {
@@ -131,7 +139,7 @@ frappe.ui.form.on("Installment Payment Plan", {
     },
 
     payment_schedule_remove: function(frm, cdt, cdn) {
-        st_payment_plan_summary(frm);
+        set_payment_plan_summary(frm);
     }
 });
 
@@ -168,7 +176,7 @@ function set_payment_plan_summary(frm) {
         totalPaymentScheduleAmount += flt(row.amount);
     })
 
-    frm.set_value('difference', frm.doc.total_sales_amount - totalPaymentScheduleAmount);
+    frm.set_value('difference', (frm.doc.unit_cost + frm.doc.premium_discount - frm.doc.token_amount)- totalPaymentScheduleAmount);
 
     $.each(frm.doc.payment_plan || [], function(i, row) {
         if (plan_totals[row.plan_type]) {

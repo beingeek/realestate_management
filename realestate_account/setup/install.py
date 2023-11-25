@@ -73,6 +73,7 @@ def get_custom_fields():
             "insert_after": "territory",
 			"allow_in_quick_entry":1,
 			"reqd":1,
+			"no_copy":1,
         },
 		{
             "label": "ID Card No",
@@ -81,6 +82,7 @@ def get_custom_fields():
             "allow_in_quick_entry":1,
             "insert_after": "father_name",
 			"reqd":1,
+			"no_copy":1,
         },
 		{
             "label": "Next of Kin",
@@ -89,6 +91,7 @@ def get_custom_fields():
             "allow_in_quick_entry":1,
             "insert_after": "id_card_no",
 			"reqd":1,
+			"no_copy":1,
         }
     ]
 
@@ -99,6 +102,7 @@ def get_custom_fields():
             "fieldtype": "Link",
 			"options": "DocType",
 			"read_only":1,
+			"no_copy":1,
             "insert_after": "cheque_date",
         },
 		{
@@ -107,6 +111,7 @@ def get_custom_fields():
             "fieldtype": "Dynamic Link",
 			"options": "document_type",
 			"read_only":1,
+			"no_copy":1,
             "insert_after": "document_type",
         },
 		{
@@ -115,6 +120,7 @@ def get_custom_fields():
             "fieldtype": "Link",
 			"options": "Plot List",
 			"read_only":1,
+			"no_copy":1,
             "insert_after": "document_number",
         }
     ]
@@ -126,6 +132,7 @@ def get_custom_fields():
             "fieldtype": "Link",
 			"options": "DocType",
 			"read_only":1,
+			"no_copy":1,
             "insert_after": "cheque_date",
         },
 		{
@@ -134,6 +141,7 @@ def get_custom_fields():
             "fieldtype": "Dynamic Link",
 			"options": "document_type",
 			"read_only":1,
+			"no_copy":1,
             "insert_after": "document_type",
         },
 		{
@@ -142,6 +150,7 @@ def get_custom_fields():
             "fieldtype": "Link",
 			"options": "Plot List",
 			"read_only":1,
+			"no_copy":1,
             "insert_after": "document_number",
         }
     ]
@@ -153,6 +162,7 @@ def get_custom_fields():
             "fieldtype": "Link",
 			"options": "Plot Booking",
 			"read_only":1,
+			"no_copy":1,
             "insert_after": "project",
         }
     ]

@@ -27,17 +27,20 @@
   "column_break_7hki4",
   "father_name",
   "contact_no",
+  "customer_type",
   "column_break_dzefc",
   "cnic",
   "sales_broker",
+  "share_percentage",
+  "section_break_jrgw",
+  "customer_partnership",
   "section_break_3psyl",
   "payment_type",
   "remarks_section",
   "remarks",
+  "amended_from",
   "column_break_0nsw8",
   "company",
-  "column_break_nszkl",
-  "amended_from",
   "connection"
  ],
  "fields": [
@@ -47,6 +50,7 @@
    "label": " Property Information"
   },
   {
+   "default": "Today",
    "fieldname": "posting_date",
    "fieldtype": "Date",
    "in_list_view": 1,
@@ -69,6 +73,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Doc Number",
+   "no_copy": 1,
    "options": "document_type",
    "read_only": 1,
    "reqd": 1
@@ -83,12 +88,12 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Plot No",
+   "no_copy": 1,
    "options": "Plot List",
    "read_only": 1,
    "reqd": 1
   },
   {
-   "collapsible": 1,
    "fieldname": "customer_information_section",
    "fieldtype": "Section Break",
    "label": "Customer Information"
@@ -99,12 +104,13 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": " Customer",
+   "no_copy": 1,
    "options": "Customer",
    "read_only": 1,
    "reqd": 1
   },
   {
-   "fetch_from": "customer.custom_address",
+   "fetch_from": "customer.primary_address",
    "fieldname": "address",
    "fieldtype": "Small Text",
    "label": "Address",
@@ -115,21 +121,21 @@
    "fieldtype": "Column Break"
   },
   {
-   "fetch_from": "customer.custom_cnic",
+   "fetch_from": "customer.id_card_no",
    "fieldname": "cnic",
    "fieldtype": "Data",
    "label": "CNIC",
    "read_only": 1
   },
   {
-   "fetch_from": "customer.custom_contact_no",
+   "fetch_from": "customer.mobile_no",
    "fieldname": "contact_no",
    "fieldtype": "Data",
    "label": "Contact No.",
    "read_only": 1
   },
   {
-   "fetch_from": "customer.custom_father_name",
+   "fetch_from": "customer.father_name",
    "fieldname": "father_name",
    "fieldtype": "Data",
    "label": "Father Name",
@@ -154,6 +160,7 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Final Payment",
+   "no_copy": 1,
    "non_negative": 1,
    "read_only": 1,
    "reqd": 1
@@ -174,11 +181,6 @@
    "collapsible": 1,
    "fieldname": "remarks_section",
    "fieldtype": "Section Break",
-   "label": "Remarks"
-  },
-  {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
    "label": "Remarks"
   },
   {
@@ -216,10 +218,6 @@
    "label": " Property Information"
   },
   {
-   "fieldname": "column_break_nszkl",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "column_break_vvps",
    "fieldtype": "Column Break"
   },
@@ -227,6 +225,7 @@
    "fieldname": "sales_amount",
    "fieldtype": "Currency",
    "label": "Sales Amount",
+   "no_copy": 1,
    "non_negative": 1,
    "read_only": 1,
    "reqd": 1
@@ -235,6 +234,7 @@
    "fieldname": "received_amount",
    "fieldtype": "Currency",
    "label": "Received Amount",
+   "no_copy": 1,
    "non_negative": 1,
    "read_only": 1,
    "reqd": 1
@@ -245,16 +245,57 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Project",
+   "no_copy": 1,
    "options": "Project",
    "reqd": 1
+  },
+  {
+   "depends_on": "eval: doc.customer_type == 'Partnership'",
+   "fieldname": "customer_type",
+   "fieldtype": "Data",
+   "label": "Customer Type",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval: doc.customer_type == 'Partnership'",
+   "fieldname": "share_percentage",
+   "fieldtype": "Float",
+   "label": "Share Percentage",
+   "mandatory_depends_on": "eval: doc.customer_type == 'Partnership'",
+   "no_copy": 1,
+   "non_negative": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_jrgw",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval: doc.customer_type == 'Partnership'",
+   "fieldname": "customer_partnership",
+   "fieldtype": "Table",
+   "label": "Customer Partnership",
+   "mandatory_depends_on": "eval: doc.customer_type == 'Partnership'",
+   "options": "Customer Partnership"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2023-11-07 00:28:46.547248",
+ "links": [
+  {
+   "link_doctype": "Plot List",
+   "link_fieldname": "name"
+  }
+ ],
+ "modified": "2023-11-20 20:53:37.240359",
  "modified_by": "Administrator",
- "module": "Realestate Account",
+"module": "Realestate Account",
  "name": "Cancellation Property",
  "owner": "Administrator",
  "permissions": [

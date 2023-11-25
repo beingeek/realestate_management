@@ -9,16 +9,17 @@
  "field_order": [
   "project",
   "plot_no",
+  "document_number",
   "document_type",
-  "get_insallment_information",
   "column_break_pgopo",
   "posting_date",
   "total_paid_amount",
   "book_number",
+  "share_percentage",
+  "customer_type",
   "column_break_yzarc",
   "customer",
   "address",
-  "document_number",
   "column_break_grwe5",
   "sales_amount",
   "received_amount",
@@ -29,13 +30,13 @@
   "payment_type",
   "section_break_krtxv",
   "remarks",
+  "amended_from",
   "column_break_i1bgb",
   "company",
-  "amended_from",
-  "column_break_g9jop",
+  "payment_type_total_amount",
   "installment_total",
-  "column_break_l64qv",
-  "payment_type_total_amount"
+  "section_break_xlke",
+  "customer_partnership"
  ],
  "fields": [
   {
@@ -44,6 +45,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Project Name",
+   "no_copy": 1,
    "options": "Project",
    "reqd": 1
   },
@@ -53,6 +55,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Plot No",
+   "no_copy": 1,
    "options": "Plot List",
    "read_only": 1,
    "reqd": 1
@@ -73,6 +76,7 @@
    "fieldtype": "Date",
    "in_list_view": 1,
    "label": "Payment Date",
+   "no_copy": 1,
    "reqd": 1
   },
   {
@@ -80,6 +84,7 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Total Paid Amount",
+   "no_copy": 1,
    "reqd": 1
   },
   {
@@ -96,14 +101,16 @@
   },
   {
    "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks"
+   "fieldtype": "Data",
+   "label": "Remarks",
+   "no_copy": 1
   },
   {
    "fieldname": "document_type",
    "fieldtype": "Link",
    "hidden": 1,
    "label": "document_type",
+   "no_copy": 1,
    "options": "DocType"
   },
   {
@@ -112,14 +119,10 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Document Number",
+   "no_copy": 1,
    "options": "document_type",
    "read_only": 1,
    "reqd": 1
-  },
-  {
-   "fieldname": "get_insallment_information",
-   "fieldtype": "Button",
-   "label": "Get insallment Detail"
   },
   {
    "fieldname": "column_break_pgopo",
@@ -138,6 +141,7 @@
    "fieldname": "payment_type",
    "fieldtype": "Table",
    "label": "Payment Type",
+   "no_copy": 1,
    "options": "Payment Type",
    "reqd": 1
   },
@@ -148,10 +152,11 @@
   {
    "fieldname": "payment_type_total_amount",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Payment Type Total Amount",
+   "no_copy": 1,
    "non_negative": 1,
-   "read_only": 1,
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "column_break_grwe5",
@@ -163,18 +168,11 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Book Number",
+   "no_copy": 1,
    "reqd": 1
   },
   {
-   "fieldname": "column_break_l64qv",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "column_break_i1bgb",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_g9jop",
    "fieldtype": "Column Break"
   },
   {
@@ -189,16 +187,18 @@
   {
    "fieldname": "installment_total",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Installment Total",
+   "no_copy": 1,
    "non_negative": 1,
-   "read_only": 1,
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fetch_from": ".",
    "fieldname": "sales_amount",
    "fieldtype": "Currency",
    "label": "Sales Amount",
+   "no_copy": 1,
    "read_only": 1,
    "reqd": 1
   },
@@ -206,6 +206,7 @@
    "fieldname": "received_amount",
    "fieldtype": "Currency",
    "label": "Received Amount",
+   "no_copy": 1,
    "non_negative": 1,
    "read_only": 1
   },
@@ -214,6 +215,7 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "Remaining Amount",
+   "no_copy": 1,
    "non_negative": 1,
    "read_only": 1,
    "reqd": 1
@@ -222,6 +224,7 @@
    "fieldname": "address",
    "fieldtype": "Small Text",
    "label": "Address",
+   "no_copy": 1,
    "read_only": 1
   },
   {
@@ -230,15 +233,45 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Customer Name",
+   "no_copy": 1,
    "options": "Customer",
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "share_percentage",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "share_percentage",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_xlke",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "customer_partnership",
+   "fieldtype": "Table",
+   "label": "Customer Partnership",
+   "no_copy": 1,
+   "options": "Customer Partnership",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_type",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "customer_type",
+   "no_copy": 1,
+   "options": "Individual\nPartnership",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-12 13:17:09.919504",
+ "modified": "2023-11-24 13:05:43.807976",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Customer Payment",

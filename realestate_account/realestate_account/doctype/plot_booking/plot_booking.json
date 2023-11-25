@@ -12,27 +12,33 @@
   "booking_information_tab",
   "booking_information_section",
   "posting_date",
-  "customer_type",
-  "column_break_ilqz",
   "project",
+  "column_break_ilqz",
   "plot_no",
   "unit_cost",
   "column_break_kyo0t",
   "land_price",
-  "plot_feature",
   "premium_discount",
   "column_break_jku2i",
   "area",
-  "uom",
   "booking_grand_total",
+  "token_information_section",
+  "token_number",
+  "column_break_dwmq",
+  "token_date",
+  "column_break_susc",
+  "token_amount",
+  "column_break_fhlu",
+  "col",
   "customer_details_section",
   "customer",
-  "share_percentage",
+  "customer_type",
   "column_break_jqwp",
   "father_name",
-  "cnic",
+  "share_percentage",
   "column_break_yyna",
   "contact_no",
+  "cnic",
   "column_break_ndce1",
   "address",
   "section_break_xgve",
@@ -83,6 +89,7 @@
    "reqd": 1
   },
   {
+   "fetch_from": "token_number.customer",
    "fieldname": "customer",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -125,20 +132,6 @@
    "fieldname": "booking_information_tab",
    "fieldtype": "Tab Break",
    "label": " Booking Information"
-  },
-  {
-   "fetch_from": "plot_no.plot_feature",
-   "fieldname": "plot_feature",
-   "fieldtype": "Data",
-   "label": " Plot Feature",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "plot_no.uom",
-   "fieldname": "uom",
-   "fieldtype": "Data",
-   "label": " UoM",
-   "read_only": 1
   },
   {
    "fieldname": "column_break_kyo0t",
@@ -195,7 +188,6 @@
    "fetch_from": "customer.id_card_no",
    "fieldname": "cnic",
    "fieldtype": "Data",
-   "hidden": 1,
    "label": "CNIC",
    "no_copy": 1,
    "read_only": 1
@@ -218,6 +210,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "fetch_from": "token_number.sales_broker",
    "fieldname": "sales_broker",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -273,11 +266,11 @@
    "fieldtype": "Column Break"
   },
   {
-   "fetch_from": "plot_no.total",
+   "fetch_from": ".total",
    "fetch_if_empty": 1,
    "fieldname": "total_sales_amount",
    "fieldtype": "Currency",
-   "label": " Total Sale Amount",
+   "label": " Installment Amount",
    "non_negative": 1,
    "read_only": 1,
    "reqd": 1
@@ -426,6 +419,62 @@
   {
    "fieldname": "column_break_spas",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "token_information_section",
+   "fieldtype": "Section Break",
+   "label": "Token Information"
+  },
+  {
+   "fetch_from": "plot_no.document_number",
+   "fieldname": "token_number",
+   "fieldtype": "Link",
+   "label": "Token Number",
+   "no_copy": 1,
+   "options": "Plot Token",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_dwmq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "token_number.posting_date",
+   "fieldname": "token_date",
+   "fieldtype": "Date",
+   "label": "Token Date",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_susc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval: doc.token_amount != 0",
+   "fetch_from": "token_number.token_amount",
+   "fieldname": "token_amount",
+   "fieldtype": "Currency",
+   "label": "Token Amount",
+   "no_copy": 1,
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_fhlu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": ".",
+   "fieldname": "col",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "col",
+   "no_copy": 1,
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -449,7 +498,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-11-19 01:42:47.219151",
+ "modified": "2023-11-25 20:09:54.729555",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot Booking",

@@ -146,6 +146,8 @@ def get_plot_detail(plot_no):
                 x.DocDate, 
                 x.sales_broker,
                 x.address,
+                x.share_percentage,
+                x.customer_type,
                 IFNULL((SELECT  
                     SUM(tcp.total_paid_amount) 
                     FROM `tabCustomer Payment` tcp
@@ -164,7 +166,9 @@ def get_plot_detail(plot_no):
                     sales_broker, 
                     total_sales_amount as sales_amount, 
                     posting_date as DocDate,
-                    address AS address
+                    address AS address,
+                    share_percentage,
+                    customer_type
                 FROM `tabPlot Booking`
                 WHERE status = 'Active' AND docstatus = 1
                 UNION ALL
@@ -177,7 +181,9 @@ def get_plot_detail(plot_no):
                     sales_broker, 
                     sales_amount as sales_amount,
                     posting_date as DocDate,
-                    to_address AS address 
+                    to_address AS address,
+                    to_share_percentage as share_percentage,
+                    to_customer_type as customer_type
                 FROM `tabProperty Transfer`
                 WHERE status = 'Active' AND docstatus = 1) x               
                 WHERE x.plot_no = %s

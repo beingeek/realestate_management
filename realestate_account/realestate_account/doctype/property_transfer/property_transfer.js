@@ -22,7 +22,7 @@ frappe.ui.form.on("Property Transfer", {
             };
 		});
 	},
-
+      
     refresh: function(frm) {
         frm.fields_dict['payment_type'].grid.get_field('ledger').get_query = function(doc, cdt, cdn) {
             var child = locals[cdt][cdn];
@@ -63,6 +63,34 @@ frappe.ui.form.on("Property Transfer", {
             }
         })
     },
+    document_number : function(frm) {
+        if(frm.doc.document_number) {
+            frappe.call({
+                method: 'realestate_account.controllers.real_estate_controller.get_customer_partner',
+                args: {
+                    document_number: frm.doc.document_number,
+                },
+                callback: function(data) {
+                    if (data.message) {
+                        frm.clear_table('from_customer_partnership');
+                        for (let i = 0; i < data.message.length; i++) {
+                            var row = frm.add_child('from_customer_partnership');
+                            row.customer = data.message[i].customer;
+                            row.father_name = data.message[i].father_name;
+                            row.id_card_no = data.message[i].id_card_no;
+                            row.mobile_no = data.message[i].mobile_no;
+                            row.address = data.message[i].address;
+                            row.share_percentage = data.message[i].share_percentage;
+                        }
+                        frm.refresh_fields('from_customer_partnership');        
+                    } else {
+                        frappe.msgprint(__('Error: ') + data.exc);
+                    }
+                }
+            });
+        
+        }
+    },  
 
     payment_plan_template: function(frm) {
         if (!frm.doc.payment_plan_template) {
@@ -108,6 +136,7 @@ frappe.ui.form.on("Property Transfer", {
     installment_ending_date: function(frm) {
         replicateDates(frm);
     },
+
     project: function(frm) {
         var project = frm.doc.project;
         if (!frm.doc.project) {
@@ -140,9 +169,10 @@ frappe.ui.form.on("Property Transfer", {
         }, __('Select Available Plot'));
     }
 });
+    
     cur_frm.cscript.plot_no = function(doc) {
         frappe.call({
-            method: "realestate_account.realestate_account.doctype.property_transfer.property_transfer.get_previous_document_detail",
+            method: "realestate_account.controllers.real_estate_controller.get_previous_document_detail",
             args: {
                 plot_no: doc.plot_no
             },
@@ -154,8 +184,10 @@ frappe.ui.form.on("Property Transfer", {
                     var salesBroker = r.message[0].sales_broker;
                     var salesAmount = r.message[0].sales_amount;
                     var receivedAmount = r.message[0].received_amount;
+                    var sharePercentage = r.message[0].share_percentage;
+                    var customerType = r.message[0].customer_type;
                     var balanceTransferAmount = salesAmount - receivedAmount
-                        
+
                     cur_frm.set_value('document_type', docType);
                     cur_frm.set_value('document_number', name);
                     cur_frm.set_value('sales_amount', salesAmount);
@@ -164,12 +196,18 @@ frappe.ui.form.on("Property Transfer", {
                     cur_frm.set_value("total_transfer_amount", balanceTransferAmount);
                     cur_frm.set_value("from_sales_broker", salesBroker);
                     cur_frm.set_value('from_customer', customer);
-                    cur_frm.refresh_field('from_customer');
+                    cur_frm.set_value("from_share_percentage", sharePercentage);
+                    cur_frm.set_value('from_customer_type', customerType);
+                    cur_frm.refresh_fields(['document_type', 'document_number', 'sales_amount', 'received_amount', 'balance_transfer', 
+                    'total_transfer_amount', 'from_sales_broker', 'from_customer', 'from_share_percentage', 'from_customer_type']);
                 }
-            }
-        
+            },
+            
         });
-    }
+    },
+
+// frappe.ui.form.on("Property Transfer", {
+// });
 
 function calculateEndingDate(frm) {
     var startingDate = frm.doc.installment_starting_date;

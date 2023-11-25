@@ -1,0 +1,413 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:PT-{MM}-{YY}-{####}",
+ "creation": "2023-11-24 13:54:07.739619",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "posting_date",
+  "column_break_zgbc",
+  "valid_till_date",
+  "column_break_hzam",
+  "valid_time",
+  "return_token_number",
+  "column_break_ohxh",
+  "is_return",
+  "section_break_7ivl",
+  "project",
+  "column_break_wzel",
+  "plot_no",
+  "column_break_fcls",
+  "plot_price",
+  "column_break_qkee",
+  "plot_detail",
+  "customer_information_section",
+  "customer",
+  "father_name",
+  "column_break_yqax",
+  "contact_no",
+  "cnic",
+  "column_break_ymwu",
+  "address",
+  "section_break_letr",
+  "token_amount",
+  "column_break_ruri",
+  "deduction",
+  "column_break_hrnp",
+  "paid_to_customer",
+  "payment_information_section",
+  "payment_type",
+  "section_break_hieb",
+  "remarks",
+  "company",
+  "column_break_vpdb",
+  "sales_broker",
+  "column_break_edou",
+  "status",
+  "amended_from",
+  "term_and_condition_tab",
+  "term_and_conditions",
+  "term",
+  "connections_tab"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_7ivl",
+   "fieldtype": "Section Break",
+   "label": "Property Information"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Plot Token",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Posting Date",
+   "no_copy": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_zgbc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "bold": 1,
+   "fieldname": "valid_till_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Valid till Date",
+   "mandatory_depends_on": "eval: doc.is_return == 0",
+   "read_only_depends_on": "eval: doc.is_return == 1"
+  },
+  {
+   "fieldname": "column_break_hzam",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "bold": 1,
+   "depends_on": "eval: doc.is_return == 0",
+   "fieldname": "valid_time",
+   "fieldtype": "Time",
+   "label": "Time",
+   "mandatory_depends_on": "eval: doc.is_return == 0",
+   "read_only_depends_on": "eval: doc.is_return == 1"
+  },
+  {
+   "fieldname": "column_break_ohxh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": " Project Name",
+   "no_copy": 1,
+   "options": "Project",
+   "read_only_depends_on": "eval: doc.is_return == 1",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_wzel",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "plot_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Plot No",
+   "no_copy": 1,
+   "options": "Plot List",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_fcls",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "plot_no.total",
+   "fieldname": "plot_price",
+   "fieldtype": "Currency",
+   "label": "Plot Value",
+   "no_copy": 1,
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_qkee",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "plot_detail",
+   "fieldtype": "Data",
+   "label": "Plot Detail",
+   "no_copy": 1,
+   "non_negative": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_information_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Customer",
+   "no_copy": 1,
+   "options": "Customer",
+   "read_only_depends_on": "eval: doc.is_return == 1",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "customer.mobile_no",
+   "fieldname": "contact_no",
+   "fieldtype": "Data",
+   "label": "Contact No.",
+   "no_copy": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_ymwu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "customer.primary_address",
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address",
+   "no_copy": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "payment_information_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "token_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Token Amount",
+   "no_copy": 1,
+   "non_negative": 1,
+   "precision": "2",
+   "read_only_depends_on": "eval: doc.return == 1",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payment_type",
+   "fieldtype": "Table",
+   "label": "Payment Type",
+   "options": "Payment Type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_hieb",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_edou",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "term_and_condition_tab",
+   "fieldtype": "Tab Break",
+   "label": "Term and Condition"
+  },
+  {
+   "fieldname": "column_break_yqax",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Token Status",
+   "no_copy": 1,
+   "options": "Active\nTransfer to Booking\nReturn",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "sales_broker",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Sales Broker",
+   "no_copy": 1,
+   "options": "Supplier",
+   "read_only_depends_on": "eval: doc.is_return == 1",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_vpdb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "customer.id_card_no",
+   "fieldname": "cnic",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "CNIC",
+   "no_copy": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval: doc.is_return == 1",
+   "fieldname": "return_token_number",
+   "fieldtype": "Link",
+   "label": "Token No",
+   "mandatory_depends_on": "eval: doc.is_return == 1",
+   "options": "Plot Token"
+  },
+  {
+   "fetch_from": "term_and_conditions.terms",
+   "fieldname": "term",
+   "fieldtype": "Text Editor",
+   "label": "term"
+  },
+  {
+   "fetch_from": "customer.father_name",
+   "fieldname": "father_name",
+   "fieldtype": "Data",
+   "label": "Father Name",
+   "no_copy": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_letr",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_ruri",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0.0",
+   "depends_on": "eval: doc.is_return == 1 && doc.token_amount != 0",
+   "fieldname": "deduction",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Deduction",
+   "no_copy": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_hrnp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0.0",
+   "depends_on": "eval: doc.is_return == 1",
+   "fieldname": "paid_to_customer",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Paid To Customer",
+   "no_copy": 1,
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "project.company",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Comapny",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval: doc.is_return == 0",
+   "fieldname": "term_and_conditions",
+   "fieldtype": "Link",
+   "label": "Term and Condition",
+   "mandatory_depends_on": "eval: doc.is_return == 0",
+   "options": "Terms and Conditions",
+   "read_only_depends_on": "eval: doc.is_return == 1"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_return",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Is Return",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "connections_tab",
+   "fieldtype": "Tab Break",
+   "label": "Connections",
+   "show_dashboard": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "group": "RealEstate",
+   "link_doctype": "Plot Booking",
+   "link_fieldname": "token_number"
+  },
+  {
+   "group": "Accounts",
+   "link_doctype": "Journal Entry",
+   "link_fieldname": "document_number"
+  }
+ ],
+ "modified": "2023-11-25 18:58:18.185212",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Plot Token",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1
+}

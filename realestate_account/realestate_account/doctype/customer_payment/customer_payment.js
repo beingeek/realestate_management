@@ -1,6 +1,11 @@
 frappe.ui.form.on('Customer Payment', {
     onload: function (frm) {
-        frm.toggle_display(['get_installment_information'], frm.doc.__islocal);
+        // Check form status on load
+        if (frm.doc.status === 'Submitted') {
+            frm.toggle_display('Get Installment list', false);
+        } else {
+            frm.toggle_display('Get Installment list', true);
+        }
     },
 
     refresh: function(frm) {
@@ -56,6 +61,16 @@ frappe.ui.form.on('Customer Payment', {
             frm.prompt_opened = false;
         }, __('Select Available Plot'));
     },
+    refresh: function (frm) {
+        if (frm.doc.status !== 'Submitted') {
+            frm.add_custom_button(
+                __("Get Installment list"),
+                function () {
+                    frm.trigger("get_insallment_information");
+                },
+            ).addClass("btn-primary");
+        }
+    },
 
     get_insallment_information: function(frm) {
         let docType = frm.doc.document_type;
@@ -93,7 +108,6 @@ frappe.ui.form.on('Customer Payment', {
                         receivable_total = receivable_total + data.message[i].receivable_amount;
                     }
                 }
-
                 frm.set_value("total_paid_amount", 0);
                 frm.refresh_fields("total_paid_amount");
 
@@ -138,6 +152,8 @@ frappe.ui.form.on('Customer Payment', {
                     var docType = r.message[0].doc_type; 
                     var customer = r.message[0].customer;
                     var address = r.message[0].address;
+                    var share_percentage = r.message[0].share_percentage;
+                    var customer_type = r.message[0].customer_type;
                     var sales_amount = r.message[0].sales_amount;
                     var received_amount = r.message[0].received_amount
                     var remaining_amount = sales_amount-received_amount
@@ -158,9 +174,41 @@ frappe.ui.form.on('Customer Payment', {
                     cur_frm.refresh_fields("customer");
                     cur_frm.set_value("address", address);
                     cur_frm.refresh_fields("address");
+                    cur_frm.set_value("share_percentage", share_percentage);
+                    cur_frm.refresh_fields("share_percentage");
+                    cur_frm.set_value("customer_type", customer_type);
+                    cur_frm.refresh_fields("customer_type");
                 }
             }
         });
+    },
+    document_number : function(frm) {
+        if(frm.doc.document_number) {
+            frappe.call({
+                method: 'realestate_account.controllers.real_estate_controller.get_customer_partner',
+                args: {
+                    document_number: frm.doc.document_number,
+                },
+                callback: function(data) {
+                    if (data.message) {
+                        frm.clear_table('customer_partnership');
+                        for (let i = 0; i < data.message.length; i++) {
+                            var row = frm.add_child('customer_partnership');
+                            row.customer = data.message[i].customer;
+                            row.father_name = data.message[i].father_name;
+                            row.id_card_no = data.message[i].id_card_no;
+                            row.mobile_no = data.message[i].mobile_no;
+                            row.address = data.message[i].address;
+                            row.share_percentage = data.message[i].share_percentage;
+                        }
+                        frm.refresh_fields('customer_partnership');        
+                    } else {
+                        frappe.msgprint(__('Error: ') + data.exc);
+                    }
+                }
+            });
+        
+        }
     }
 });
 

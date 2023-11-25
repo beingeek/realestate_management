@@ -63,54 +63,6 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Data Entry Form",
-   "link_count": 4,
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Plot Booking",
-   "link_count": 0,
-   "link_to": "Plot Booking",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Customer Payment",
-   "link_count": 0,
-   "link_to": "Customer Payment",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Plot Transfer ",
-   "link_count": 0,
-   "link_to": "Property Transfer",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Plot Cancel",
-   "link_count": 0,
-   "link_to": "Cancellation Property",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
    "label": "Real Estate Report",
    "link_count": 1,
    "onboard": 0,
@@ -173,9 +125,67 @@
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Data Entry Form",
+   "link_count": 5,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Plot Token",
+   "link_count": 0,
+   "link_to": "Plot Token",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Plot Booking",
+   "link_count": 0,
+   "link_to": "Plot Booking",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Customer Payment",
+   "link_count": 0,
+   "link_to": "Customer Payment",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Plot Transfer ",
+   "link_count": 0,
+   "link_to": "Property Transfer",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Plot Cancel",
+   "link_count": 0,
+   "link_to": "Cancellation Property",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2023-10-28 11:29:55.359865",
+ "modified": "2023-11-25 00:34:54.007096",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Real Estate",

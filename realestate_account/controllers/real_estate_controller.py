@@ -106,7 +106,103 @@ def get_payment_plan(plan_template, company):
     except Exception as e:
         frappe.throw(f"Error in get_available_plots: {str(e)}")
         return []
-    
+
+@frappe.whitelist()
+def get_previous_document_detail(plot_no):
+    try:
+        sql_query = """
+        WITH plot_detail AS (
+            SELECT DISTINCT
+                tpt.name,
+                tpt.plot_no,
+                tpt.project,
+                tpt.to_share_percentage as share_percentage,
+                tpt.to_customer_type as customer_type,
+                'Property Transfer' as Doc_type,
+                tpt.to_customer as customer,
+                tpt.sales_broker,
+                tpt.sales_amount as sales_amount,
+                tpt.received_amount + IFNULL((
+                    SELECT SUM(total_paid_amount)
+                    FROM `tabCustomer Payment` tcpr
+                    WHERE tcpr.docstatus = 1
+                    AND tcpr.plot_no = tpt.plot_no
+                    AND tcpr.document_number = tpt.name
+                ), 0) AS received_amount
+            FROM
+                `tabProperty Transfer` tpt
+            WHERE
+                tpt.status = 'Active' AND tpt.docstatus = 1
+            UNION ALL
+            SELECT DISTINCT
+                thb.name,
+                thb.plot_no,
+                thb.project,
+                thb.share_percentage,
+                thb.customer_type,
+                'Plot Booking' as Doc_type,
+                thb.customer,
+                thb.sales_broker,
+                thb.total_sales_amount as sales_amount,
+                IFNULL((
+                    SELECT SUM(total_paid_amount)
+                    FROM `tabCustomer Payment` tcpr
+                    WHERE tcpr.docstatus = 1
+                    AND tcpr.plot_no = thb.plot_no
+                    AND tcpr.document_number = thb.name
+                ), 0) AS received_amount
+            FROM
+                `tabPlot Booking` thb
+            WHERE
+                thb.status = 'Active' AND thb.docstatus = 1 )
+            SELECT * FROM plot_detail WHERE plot_no = %s
+        """
+        results = frappe.db.sql(sql_query, (plot_no), as_dict=True)
+        if not results:
+            return []
+        return results
+    except Exception as e:
+        frappe.log_error(f"Error in get_available_plots: {str(e)}")
+        return []
+
+@frappe.whitelist()
+def get_customer_partner(document_number):
+    try:
+        sql_query = """
+        WITH customer_partnership AS (
+            SELECT DISTINCT
+                tpt.name,
+                tpt.plot_no,
+                tcp.customer, tcp.share_percentage, tcp.father_name, 
+                tcp.id_card_no, tcp.mobile_no, tcp.address
+            FROM
+                `tabProperty Transfer` tpt
+            INNER JOIN 
+                `tabCustomer Partnership` tcp on tcp.parent = tpt.name
+            WHERE
+                tpt.status = 'Active' AND tpt.docstatus = 1
+            UNION ALL
+            SELECT DISTINCT
+                thb.name,
+                thb.plot_no,
+                tcp.customer, tcp.share_percentage, tcp.father_name, 
+                tcp.id_card_no, tcp.mobile_no, tcp.address
+            FROM
+                `tabPlot Booking` thb
+            INNER JOIN 
+                `tabCustomer Partnership` tcp on tcp.parent = thb.name
+            WHERE
+                thb.status = 'Active' AND thb.docstatus = 1)
+        SELECT * FROM customer_partnership WHERE name = %s;
+        """
+        results = frappe.db.sql(sql_query, (document_number), as_dict=True)
+        if not results:
+            return []
+        return results
+    except Exception as e:
+        frappe.throw(f"Error in getting customer_partnership: {str(e)}")
+        return []
+
 def validate_accounting_period_open(doc, method=None):
     ap = frappe.qb.DocType("Accounting Period")
     cd = frappe.qb.DocType("Closed Document")

@@ -16,7 +16,7 @@ class PropertyTransfer(RealEstateController):
         self.validate_payment_schedule_transfer_amount()
         self.validate_duplicates_customer_in_partnership()
         self.validate_share_percentage()
-
+        
     def on_submit(self):
         self.make_gl_entries()
         self.update_plot_master()
@@ -25,9 +25,16 @@ class PropertyTransfer(RealEstateController):
         self.update_plot_master_cancel()
 
     def validate_from_customer_and_to_customer(self):
+        to_customer = [row.customer for row in self.to_customer_partnership]
+        from_customer = {row.customer for row in self.from_customer_partnership}
         if self.from_customer == self.to_customer:
             frappe.throw('From Customer and To Customer must be different')
-    
+        if self.from_customer in to_customer:
+            frappe.throw(_('From Customer and To Customer must be different'))
+        for row in self.to_customer_partnership:
+            if row.customer in from_customer:
+                frappe.throw(_("Duplicate customer found in from customer and to Customer: {0}").format(row.customer))
+
     def validate_payment_schedule_transfer_amount(self):
         total_payment_schedule_amount = sum(row.amount for row in self.payment_schedule)
         if flt(total_payment_schedule_amount) != flt(self.total_transfer_amount):
@@ -42,9 +49,8 @@ class PropertyTransfer(RealEstateController):
         if self.from_customer:
             customer = frappe.get_value('Plot List', {'name': self.plot_no}, 'customer')
             if customer != self.from_customer:
-                frappe.msgprint('The master data customer does not match the payment customer')
-                frappe.throw('Validation Error: Customer mismatch')
-
+                frappe.throw('The master data customer does not match the payment customer')
+                
     def validate_received_amount(self):
         if self.received_amount != 0 :
             total_payment = 0
@@ -91,21 +97,21 @@ class PropertyTransfer(RealEstateController):
 
     def validate_duplicates_customer_in_partnership(self):
         partnership_customer = [row.customer for row in self.to_customer_partnership]
-        duplicates_in_partnership = set(x for x in partnership_customer if partnership_customer.count(x) > 1)
+        duplicates_in_partnership = [x for x in partnership_customer if partnership_customer.count(x) > 1]
         
         if duplicates_in_partnership:
-            frappe.throw(_('Duplicate customers found in the customer partnership table: {0}').format(', '.join(duplicates_in_partnership)))
+            duplicate_customers = ', '.join(set(duplicates_in_partnership))
+            frappe.throw(_('Duplicate customers found in the to customer partnership table: {0}').format(duplicate_customers))
         
-        if self.to_customer in partnership_customer:
-            frappe.throw(_('Duplicate customer found in the customer partnership table.'))
+        if self.to_customer and self.to_customer in partnership_customer:
+            frappe.throw(_('Duplicate customer found in the to customer partnership table: {0}').format(self.to_customer))
 
     def make_gl_entries(self):
             if self.received_amount != 0 or self.transfer_charge != 0:
-
                 company = frappe.get_doc("Company", self.company)
                 default_receivable_account = frappe.get_value("Company", company, "default_receivable_account")
                 transfer_account = frappe.get_value("Company", self.company, "default_transfer_revenue_account")
-
+               
                 if not default_receivable_account:
                     frappe.throw('Please set Default Receivable Account in Company Settings')
                 if not transfer_account:
@@ -188,14 +194,29 @@ class PropertyTransfer(RealEstateController):
                         'customer': self.to_customer, 'address': self.to_address,
                         'contact_no': self.to_contact_no, 'sales_broker': self.sales_broker,
                         'father_name': self.to_father_name, 'cnic': self.to_cnic,
+                        'customer_type': self.to_customer_type,'share_percentage': self.to_share_percentage,
                     })
+        
+            if self.to_customer_type == "Individual":
+                plot_master.set("customer_partnership", [])
+            
+            elif self.to_customer_type == "Partnership":
+                for customer in self.to_customer_partnership:
+                    plot_master.append("customer_partnership", {
+                    'customer': customer.customer,
+                    'address': customer.address,
+                    'mobile_no': customer.mobile_no,
+                    'father_name': customer.father_name,
+                    'id_card_no': customer.id_card_no,
+                    'share_percentage': customer.share_percentage,
+            })
             plot_master.save()
             frappe.msgprint(_('{0} successfully updated ').format(frappe.get_desk_link('Plot List', plot_master.name)))                    
             if self.document_type == "Plot Booking":
                 booking_doc = frappe.get_doc("Plot Booking", self.document_number)
                 booking_doc.update({'status' : "Property Transfer"})
                 booking_doc.save()
-                frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link('Plot Booking ', booking_doc.name)))
+                frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link("Plot Booking", booking_doc.name)))
             if self.document_type == "Property Transfer":
                 trans_doc = frappe.get_doc("Property Transfer", self.document_number)
                 trans_doc.update({'status' : "Further Transferred"})
@@ -209,14 +230,30 @@ class PropertyTransfer(RealEstateController):
                                 'customer': self.from_customer, 'address': self.from_address,
                                 'contact_no': self.from_contact_no, 'sales_broker': self.from_sales_broker,
                                 'father_name': self.from_father_name, 'cnic': self.from_cnic,
+                                 'customer_type': self.from_customer_type,'share_percentage': self.from_share_percentage,
                             })
+            
+            if self.from_customer_type == "Individual":
+                plot_master.set("customer_partnership", [])
+
+            elif self.from_customer_type == "Partnership":
+                for customer in self.from_customer_partnership:
+                    plot_master.append("customer_partnership", {
+                    'customer': customer.customer,
+                    'address': customer.address,
+                    'mobile_no': customer.mobile_no,
+                    'father_name': customer.father_name,
+                    'id_card_no': customer.id_card_no,
+                    'share_percentage': customer.share_percentage,
+            })
+
             plot_master.save()
             frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link('Plot List', plot_master.name)))                    
             if self.document_type == "Plot Booking":
                     booking_doc = frappe.get_doc("Plot Booking", self.document_number)
                     booking_doc.update({'status' : "Active"})
                     booking_doc.save()
-                    frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link('Plot Booking ', booking_doc.name)))
+                    frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link("Plot Booking", booking_doc.name)))
             if self.document_type == "Property Transfer":
                     trans_doc = frappe.get_doc("Property Transfer", self.document_number)
                     trans_doc.update({'status' : "Active"})
@@ -224,67 +261,7 @@ class PropertyTransfer(RealEstateController):
                     frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link("Property Transfer", booking_doc.name)))
         except Exception as e:
             frappe.msgprint(f"Error while making update plot master: {str(e)}")
-   
-    def before_insert(self):
-        if self.status != "Active":
-            frappe.throw('The document status should be Active at the time entered in the system')
 
-
-################ Get Plot & Base document data for Property Transfer ############
-
-@frappe.whitelist()
-def get_previous_document_detail(plot_no):
-    try:
-        sql_query = """
-        WITH plot_detail AS (
-            SELECT DISTINCT
-                tpt.name,
-                tpt.plot_no,
-                tpt.project,
-                'Property Transfer' as Doc_type,
-                tpt.to_customer as customer,
-                tpt.sales_broker,
-                tpt.sales_amount as sales_amount,
-                tpt.received_amount + IFNULL((
-                    SELECT SUM(total_paid_amount)
-                    FROM `tabCustomer Payment` tcpr
-                    WHERE tcpr.docstatus = 1
-                    AND tcpr.plot_no = tpt.plot_no
-                    AND tcpr.document_number = tpt.name
-                ), 0) AS received_amount
-            FROM
-                `tabProperty Transfer` tpt
-            WHERE
-                tpt.status = 'Active' AND tpt.docstatus = 1
-            UNION ALL
-            SELECT DISTINCT
-                thb.name,
-                thb.plot_no,
-                thb.project as project,
-                'Plot Booking' as Doc_type,
-                thb.customer as customer,
-                thb.sales_broker,
-                thb.total_sales_amount as sales_amount,
-                IFNULL((
-                    SELECT SUM(total_paid_amount)
-                    FROM `tabCustomer Payment` tcpr
-                    WHERE tcpr.docstatus = 1
-                    AND tcpr.plot_no = thb.plot_no
-                    AND tcpr.document_number = thb.name
-                ), 0) AS received_amount
-            FROM
-                `tabPlot Booking` thb
-            WHERE
-                thb.status = 'Active' AND thb.docstatus = 1 )
-            SELECT * FROM plot_detail WHERE plot_no = %s
-        """
-        results = frappe.db.sql(sql_query, (plot_no), as_dict=True)
-        if not results:
-            return []
-        return results
-    except Exception as e:
-        frappe.log_error(f"Error in get_available_plots: {str(e)}")
-        return []
 
 #################### Get installment paid Amount for Payment Entry Docuemnt #############
 
