@@ -121,6 +121,7 @@ def get_previous_document_detail(plot_no):
                 'Property Transfer' as Doc_type,
                 tpt.to_customer as customer,
                 tpt.sales_broker,
+                tpt.to_address as address,
                 tpt.sales_amount as sales_amount,
                 tpt.received_amount + IFNULL((
                     SELECT SUM(total_paid_amount)
@@ -143,8 +144,9 @@ def get_previous_document_detail(plot_no):
                 'Plot Booking' as Doc_type,
                 thb.customer,
                 thb.sales_broker,
-                thb.total_sales_amount as sales_amount,
-                IFNULL((
+                thb.address as address,
+                thb.booking_grand_total as sales_amount,
+                thb.token_amount + IFNULL((
                     SELECT SUM(total_paid_amount)
                     FROM `tabCustomer Payment` tcpr
                     WHERE tcpr.docstatus = 1
