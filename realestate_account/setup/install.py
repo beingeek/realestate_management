@@ -72,13 +72,6 @@ def get_custom_fields():
 	"no_copy":1,
         },
 	{
-	"label": "ID Card No",
-	"fieldname": "id_card_no",
-	"fieldtype": "Data",
-	"allow_in_quick_entry":1,
-	"insert_after": "father_name",
-        },
-	{
 	"label": "Next of Kin",
 	"fieldname": "next_of_kin",
 	"fieldtype": "Data",
