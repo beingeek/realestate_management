@@ -67,13 +67,13 @@ def get_custom_fields():
 
     custom_fields_customer = [
         {
-            "label": "Father Name",
-            "fieldname": "father_name",
-            "fieldtype": "Data",
-            "insert_after": "territory",
-			"allow_in_quick_entry":1,
-			"reqd":1,
-			"no_copy":1,
+        	"label": "Father Name",
+        	"fieldname": "father_name",
+        	"fieldtype": "Data",
+        	"insert_after": "territory",
+		"allow_in_quick_entry":1,
+		"reqd":1,
+		"no_copy":1,
         },
 		{
             "label": "ID Card No",
@@ -81,8 +81,6 @@ def get_custom_fields():
             "fieldtype": "Data",
             "allow_in_quick_entry":1,
             "insert_after": "father_name",
-			"reqd":1,
-			"no_copy":1,
         },
 		{
             "label": "Next of Kin",
