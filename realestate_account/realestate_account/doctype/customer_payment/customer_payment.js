@@ -1,6 +1,5 @@
 frappe.ui.form.on('Customer Payment', {
     onload: function (frm) {
-        // Check form status on load
         if (frm.doc.status === 'Submitted') {
             frm.toggle_display('Get Installment list', false);
         } else {
@@ -119,7 +118,6 @@ frappe.ui.form.on('Customer Payment', {
     total_paid_amount: function(frm) {
         let ptotal = frm.doc.total_paid_amount;
         let total = 0;
-
         frm.doc.installment.forEach(d => {
             if (ptotal > d.receivable_amount) {
                 d.paid_amount = d.receivable_amount;
@@ -128,9 +126,7 @@ frappe.ui.form.on('Customer Payment', {
                 d.paid_amount = ptotal;
                 ptotal = 0;
             }
-
             d.remaining_amount = parseFloat(d.receivable_amount) - parseFloat(d.paid_amount);
-
             total = total + flt(d.paid_amount);
         });
 
@@ -141,43 +137,34 @@ frappe.ui.form.on('Customer Payment', {
 
     plot_no: function(frm) {
         frappe.call({
-            method: "realestate_account.realestate_account.doctype.customer_payment.customer_payment.get_plot_detail",
+            method: "realestate_account.controllers.real_estate_controller.get_previous_document_detail",
             args: {
                 plot_no: frm.doc.plot_no
             },
             callback: function(r) {
-                console.log(r)
                 if (!r.exc && r.message && r.message.length > 0) {
                     var name = r.message[0].name;
-                    var docType = r.message[0].doc_type; 
+                    var docType = r.message[0].Doc_type; 
                     var customer = r.message[0].customer;
                     var address = r.message[0].address;
                     var share_percentage = r.message[0].share_percentage;
                     var customer_type = r.message[0].customer_type;
                     var sales_amount = r.message[0].sales_amount;
                     var received_amount = r.message[0].received_amount
-                    var remaining_amount = sales_amount-received_amount
-
+                    var remaining_amount = sales_amount - received_amount
+    
                     cur_frm.set_value('document_type', docType);
                     cur_frm.set_value('document_number', name);
-                    cur_frm.clear_table('installment');
-                    cur_frm.refresh_field('installment'); 
                     cur_frm.set_value("total_paid_amount", 0);
-                    cur_frm.refresh_fields("total_paid_amount");
-                    cur_frm.set_value("sales_amount", sales_amount );
-                    cur_frm.refresh_fields("sales_amount");
-                    cur_frm.set_value("received_amount", received_amount );
-                    cur_frm.refresh_fields("received_amount");
-                    cur_frm.set_value("remaining_amount", remaining_amount );
-                    cur_frm.refresh_fields("remaining_amount");
-                    cur_frm.set_value("customer", customer );
-                    cur_frm.refresh_fields("customer");
+                    cur_frm.set_value("sales_amount", sales_amount);
+                    cur_frm.set_value("received_amount", received_amount);
+                    cur_frm.set_value("remaining_amount", remaining_amount);
+                    cur_frm.set_value("customer", customer);
                     cur_frm.set_value("address", address);
-                    cur_frm.refresh_fields("address");
                     cur_frm.set_value("share_percentage", share_percentage);
-                    cur_frm.refresh_fields("share_percentage");
                     cur_frm.set_value("customer_type", customer_type);
-                    cur_frm.refresh_fields("customer_type");
+                    cur_frm.refresh_fields(['document_type','document_number',"total_paid_amount","sales_amount","received_amount","remaining_amount",
+                    "customer","address","share_percentage","customer_type"]);
                 }
             }
         });
