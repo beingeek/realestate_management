@@ -1,0 +1,93 @@
+{
+ "add_total_row": 1,
+ "columns": [
+  {
+   "fieldname": "name",
+   "fieldtype": "Link",
+   "label": "Token Doc. Number",
+   "options": "Plot Token",
+   "width": 0
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date",
+   "width": 0
+  },
+  {
+   "fieldname": "valid_till_date",
+   "fieldtype": "Date",
+   "label": "Valid Till Date",
+   "width": 0
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "width": 0
+  },
+  {
+   "fieldname": "plot_no",
+   "fieldtype": "Link",
+   "label": "Plot No.",
+   "options": "Plot List",
+   "width": 0
+  },
+  {
+   "fieldname": "plot_price",
+   "fieldtype": "Currency",
+   "label": "Plot Value",
+   "width": 0
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "width": 0
+  },
+  {
+   "fieldname": "contact_no,",
+   "fieldtype": "Data",
+   "label": "Contact No.",
+   "width": 0
+  },
+  {
+   "fieldname": "sales_broker",
+   "fieldtype": "Link",
+   "label": "Sales Broker",
+   "options": "Supplier",
+   "width": 0
+  },
+  {
+   "fieldname": "token_amount",
+   "fieldtype": "Currency",
+   "label": "Token Amount",
+   "width": 0
+  }
+ ],
+ "creation": "2023-11-26 20:27:34.922008",
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letterhead": null,
+ "modified": "2023-11-26 21:17:10.697962",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Active Token Report",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "query": "Select \n\ttpt.name,\n\ttpt.posting_date,\n\ttpt.valid_till_date,\n\ttpt.project,\n\ttpt.plot_no,\n\ttpt.plot_price,\n\ttpt.customer,\n\ttpt.contact_no,\n\ttpt.sales_broker,\n\ttpt.token_amount\nFrom `tabPlot Token` tpt\nWhere tpt.status  = \"Active\" \nand tpt.is_return  = 0 \nand tpt.docstatus = 1\n",
+ "ref_doctype": "Plot Token",
+ "report_name": "Active Token Report",
+ "report_type": "Query Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ]
+}
