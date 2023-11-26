@@ -252,7 +252,6 @@
    "label": "Token Status",
    "no_copy": 1,
    "options": "Active\nTransfer to Booking\nReturn",
-   "read_only": 1,
    "reqd": 1
   },
   {
@@ -384,7 +383,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-11-25 18:58:18.185212",
+ "modified": "2023-11-26 11:31:48.831698",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot Token",

@@ -5,8 +5,10 @@ from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 def after_migrate():
 	create_custom_fields(get_custom_fields())
 
+
 def before_uninstall():
 	delete_custom_fields(get_custom_fields())
+
 
 def delete_custom_fields(custom_fields):
 	for doctype, fields in custom_fields.items():
@@ -18,6 +20,7 @@ def delete_custom_fields(custom_fields):
 				frappe.delete_doc("Custom Field", custom_field_name)
 
 		frappe.clear_cache(doctype=doctype)
+
 
 def get_custom_fields():
     custom_fields_company = [
@@ -64,37 +67,41 @@ def get_custom_fields():
 
     custom_fields_customer = [
         {
-			"label": "Father Name",
-			"fieldname": "father_name",
-			"fieldtype": "Data",
-			"insert_after": "territory",
+            "label": "Father Name",
+            "fieldname": "father_name",
+            "fieldtype": "Data",
+            "insert_after": "territory",
+			"allow_in_quick_entry":1,
 			"no_copy":1,
         },
 		{
-			"label": "ID Card No",
-			"fieldname": "id_card_no",
-			"fieldtype": "Data",
-			"allow_in_quick_entry":1,
-			"insert_after": "father_name",
+            "label": "ID Card No",
+            "fieldname": "id_card_no",
+            "fieldtype": "Data",
+            "allow_in_quick_entry":1,
+            "insert_after": "father_name",
+			"reqd":1,
+			"no_copy":1,
         },
 		{
-			"label": "Next of Kin",
-			"fieldname": "next_of_kin",
-			"fieldtype": "Data",
-			"allow_in_quick_entry":1,
-			"insert_after": "id_card_no",
+            "label": "Next of Kin",
+            "fieldname": "next_of_kin",
+            "fieldtype": "Data",
+            "allow_in_quick_entry":1,
+            "insert_after": "id_card_no",
+			"no_copy":1,
         }
     ]
 
     custom_fields_Journal_Entry = [
         {
-			"label": "Document Type",
-			"fieldname": "document_type",
-			"fieldtype": "Link",
+            "label": "Document Type",
+            "fieldname": "document_type",
+            "fieldtype": "Link",
 			"options": "DocType",
 			"read_only":1,
 			"no_copy":1,
-			"insert_after": "cheque_date",
+            "insert_after": "cheque_date",
         },
 		{
             "label": "Document Number",
@@ -154,13 +161,32 @@ def get_custom_fields():
 			"options": "Plot Booking",
 			"read_only":1,
 			"no_copy":1,
-			"insert_after": "project",
+            "insert_after": "project",
         }
     ]
+
+    # records = [
+	# 		# Department
+	# 		{
+	# 			"doctype": "Department",
+	# 			"department_name": _("All Departments"),
+	# 			"is_group": 1,
+	# 			"parent_department": "",
+	# 			"__condition": lambda: not frappe.db.exists("Department", _("All Departments")),
+	# 		},
+	# 		{
+	# 			"doctype": "Department",
+	# 			"department_name": _("Accounts"),
+	# 			"parent_department": _("All Departments"),
+	# 			"company": name,
+	# 		}
+	# ]
+
     return {
         "Company": custom_fields_company,
         "Customer": custom_fields_customer,
 		"Journal Entry": custom_fields_Journal_Entry,
 		"Journal Entry Account" : custom_fields_Journal_Entry_account,
-		"Purchase Invoice": custom_fields_purchase_invoice
+		"Purchase Invoice": custom_fields_purchase_invoice,
+        # "": records
     }

@@ -26,7 +26,7 @@ class PlotBooking(RealEstateController):
             frappe.throw(_("Error: Plot number not specified in the Plot Booking document."))
         plot_status = frappe.db.get_value('Plot List', self.plot_no, 'status')
         if plot_status == 'Booked':
-            frappe.throw(_('The {0} is already booked').format(frappe.get_desk_link('Plot List', self.plot_no)))
+            frappe.throw(_('The {0} is not avaliable for booked').format(frappe.get_desk_link('Plot List', self.plot_no)))
 
     def validate_payment_schedule_sales_amount(self):
         total_payment_schedule_amount = sum(row.amount for row in self.payment_schedule)
@@ -77,22 +77,23 @@ class PlotBooking(RealEstateController):
                 frappe.throw(_('Please set Commission Item in Company Settings'))
 
             invoice = frappe.get_doc({
-                "doctype": "Purchase Invoice",
-                "supplier": self.sales_broker,
-                "posting_date": self.posting_date,
-                "bill_no" : self.plot_no,
-                "project" : self.project,
-                "cost_centre" : "",
-                "document_number":self.name,
-                "company" : company
+                "doctype"           : "Purchase Invoice",
+                "supplier"          : self.sales_broker,
+                "posting_date"      : self.posting_date,
+                "bill_no"           : self.plot_no,
+                "project"           : self.project,
+                "cost_centre"       : "",
+                "document_number"   :self.name,
+                "company"           : company
             })
 
             invoice.append("items", {
-                        "item_code": default_commission_item, "qty": 1,
-                        "rate": self.commission_amount,
-                        "project" : self.project,
-                        "cost_centre" : default_cost_center
-                    })
+                    "item_code"     : default_commission_item, 
+                    "qty"           : 1,
+                    "rate"          : self.commission_amount,
+                    "project"       : self.project,
+                    "cost_centre"   : default_cost_center
+            })
 
             invoice.insert(ignore_permissions=True)
             invoice.submit()
@@ -101,17 +102,17 @@ class PlotBooking(RealEstateController):
     def book_plot(self):
         plot_master = frappe.get_doc("Plot List", self.plot_no)
         
-        if plot_master.status == "Available" and plot_master.hold_for_sale == 0:
+        if (plot_master.status == "Available" or plot_master.status == "Token") and plot_master.hold_for_sale == 0:
             plot_master.update({      
-                'status': "Booked",
-                'customer': self.customer,
-                'address': self.address,
-                'contact_no': self.contact_no,
-                'sales_broker': self.sales_broker,
-                'father_name': self.father_name,
-                'cnic': self.cnic,
-                'customer_type': self.customer_type,
-                'share_percentage': self.share_percentage,
+                'status'            : "Booked",
+                'customer'          : self.customer,
+                'address'           : self.address,
+                'contact_no'        : self.contact_no,
+                'sales_broker'      : self.sales_broker,
+                'father_name'       : self.father_name,
+                'cnic'              : self.cnic,
+                'customer_type'     : self.customer_type,
+                'share_percentage'  : self.share_percentage,
             })
 
             if self.customer_type == "Partnership":
@@ -129,26 +130,55 @@ class PlotBooking(RealEstateController):
             frappe.msgprint(_('{0} booked successfully').format(frappe.get_desk_link('Plot List', plot_master.name)))
         else:
             frappe.throw(_("Error: The selected plot is not available for booking."))
+        
+        if self.token_number :
+            plot_token = frappe.get_doc("Plot Token", self.token_number)
+            plot_token.update({'status' : "Transfer to Booking"})
+            plot_token.save()
+            frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link("Plot Token", plot_token.name)))
 
     def unbook_plot(self):
         plot_master = frappe.get_doc("Plot List", self.plot_no)
-        plot_master.update({
-            'status': "Available",
-            'customer': '',
-            'address': '',
-            'contact_no': '',
-            'sales_broker': '',
-            'father_name': '',
-            'cnic': '',
-            'customer_type': '',
-            'share_percentage': '',
-        })
+        if not self.token_number :
+            plot_master.update({
+                'status'            : "Available",
+                'customer'          : '',
+                'address'           : '',
+                'contact_no'        : '',
+                'sales_broker'      : '',
+                'father_name'       : '',
+                'cnic'              : '',
+                'customer_type'     : '',
+                'share_percentage'  : '',
+            })
 
         if self.customer_type == "Partnership":
             plot_master.set("customer_partnership", [])
 
+        if self.token_number :
+            plot_master.update({
+                'status'            : "Token",
+                'customer'          : self.customer,
+                'address'           : self.address,
+                'contact_no'        : self.contact_no,
+                'sales_broker'      : self.sales_broker,
+                'father_name'       : self.father_name,
+                'cnic'              : self.cnic,
+                'customer_type'     : '',
+                'share_percentage'  : '',
+            })
+
+            if self.customer_type == "Partnership":
+                plot_master.set("customer_partnership", [])
+
         plot_master.save()
         frappe.msgprint(_('{0} unbooked').format(frappe.get_desk_link('Plot List', plot_master.name)))
+        
+        if self.token_number :
+            plot_token = frappe.get_doc("Plot Token", self.token_number)
+            plot_token.update({'status' : "Active"})
+            plot_token.save()
+            frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link("Plot Token", plot_token.name)))
 
     def before_insert(self):
         if self.status != 'Active':

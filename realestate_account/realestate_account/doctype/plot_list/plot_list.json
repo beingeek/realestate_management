@@ -280,6 +280,7 @@
   {
    "fieldname": "document_number",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Document Number",
    "no_copy": 1,
    "read_only": 1
@@ -287,6 +288,7 @@
   {
    "fieldname": "document_type",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Document Type",
    "no_copy": 1,
    "read_only": 1
@@ -325,7 +327,7 @@
    "link_fieldname": "bill_no"
   }
  ],
- "modified": "2023-11-25 00:44:14.609207",
+ "modified": "2023-11-26 11:35:02.116222",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot List",

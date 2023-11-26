@@ -11,6 +11,7 @@ class PlotToken(RealEstateController):
         self.validate_plot_booking()
         self.validate_token_amount()
         self.validate_valid_till_date()
+        self.validate_deduction_amount()
     
     def on_submit(self):
         self.make_gl_entries()
@@ -28,13 +29,18 @@ class PlotToken(RealEstateController):
                 frappe.throw(_('The {0} not in Token stage').format(frappe.get_desk_link('Plot List', self.plot_no)))
 
     def validate_token_amount(self):
-        if flt(self.token_amount) == 0.0:
-            frappe.throw(_('Token Amount does not equal to zero'))
+        if flt(self.token_amount) <= 0.0:
+            frappe.throw(_('Token amount does not less then zero'))
 
     def validate_valid_till_date(self):
         if self.is_return == 0 :
             if self.valid_till_date  < self.posting_date:
                 frappe.throw("Valid till date not back form Posting Date.")
+
+    def validate_deduction_amount(self):
+        if self.is_return == 1 :
+            if self.deduction > self.token_amount :
+                frappe.throw("Deduction Amount can't greater then Token received Amount.")
 
     def validate_payment_plan_and_token_amount(self):
         if self.is_return == 0 :
@@ -122,19 +128,20 @@ class PlotToken(RealEstateController):
                     "document_number": self.name,
                     "document_type": "Plot Token",
                     })
-                for payment in self.payment_type:
-                    journal_entry.append("accounts", {
-                        "account": payment.ledger,
-                        "credit_in_account_currency": payment.amount,
-                        "against": default_receivable_account,
-                        "project": self.project,
-                        "real_estate_inventory_no": self.plot_no,
-                        "bank_account":payment.bank_account,
-                        "cost_center": "",
-                        "is_advance": 0,
-                        "document_number": self.name,
-                        "document_type":"Plot Token",
-                    })
+                if flt(self.paid_to_customer) != 0.0:
+                    for payment in self.payment_type:
+                        journal_entry.append("accounts", {
+                            "account": payment.ledger,
+                            "credit_in_account_currency": payment.amount,
+                            "against": default_receivable_account,
+                            "project": self.project,
+                            "real_estate_inventory_no": self.plot_no,
+                            "bank_account":payment.bank_account,
+                            "cost_center": "",
+                            "is_advance": 0,
+                            "document_number": self.name,
+                            "document_type":"Plot Token",
+                        })
                 journal_entry.append("accounts", {
                     "account": default_receivable_account,
                     "debit_in_account_currency": self.token_amount,
@@ -158,15 +165,15 @@ class PlotToken(RealEstateController):
         if self.is_return == 0:
             plot_master = frappe.get_doc("Plot List", self.plot_no)    
             plot_master.update({
-                            'customer'      : self.customer, 
-                            'address'       : self.address,
-                            'contact_no'    : self.contact_no, 
-                            'sales_broker'  : self.sales_broker,
-                            'father_name'   : self.father_name, 
-                            'cnic'          : self.cnic,
-                            'status'        : "Token", 
-                            'document_type' : "Plot Token", 
-                            'document_number': self.name,
+                            'customer'          : self.customer, 
+                            'address'           : self.address,
+                            'contact_no'        : self.contact_no, 
+                            'sales_broker'      : self.sales_broker,
+                            'father_name'       : self.father_name, 
+                            'cnic'              : self.cnic,
+                            'status'            : "Token", 
+                            'document_type'     : "Plot Token", 
+                            'document_number'   : self.name,
                         })
             plot_master.save()
             frappe.msgprint(_('{0} successfully updated ').format(frappe.get_desk_link('Plot List', plot_master.name)))                    
@@ -217,15 +224,15 @@ class PlotToken(RealEstateController):
         if self.is_return == 1:
             plot_master = frappe.get_doc("Plot List", self.plot_no)    
             plot_master.update({
-                            'customer'      : self.customer, 
-                            'address'       : self.address,
-                            'contact_no'    : self.contact_no, 
-                            'sales_broker'  : self.sales_broker,
-                            'father_name'   : self.father_name, 
-                            'cnic'          : self.cnic,
-                            'status'        : "Token", 
-                            'document_type' : "Plot Token", 
-                            'document_number': self.return_token_number,
+                            'customer'          : self.customer, 
+                            'address'           : self.address,
+                            'contact_no'        : self.contact_no, 
+                            'sales_broker'      : self.sales_broker,
+                            'father_name'       : self.father_name, 
+                            'cnic'              : self.cnic,
+                            'status'            : "Token", 
+                            'document_type'     : "Plot Token", 
+                            'document_number'   : self.return_token_number,
                         })
             plot_master.save()
             frappe.msgprint(_('{0} successfully updated ').format(frappe.get_desk_link('Plot List', plot_master.name)))                    

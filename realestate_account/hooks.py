@@ -125,7 +125,8 @@ period_closing_doctypes = [
 	"Plot Booking",
 	"Customer Payment",
 	"Property Transfer",
-	"Cancellation Property"
+	"Cancellation Property",
+    "Plot Token" 
 ]
 
 doc_events = {
