@@ -206,9 +206,6 @@ frappe.ui.form.on("Property Transfer", {
         });
     },
 
-// frappe.ui.form.on("Property Transfer", {
-// });
-
 function calculateEndingDate(frm) {
     var startingDate = frm.doc.installment_starting_date;
     var numberOfMonth = frm.doc.no_of_month_plan;

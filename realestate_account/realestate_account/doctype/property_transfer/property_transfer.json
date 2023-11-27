@@ -1,590 +1,591 @@
 {
-    "actions": [],
-    "autoname": "format:PT-{######}",
-    "creation": "2023-10-13 16:10:58.249146",
-    "default_view": "List",
-    "doctype": "DocType",
-    "editable_grid": 1,
-    "engine": "InnoDB",
-    "field_order": [
-     "property_information_tab",
-     "section_break_sw5bd",
-     "posting_date",
-     "payment_schedule_type",
-     "column_break_b5ps8",
-     "sales_amount",
-     "project",
-     "document_type",
-     "column_break_jnru",
-     "received_amount",
-     "plot_no",
-     "column_break_udnoi",
-     "balance_transfer",
-     "document_number",
-     "transfer_from_customer",
-     "from_customer",
-     "from_father_name",
-     "from_customer_type",
-     "column_break_pwise",
-     "from_cnic",
-     "from_contact_no",
-     "from_share_percentage",
-     "column_break_mzmx1",
-     "from_address",
-     "from_sales_broker",
-     "section_break_fzgv",
-     "from_customer_partnership",
-     "transfer_to_customer_section",
-     "to_customer",
-     "to_father_name",
-     "to_customer_type",
-     "column_break_mkzq5",
-     "to_cnic",
-     "to_contact_no",
-     "to_share_percentage",
-     "column_break_f7lhu",
-     "to_address",
-     "section_break_sduj",
-     "to_customer_partnership",
-     "section_break_dykmb",
-     "transfer_type",
-     "column_break_gndj",
-     "transfer_charge",
-     "column_break_zulk",
-     "sales_broker",
-     "section_break_btia",
-     "payment_type",
-     "remarks_section",
-     "remarks",
-     "amended_from",
-     "column_break_zppuq",
-     "status",
-     "column_break_6il7m",
-     "company",
-     "payment_schedule_tab",
-     "payment_plan_data_input_section",
-     "payment_plan_template",
-     "column_break_fd3g8",
-     "installment_starting_date",
-     "column_break_wic5h",
-     "no_of_month_plan",
-     "installment_ending_date",
-     "column_break_qa3ly",
-     "total_transfer_amount",
-     "column_break_utmx",
-     "difference",
-     "payment_schedule_section",
-     "payment_plan",
-     "payment_schedule",
-     "connection"
-    ],
-    "fields": [
-     {
-      "fieldname": "property_information_tab",
-      "fieldtype": "Tab Break",
-      "label": "Property Information"
-     },
-     {
-      "fieldname": "section_break_sw5bd",
-      "fieldtype": "Section Break"
-     },
-     {
-      "fieldname": "document_type",
-      "fieldtype": "Link",
-      "hidden": 1,
-      "label": " Document ID",
-      "options": "DocType"
-     },
-     {
-      "fieldname": "document_number",
-      "fieldtype": "Dynamic Link",
-      "in_list_view": 1,
-      "in_standard_filter": 1,
-      "label": " Document No",
-      "options": "document_type",
-      "read_only": 1,
-      "reqd": 1
-     },
-     {
-      "fieldname": "column_break_b5ps8",
-      "fieldtype": "Column Break"
-     },
-     {
-      "fieldname": "column_break_udnoi",
-      "fieldtype": "Column Break"
-     },
-     {
-      "fieldname": "plot_no",
-      "fieldtype": "Link",
-      "in_list_view": 1,
-      "in_standard_filter": 1,
-      "label": " Plot No",
-      "options": "Plot List",
-      "read_only": 1,
-      "reqd": 1
-     },
-     {
-      "fieldname": "section_break_dykmb",
-      "fieldtype": "Section Break",
-      "label": "Transfer Charge Detail"
-     },
-     {
-      "fieldname": "transfer_type",
-      "fieldtype": "Select",
-      "in_list_view": 1,
-      "in_standard_filter": 1,
-      "label": "Transfer Type",
-      "options": "Internal Transfer\nBorker Transfer",
-      "reqd": 1
-     },
-     {
-      "default": "0.0",
-      "fieldname": "transfer_charge",
-      "fieldtype": "Currency",
-      "label": " Transfer Charge"
-     },
-     {
-      "fieldname": "sales_broker",
-      "fieldtype": "Link",
-      "label": "Sales Broker",
-      "mandatory_depends_on": "eval: doc.transfer_type === 'Borker Transfer'",
-      "options": "Supplier"
-     },
-     {
-      "fieldname": "transfer_from_customer",
-      "fieldtype": "Section Break",
-      "label": " Transfer From Customer"
-     },
-     {
-      "fieldname": "from_customer",
-      "fieldtype": "Link",
-      "in_list_view": 1,
-      "in_standard_filter": 1,
-      "label": "From Customer",
-      "options": "Customer",
-      "read_only": 1,
-      "reqd": 1
-     },
-     {
-      "fetch_from": "from_customer.primary_address",
-      "fieldname": "from_address",
-      "fieldtype": "Small Text",
-      "label": " Address",
-      "read_only": 1
-     },
-     {
-      "fieldname": "column_break_pwise",
-      "fieldtype": "Column Break"
-     },
-     {
-      "fetch_from": "from_customer.father_name",
-      "fieldname": "from_father_name",
-      "fieldtype": "Data",
-      "label": "Father Name",
-      "read_only": 1
-     },
-     {
-      "fetch_from": "from_customer.id_card_no",
-      "fieldname": "from_cnic",
-      "fieldtype": "Data",
-      "label": " CNIC",
-      "read_only": 1
-     },
-     {
-      "fieldname": "column_break_mzmx1",
-      "fieldtype": "Column Break"
-     },
-     {
-      "fieldname": "from_sales_broker",
-      "fieldtype": "Link",
-      "label": " Sales Broker",
-      "options": "Supplier",
-      "read_only": 1
-     },
-     {
-      "fieldname": "transfer_to_customer_section",
-      "fieldtype": "Section Break",
-      "label": " Transfer To Customer"
-     },
-     {
-      "fieldname": "to_customer",
-      "fieldtype": "Link",
-      "in_list_view": 1,
-      "in_standard_filter": 1,
-      "label": " Transfer To Customer",
-      "options": "Customer",
-      "reqd": 1
-     },
-     {
-      "fetch_from": "to_customer.primary_address",
-      "fieldname": "to_address",
-      "fieldtype": "Small Text",
-      "label": "Address",
-      "read_only": 1
-     },
-     {
-      "fieldname": "column_break_mkzq5",
-      "fieldtype": "Column Break"
-     },
-     {
-      "fetch_from": "to_customer.father_name",
-      "fieldname": "to_father_name",
-      "fieldtype": "Data",
-      "label": " Father Name",
-      "read_only": 1
-     },
-     {
-      "fetch_from": "to_customer.id_card_no",
-      "fieldname": "to_cnic",
-      "fieldtype": "Data",
-      "label": " CNIC",
-      "read_only": 1
-     },
-     {
-      "fieldname": "remarks_section",
-      "fieldtype": "Section Break",
-      "label": " Remarks"
-     },
-     {
-      "fieldname": "remarks",
-      "fieldtype": "Data",
-      "label": " Remaks"
-     },
-     {
-      "allow_on_submit": 1,
-      "fieldname": "status",
-      "fieldtype": "Select",
-      "in_list_view": 1,
-      "in_standard_filter": 1,
-      "label": "Status",
-      "no_copy": 1,
-      "options": "Active\nFurther Transferred\nCancel",
-      "read_only": 1
-     },
-     {
-      "fieldname": "column_break_zppuq",
-      "fieldtype": "Column Break"
-     },
-     {
-      "fieldname": "column_break_f7lhu",
-      "fieldtype": "Column Break"
-     },
-     {
-      "fieldname": "payment_schedule_tab",
-      "fieldtype": "Tab Break",
-      "label": " Payment Schedule"
-     },
-     {
-      "fetch_from": "project.company",
-      "fieldname": "company",
-      "fieldtype": "Link",
-      "label": "Company",
-      "options": "Company",
-      "read_only": 1,
-      "reqd": 1
-     },
-     {
-      "fieldname": "amended_from",
-      "fieldtype": "Link",
-      "label": "Amended From",
-      "no_copy": 1,
-      "options": "Property Transfer",
-      "print_hide": 1,
-      "read_only": 1
-     },
-     {
-      "fieldname": "payment_plan_data_input_section",
-      "fieldtype": "Section Break",
-      "label": " Payment Plan Data Input"
-     },
-     {
-      "fieldname": "installment_starting_date",
-      "fieldtype": "Date",
-      "label": "installment Starting Date",
-      "reqd": 1
-     },
-     {
-      "fieldname": "no_of_month_plan",
-      "fieldtype": "Int",
-      "label": " No. of Month Plan",
-      "reqd": 1
-     },
-     {
-      "fieldname": "installment_ending_date",
-      "fieldtype": "Date",
-      "hidden": 1,
-      "label": " Installment Ending Date",
-      "read_only": 1
-     },
-     {
-      "fieldname": "column_break_fd3g8",
-      "fieldtype": "Column Break"
-     },
-     {
-      "fieldname": "total_transfer_amount",
-      "fieldtype": "Currency",
-      "in_list_view": 1,
-      "label": " Total Transfer Amount",
-      "read_only": 1
-     },
-     {
-      "fieldname": "column_break_wic5h",
-      "fieldtype": "Column Break"
-     },
-     {
-      "fieldname": "column_break_qa3ly",
-      "fieldtype": "Column Break"
-     },
-     {
-      "fieldname": "payment_schedule_section",
-      "fieldtype": "Section Break",
-      "label": " Payment Schedule"
-     },
-     {
-      "fieldname": "payment_schedule",
-      "fieldtype": "Table",
-      "label": " Payment Schedule",
-      "options": "Installment Payment Plan - Transfer",
-      "read_only": 1,
-      "reqd": 1
-     },
-     {
-      "fieldname": "difference",
-      "fieldtype": "Currency",
-      "label": "Difference (Transfer - Schdule)",
-      "read_only": 1
-     },
-     {
-      "fieldname": "connection",
-      "fieldtype": "Tab Break",
-      "label": "Connection",
-      "show_dashboard": 1
-     },
-     {
-      "depends_on": "eval: doc.transfer_charge !== 0.0",
-      "fieldname": "payment_type",
-      "fieldtype": "Table",
-      "label": "Payment Type",
-      "options": "Payment Type"
-     },
-     {
-      "fieldname": "column_break_6il7m",
-      "fieldtype": "Column Break"
-     },
-     {
-      "fieldname": "sales_amount",
-      "fieldtype": "Currency",
-      "in_list_view": 1,
-      "label": "Sales Amount",
-      "read_only": 1
-     },
-     {
-      "fieldname": "received_amount",
-      "fieldtype": "Currency",
-      "in_list_view": 1,
-      "label": "Received Amount",
-      "non_negative": 1,
-      "read_only": 1
-     },
-     {
-      "fieldname": "balance_transfer",
-      "fieldtype": "Currency",
-      "label": "Balance Transfer",
-      "non_negative": 1,
-      "read_only": 1,
-      "reqd": 1
-     },
-     {
-      "fieldname": "column_break_jnru",
-      "fieldtype": "Column Break"
-     },
-     {
-      "fieldname": "column_break_gndj",
-      "fieldtype": "Column Break"
-     },
-     {
-      "fieldname": "column_break_zulk",
-      "fieldtype": "Column Break"
-     },
-     {
-      "fieldname": "section_break_btia",
-      "fieldtype": "Section Break"
-     },
-     {
-      "default": "Today",
-      "fieldname": "posting_date",
-      "fieldtype": "Date",
-      "in_list_view": 1,
-      "label": "Doc Date",
-      "reqd": 1,
-      "search_index": 1
-     },
-     {
-      "fieldname": "project",
-      "fieldtype": "Link",
-      "in_list_view": 1,
-      "in_standard_filter": 1,
-      "label": "Project",
-      "options": "Project",
-      "reqd": 1
-     },
-     {
-      "fetch_from": "from_customer.mobile_no",
-      "fieldname": "from_contact_no",
-      "fieldtype": "Data",
-      "label": " Contact No.",
-      "read_only": 1
-     },
-     {
-      "fetch_from": "to_customer.mobile_no",
-      "fieldname": "to_contact_no",
-      "fieldtype": "Data",
-      "label": " Contact No.",
-      "read_only": 1
-     },
-     {
-      "fieldname": "column_break_utmx",
-      "fieldtype": "Column Break"
-     },
-     {
-      "fieldname": "payment_plan",
-      "fieldtype": "Table",
-      "label": " Payment",
-      "options": "Payment Plan",
-      "reqd": 1
-     },
-     {
-      "fieldname": "payment_plan_template",
-      "fieldtype": "Link",
-      "label": "Payment Plan Template",
-      "options": "Payment Plan Template",
-      "reqd": 1
-     },
-     {
-      "fieldname": "section_break_fzgv",
-      "fieldtype": "Section Break"
-     },
-     {
-      "fieldname": "from_customer_partnership",
-      "fieldtype": "Table",
-      "label": "From Customer Partnership",
-      "options": "Customer Partnership",
-      "read_only": 1
-     },
-     {
-      "fieldname": "section_break_sduj",
-      "fieldtype": "Section Break"
-     },
-     {
-      "depends_on": "eval: doc.to_customer_type === 'Partnership'",
-      "fieldname": "to_customer_partnership",
-      "fieldtype": "Table",
-      "label": "To Customer Partnership",
-      "mandatory_depends_on": "eval: doc.to_customer_type === 'Partnership'",
-      "options": "Customer Partnership"
-     },
-     {
-      "fieldname": "from_customer_type",
-      "fieldtype": "Data",
-      "label": "Customer Type",
-      "read_only": 1
-     },
-     {
-      "default": "Individual",
-      "fieldname": "to_customer_type",
-      "fieldtype": "Select",
-      "label": "Customer Type",
-      "options": "Individual\nPartnership",
-      "reqd": 1
-     },
-     {
-      "default": "100.00",
-      "depends_on": "eval: doc.to_customer_type === 'Partnership'",
-      "fieldname": "to_share_percentage",
-      "fieldtype": "Float",
-      "label": "Share Percentage",
-      "mandatory_depends_on": "eval: doc.to_customer_type === 'Partnership'",
-      "non_negative": 1,
-      "precision": "2",
-      "reqd": 1
-     },
-     {
-      "fieldname": "from_share_percentage",
-      "fieldtype": "Float",
-      "label": "Share Percentage",
-      "non_negative": 1,
-      "precision": "2",
-      "read_only": 1
-     },
-     {
-      "default": "Generate new schedule",
-      "fieldname": "payment_schedule_type",
-      "fieldtype": "Select",
-      "label": "Payment Schedule Type",
-      "options": "Generate new schedule\nCopy existing schedule",
-      "reqd": 1
-     }
-    ],
-    "index_web_pages_for_search": 1,
-    "is_calendar_and_gantt": 1,
-    "is_submittable": 1,
-    "links": [
-     {
-      "link_doctype": "Journal Entry",
-      "link_fieldname": "document_number"
-     },
-     {
-      "link_doctype": "Customer Payment",
-      "link_fieldname": "document_number"
-     },
-     {
-      "link_doctype": "Property Transfer",
-      "link_fieldname": "document_number"
-     },
-     {
-      "link_doctype": "Cancellation Property",
-      "link_fieldname": "document_number"
-     }
-    ],
-    "modified": "2023-11-21 22:42:14.453419",
-    "modified_by": "Administrator",
-    "module": "Realestate Account",
-    "name": "Property Transfer",
-    "naming_rule": "Expression",
-    "owner": "Administrator",
-    "permissions": [
-     {
-      "amend": 1,
-      "cancel": 1,
-      "create": 1,
-      "delete": 1,
-      "email": 1,
-      "export": 1,
-      "print": 1,
-      "read": 1,
-      "report": 1,
-      "role": "System Manager",
-      "select": 1,
-      "share": 1,
-      "submit": 1,
-      "write": 1
-     },
-     {
-      "create": 1,
-      "delete": 1,
-      "email": 1,
-      "export": 1,
-      "print": 1,
-      "read": 1,
-      "report": 1,
-      "role": "Realestate Account Manager",
-      "share": 1,
-      "submit": 1,
-      "write": 1
-     }
-    ],
-    "sort_field": "modified",
-    "sort_order": "DESC",
-    "states": [],
-    "track_changes": 1
-   }
+ "actions": [],
+ "autoname": "format:PT-{######}",
+ "creation": "2023-10-13 16:10:58.249146",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "property_information_tab",
+  "section_break_sw5bd",
+  "posting_date",
+  "payment_schedule_type",
+  "column_break_b5ps8",
+  "sales_amount",
+  "project",
+  "document_type",
+  "column_break_jnru",
+  "received_amount",
+  "plot_no",
+  "column_break_udnoi",
+  "balance_transfer",
+  "document_number",
+  "transfer_from_customer",
+  "from_customer",
+  "from_father_name",
+  "from_customer_type",
+  "column_break_pwise",
+  "from_cnic",
+  "from_contact_no",
+  "from_share_percentage",
+  "column_break_mzmx1",
+  "from_address",
+  "from_sales_broker",
+  "section_break_fzgv",
+  "from_customer_partnership",
+  "transfer_to_customer_section",
+  "to_customer",
+  "to_father_name",
+  "to_customer_type",
+  "column_break_mkzq5",
+  "to_cnic",
+  "to_contact_no",
+  "to_share_percentage",
+  "column_break_f7lhu",
+  "to_address",
+  "section_break_sduj",
+  "to_customer_partnership",
+  "section_break_dykmb",
+  "transfer_type",
+  "column_break_gndj",
+  "transfer_charge",
+  "column_break_zulk",
+  "sales_broker",
+  "section_break_btia",
+  "payment_type",
+  "remarks_section",
+  "remarks",
+  "amended_from",
+  "column_break_zppuq",
+  "status",
+  "column_break_6il7m",
+  "company",
+  "payment_schedule_tab",
+  "payment_plan_data_input_section",
+  "payment_plan_template",
+  "column_break_fd3g8",
+  "installment_starting_date",
+  "column_break_wic5h",
+  "no_of_month_plan",
+  "installment_ending_date",
+  "column_break_qa3ly",
+  "total_transfer_amount",
+  "column_break_utmx",
+  "difference",
+  "payment_schedule_section",
+  "payment_plan",
+  "payment_schedule",
+  "connection"
+ ],
+ "fields": [
+  {
+   "fieldname": "property_information_tab",
+   "fieldtype": "Tab Break",
+   "label": "Property Information"
+  },
+  {
+   "fieldname": "section_break_sw5bd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": " Document ID",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "document_number",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": " Document No",
+   "options": "document_type",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_b5ps8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_udnoi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "plot_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": " Plot No",
+   "options": "Plot List",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_dykmb",
+   "fieldtype": "Section Break",
+   "label": "Transfer Charge Detail"
+  },
+  {
+   "fieldname": "transfer_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Transfer Type",
+   "options": "Internal Transfer\nBorker Transfer",
+   "reqd": 1
+  },
+  {
+   "default": "0.0",
+   "fieldname": "transfer_charge",
+   "fieldtype": "Currency",
+   "label": " Transfer Charge"
+  },
+  {
+   "fieldname": "sales_broker",
+   "fieldtype": "Link",
+   "label": "Sales Broker",
+   "mandatory_depends_on": "eval: doc.transfer_type === 'Borker Transfer'",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "transfer_from_customer",
+   "fieldtype": "Section Break",
+   "label": " Transfer From Customer"
+  },
+  {
+   "fieldname": "from_customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "From Customer",
+   "options": "Customer",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "from_customer.primary_address",
+   "fieldname": "from_address",
+   "fieldtype": "Small Text",
+   "label": " Address",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_pwise",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "from_customer.father_name",
+   "fieldname": "from_father_name",
+   "fieldtype": "Data",
+   "label": "Father Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "from_customer.id_card_no",
+   "fieldname": "from_cnic",
+   "fieldtype": "Data",
+   "label": " CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_mzmx1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "from_sales_broker",
+   "fieldtype": "Link",
+   "label": " Sales Broker",
+   "options": "Supplier",
+   "read_only": 1
+  },
+  {
+   "fieldname": "transfer_to_customer_section",
+   "fieldtype": "Section Break",
+   "label": " Transfer To Customer"
+  },
+  {
+   "fieldname": "to_customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": " Transfer To Customer",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "to_customer.primary_address",
+   "fieldname": "to_address",
+   "fieldtype": "Small Text",
+   "label": "Address",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_mkzq5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "to_customer.father_name",
+   "fieldname": "to_father_name",
+   "fieldtype": "Data",
+   "label": " Father Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "to_customer.id_card_no",
+   "fieldname": "to_cnic",
+   "fieldtype": "Data",
+   "label": " CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remarks_section",
+   "fieldtype": "Section Break",
+   "label": " Remarks"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": " Remaks"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "no_copy": 1,
+   "options": "Active\nFurther Transferred\nCancel",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_zppuq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_f7lhu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_schedule_tab",
+   "fieldtype": "Tab Break",
+   "label": " Payment Schedule"
+  },
+  {
+   "fetch_from": "project.company",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Property Transfer",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_plan_data_input_section",
+   "fieldtype": "Section Break",
+   "label": " Payment Plan Data Input"
+  },
+  {
+   "fieldname": "installment_starting_date",
+   "fieldtype": "Date",
+   "label": "installment Starting Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "no_of_month_plan",
+   "fieldtype": "Int",
+   "label": " No. of Month Plan",
+   "reqd": 1
+  },
+  {
+   "fieldname": "installment_ending_date",
+   "fieldtype": "Date",
+   "hidden": 1,
+   "label": " Installment Ending Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_fd3g8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_transfer_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": " Total Transfer Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_wic5h",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_qa3ly",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_schedule_section",
+   "fieldtype": "Section Break",
+   "label": " Payment Schedule"
+  },
+  {
+   "fieldname": "payment_schedule",
+   "fieldtype": "Table",
+   "label": " Payment Schedule",
+   "options": "Installment Payment Plan - Transfer",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "difference",
+   "fieldtype": "Currency",
+   "label": "Difference (Transfer - Schdule)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "connection",
+   "fieldtype": "Tab Break",
+   "label": "Connection",
+   "show_dashboard": 1
+  },
+  {
+   "depends_on": "eval: doc.transfer_charge !== 0.0",
+   "fieldname": "payment_type",
+   "fieldtype": "Table",
+   "label": "Payment Type",
+   "options": "Payment Type"
+  },
+  {
+   "fieldname": "column_break_6il7m",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sales_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Sales Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "received_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Received Amount",
+   "non_negative": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "balance_transfer",
+   "fieldtype": "Currency",
+   "label": "Balance Transfer",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_jnru",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_gndj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_zulk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_btia",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Doc Date",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "from_customer.mobile_no",
+   "fieldname": "from_contact_no",
+   "fieldtype": "Data",
+   "label": " Contact No.",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "to_customer.mobile_no",
+   "fieldname": "to_contact_no",
+   "fieldtype": "Data",
+   "label": " Contact No.",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_utmx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_plan",
+   "fieldtype": "Table",
+   "label": " Payment",
+   "options": "Payment Plan",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payment_plan_template",
+   "fieldtype": "Link",
+   "label": "Payment Plan Template",
+   "options": "Payment Plan Template",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_fzgv",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "from_customer_partnership",
+   "fieldtype": "Table",
+   "label": "From Customer Partnership",
+   "options": "Customer Partnership",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_sduj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval: doc.to_customer_type === 'Partnership'",
+   "fieldname": "to_customer_partnership",
+   "fieldtype": "Table",
+   "label": "To Customer Partnership",
+   "mandatory_depends_on": "eval: doc.to_customer_type === 'Partnership'",
+   "options": "Customer Partnership"
+  },
+  {
+   "fieldname": "from_customer_type",
+   "fieldtype": "Data",
+   "label": "Customer Type",
+   "read_only": 1
+  },
+  {
+   "default": "Individual",
+   "fieldname": "to_customer_type",
+   "fieldtype": "Select",
+   "label": "Customer Type",
+   "options": "Individual\nPartnership",
+   "reqd": 1
+  },
+  {
+   "default": "100.00",
+   "depends_on": "eval: doc.to_customer_type === 'Partnership'",
+   "fieldname": "to_share_percentage",
+   "fieldtype": "Float",
+   "label": "Share Percentage",
+   "mandatory_depends_on": "eval: doc.to_customer_type === 'Partnership'",
+   "non_negative": 1,
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "from_share_percentage",
+   "fieldtype": "Float",
+   "label": "Share Percentage",
+   "non_negative": 1,
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "default": "Generate new schedule",
+   "fieldname": "payment_schedule_type",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Payment Schedule Type",
+   "options": "Generate new schedule\nCopy existing schedule",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_calendar_and_gantt": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Journal Entry",
+   "link_fieldname": "document_number"
+  },
+  {
+   "link_doctype": "Customer Payment",
+   "link_fieldname": "document_number"
+  },
+  {
+   "link_doctype": "Property Transfer",
+   "link_fieldname": "document_number"
+  },
+  {
+   "link_doctype": "Cancellation Property",
+   "link_fieldname": "document_number"
+  }
+ ],
+ "modified": "2023-11-27 14:26:01.275792",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Property Transfer",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Realestate Account Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -127,7 +127,6 @@ class CustomerPayment(RealEstateController):
             })
             journal_entry.insert(ignore_permissions=True)
             journal_entry.submit()
-
             frappe.db.commit()
             frappe.msgprint(_('Journal Entry {0} created successfully').format(frappe.get_desk_link("Journal Entry", journal_entry.name)))
 
