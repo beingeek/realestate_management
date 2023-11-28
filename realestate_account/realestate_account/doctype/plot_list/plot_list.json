@@ -14,18 +14,22 @@
   "plot_detail",
   "column_break_hxyju",
   "plot_name",
-  "section_break_us9uz",
+  "section_break_igep",
   "land_price",
+  "column_break_wuqu",
+  "land_area",
+  "column_break_bcbn",
+  "total",
+  "section_break_us9uz",
   "plot_feature",
   "hold_for_sale",
+  "company",
   "status",
   "column_break_3bbzj",
-  "land_area",
   "uom",
   "reason_for_hold",
   "column_break_7g6t7",
-  "total",
-  "company",
+  "block",
   "current_owner_detail_tab",
   "customer",
   "address",
@@ -68,9 +72,9 @@
   {
    "default": "Plot",
    "fieldname": "plot_detail",
-   "fieldtype": "Select",
-   "label": "Property Detail ( Type )",
-   "options": "Plot\nHousing\nApartment\nShop"
+   "fieldtype": "Link",
+   "label": "Property Detail Type ",
+   "options": "Property Detail Type"
   },
   {
    "fieldname": "column_break_hxyju",
@@ -97,11 +101,12 @@
    "reqd": 1
   },
   {
+   "default": "Normal",
    "fieldname": "plot_feature",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Plot Feature",
-   "options": "West Open\nCorner\nPark Facing\nNormal\nOther",
+   "options": "Property Feature",
    "reqd": 1
   },
   {
@@ -292,6 +297,24 @@
    "label": "Document Type",
    "no_copy": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "block",
+   "fieldtype": "Link",
+   "label": "Block",
+   "options": "Property Master Block"
+  },
+  {
+   "fieldname": "section_break_igep",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_wuqu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bcbn",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -327,7 +350,7 @@
    "link_fieldname": "bill_no"
   }
  ],
- "modified": "2023-11-26 11:35:02.116222",
+ "modified": "2023-11-28 15:27:41.173018",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot List",

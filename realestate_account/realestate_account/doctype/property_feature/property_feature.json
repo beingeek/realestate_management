@@ -1,0 +1,46 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:property_feature",
+ "creation": "2023-11-28 14:59:49.819899",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "property_feature"
+ ],
+ "fields": [
+  {
+   "fieldname": "property_feature",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Property Feature",
+   "reqd": 1,
+   "unique": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2023-11-28 15:07:06.238587",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Property Feature",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
