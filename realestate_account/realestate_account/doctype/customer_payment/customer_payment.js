@@ -1,6 +1,6 @@
 frappe.ui.form.on('Customer Payment', {
     onload: function (frm) {
-        if (frm.doc.status === 'Submitted') {
+         if (frm.doc.docstatus == 0) {
             frm.toggle_display('Get Installment list', false);
         } else {
             frm.toggle_display('Get Installment list', true);
