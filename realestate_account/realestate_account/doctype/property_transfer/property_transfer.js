@@ -1,11 +1,13 @@
 frappe.ui.form.on("Property Transfer", {
     refresh: function (frm) {
-        frm.add_custom_button(
-            __("Generate Installments"),
-            function () {
-                frm.trigger("generate_installment");
-            },
-        ).addClass("btn-primary");
+        if (frm.doc.docstatus == 0) {
+            frm.add_custom_button(
+                __("Generate Installments"),
+                function () {
+                    frm.trigger("generate_installment");
+                },
+            ).addClass("btn-primary");
+        }
     }
 });
 
