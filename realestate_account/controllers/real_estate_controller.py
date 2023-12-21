@@ -182,7 +182,7 @@ def get_customer_partner(document_number):
             INNER JOIN 
                 `tabCustomer Partnership` tcp on tcp.parent = tpt.name
             WHERE
-                tpt.status = 'Active' AND tpt.docstatus = 1
+                tpt.status = 'Active' AND tpt.docstatus = 1  AND tcp.parentfield = 'to_customer_partnership'
             UNION ALL
             SELECT DISTINCT
                 thb.name,
