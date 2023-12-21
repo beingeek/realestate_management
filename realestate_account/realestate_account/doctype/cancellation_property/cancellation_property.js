@@ -11,9 +11,9 @@ frappe.ui.form.on('Cancellation Property', {
                 },
                 callback: function(data) {
                     if (data.message) {
-                        frm.clear_table('from_customer_partnership');
+                        frm.clear_table('customer_partnership');
                         for (let i = 0; i < data.message.length; i++) {
-                            var row = frm.add_child('from_customer_partnership');
+                            var row = frm.add_child('customer_partnership');
                             row.customer = data.message[i].customer;
                             row.father_name = data.message[i].father_name;
                             row.id_card_no = data.message[i].id_card_no;
@@ -21,7 +21,7 @@ frappe.ui.form.on('Cancellation Property', {
                             row.address = data.message[i].address;
                             row.share_percentage = data.message[i].share_percentage;
                         }
-                        frm.refresh_fields('from_customer_partnership');        
+                        frm.refresh_fields('customer_partnership');        
                     } else {
                         frappe.msgprint(__('Error: ') + data.exc);
                     }
