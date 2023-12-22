@@ -12,14 +12,9 @@ def check_plot_booking(doc, method=None):
 def check_document_status(doc, method=None):
     if doc.get('document_type') == 'Customer Payment' and doc.get('document_number'):
         cust_pmt = frappe.get_doc('Customer Payment', doc.get('document_number'))
-        if cust_pmt.document_number and not frappe.db.exists('Plot Booking', {'name': cust_pmt.document_number, 'status': 'Active'}):  
-            frappe.throw(_('The {0} is not Active').format(frappe.get_desk_link('Plot Booking', cust_pmt.document_number)))
-
-    elif doc.get('document_type') == 'Property Transfer' and doc.get('document_number'):
-        cust_pmt = frappe.get_doc('Customer Payment', doc.get('document_number'))
-        if cust_pmt.document_number and not frappe.db.exists('Property Transfer', {'name': cust_pmt.document_number, 'status': 'Active'}):  
-            frappe.throw(_('The {0} is not Active').format(frappe.get_desk_link('Property Transfer', cust_pmt.document_number)))
-
+        doctype = cust_pmt.document_type
+        if cust_pmt.document_number and not frappe.db.exists(doctype, {'name': cust_pmt.document_number, 'status': 'Active'}):  
+            frappe.throw(_('The {0} is not Active').format(frappe.get_desk_link(doctype, cust_pmt.document_number)))
 
 def validate_id_card_number_format(doc, method=None):
     tax_number = doc.id_card_no
