@@ -4,14 +4,14 @@
 import frappe
 from frappe import _
 from frappe.utils import cstr, flt, getdate
-from realestate_account.controllers.real_estate_controller import get_previous_document_detail
+from realestate_account.controllers.real_estate_controller import get_previous_document_detail, get_customer_partner
 
 
 def execute(filters=None):
-	if not filters.get('plot'):
-		frappe.throw(_('Please set Filter'))
+	if not filters.get("plot"):
+		frappe.throw(_("Please set Filter"))
 	
-	plot = filters.get('plot')
+	plot = filters.get("plot")
 	columns = get_columns()
 	data = get_data(filters)
 	return columns, data
@@ -65,162 +65,191 @@ def get_data(filters):
 	plot_data = frappe.db.sql("""select * from `tabPlot List` where name=%(plot)s """, filters, as_dict=1)
 	
 	if not plot_data:
-		frappe.msgprint('No plot found')
+		frappe.msgprint("No plot found")
 		return []
 
 	plot_data = plot_data[0]
-	plot_payment_detail = get_previous_document_detail(filters.get('plot'))
+	plot_payment_detail = get_previous_document_detail(filters.get("plot"))
 
 	if not plot_payment_detail:
-		frappe.msgprint('No plot payment found')
+		frappe.msgprint("No plot payment found")
 
 	plot_payment_detail = plot_payment_detail[0]
 
-	payment_detail = get_payment_detail(filters.get('to_date'), plot_payment_detail.get('name'))
+	partners = get_customer_partner(plot_payment_detail.get("name"))
+	if partners:
+		partners = ", ".join([d.customer for d in partners])
+		frappe.msgprint(cstr(partners))
+
+	payment_detail = get_payment_detail(filters.get("to_date"), plot_payment_detail.get("name"))
 
 	installments = []
-	if plot_payment_detail.get('Doc_type') == 'Plot Booking':
-		installments = get_installment_list_from_booking(plot_payment_detail.get('name'))
-	elif plot_payment_detail.get('Doc_type') == 'Property Transfer':
-		installments = get_installment_list_from_transfer(plot_payment_detail.get('name'))
+	if plot_payment_detail.get("Doc_type") == "Plot Booking":
+		installments = get_installment_list_from_booking(plot_payment_detail.get("name"))
+	elif plot_payment_detail.get("Doc_type") == "Property Transfer":
+		installments = get_installment_list_from_transfer(plot_payment_detail.get("name"))
 
 	overdue_amt = 0
 	if installments:
 		for installment in installments:
-			if installment.get('date') < getdate(filters.get('to_date')):
-				overdue_amt += installment.get('receivable_amount')
+			if installment.get("date") < getdate(filters.get("to_date")):
+				overdue_amt += installment.get("receivable_amount")
 
-	received_amount_perc = flt((plot_payment_detail.get('received_amount')/plot_payment_detail.get('sales_amount')) * 100, 2)
+	received_amount_perc = flt((plot_payment_detail.get("received_amount")/plot_payment_detail.get("sales_amount")) * 100, 2)
 
 	data = [
 		{
-			"col1": "<b>Current Ownership Detail :</b>"
+			"ownership_details": 1,
+			"col1": "<b>Current Ownership Detail :</b>",
+			"col2": "",
 		},
 		{
-			'col1': "<b>Member Name :</b>",
-			"col2": plot_data.get('customer')
+			"ownership_details": 1,
+			"col1": "<b>Member Name :</b>",
+			"col2": plot_data.get("customer")
 		},
 		{
-			'col1': "<b>F/O:</b>",
-			"col2": plot_data.get('father_name')
+			"ownership_details": 1,
+			"col1": "<b>Other Members :</b>",
+			"col2": plot_data.get("customer")
 		},
 		{
-			'col1': "<b>CNIC No :</b>",
-			"col2": plot_data.get('cnic')
+			"ownership_details": 1,
+			"col1": "<b>F/O:</b>",
+			"col2": plot_data.get("father_name"),
 		},
 		{
-			'col1': "<b>Mobile ,Ph,Off/res:</b>",
-			"col2": plot_data.get('contact_no')
+			"ownership_details": 1,
+			"col1": "<b>CNIC No :</b>",
+			"col2": plot_data.get("cnic")
 		},
 		{
-			'col1': "<b>Address:</b>",
-			"col2": plot_data.get('address')
+			"ownership_details": 1,
+			"col1": "<b>Mobile ,Ph,Off/res:</b>",
+			"col2": plot_data.get("contact_no")
+		},
+		{},
+		{
+			"registration_details": 1,
+			"col1": "<b>Registration No:</b>",
+			"col2": """<a href="/app/{0}/{1}">{1}</a>""".format(frappe.scrub(plot_payment_detail.get("Doc_type")).replace("_", "-"), plot_payment_detail.get("name")),
 		},
 		{
-			'col1': "",
-			"col2": ""
+			"registration_details": 1,
+			"col1": "<b>Property Information:</b>",
 		},
 		{
-			"col1": "<b>Property Information:</b>"
+			"registration_details": 1,
+			"col1": "<b>Project Name</b>",
+			"col2": plot_data.get("project")
 		},
 		{
-			'col1': "<b>Project Name</b>",
-			"col2": plot_data.get('project')
+			"registration_details": 1,
+			"col1": "<b>Property Detail:</b>",
+			"col2": plot_data.get("plot_detail")
 		},
 		{
-			'col1': "<b>Property Detail:</b>",
-			"col2": plot_data.get('plot_detail')
+			"registration_details": 1,
+			"col1": "<b>Plot Number:</b>",
+			"col2": filters.get("plot")
 		},
 		{
-			'col1': "<b>Plot Area/UOM :</b>",
-			"col2": "{0}/{1}".format(plot_data.get('land_area'), plot_data.get('uom'))
+			"registration_details": 1,
+			"col1": "<b>Plot Area/UOM :</b>",
+			"col2": "{0}/{1}".format(plot_data.get("land_area"), plot_data.get("uom"))
 		},
+		{},
 		{
-			'col1': "",
-			"col2": ""
-		},
-		{
+			"payment_details": 1,
 			"col1": "<b>Payment Details:</b>"
 		},
 		{
-			'col1': "<b>Registration No:</b>",
-			"col2": plot_payment_detail.get('name'),
-			'col3': "<b>Received Amount:</b>",
-			"col4": plot_payment_detail.get('received_amount'),
+			"payment_details": 1,
+			"col1": "<b>Sales Amount:</b>",
+			"col2": frappe.utils.fmt_money(plot_payment_detail.get("sales_amount"), currency="PKR")
 		},
 		{
-			'col1': "<b>Sales Amount:</b>",
-			"col2": plot_payment_detail.get('sales_amount'),
-			'col3': "<b>Received %age:</b>",
-			"col4": "{0} %".format(received_amount_perc),
+			"payment_details": 1,
+			"col1": "<b>Overdue Amount:</b>",
+			"col2": frappe.utils.fmt_money(overdue_amt, currency="PKR")
 		},
 		{
-			'col1': "<b>Overdue Amount:</b>",
-			"col2": overdue_amt,
+			"payment_details": 1,
+			"col1": "<b>Received Amount:</b>",
+			"col2": frappe.utils.fmt_money(plot_payment_detail.get("received_amount"), currency="PKR"),
 		},
 		{
-			'col1': "",
-			"col2": ""
+			"payment_details": 1,
+			"col1": "<b>Received %age:</b>",
+			"col2": "{0} %".format(received_amount_perc),
 		},
+		{}
 	]
-
-	if installments:
-		data.extend([
-			{
-				'col1': "<b>Installement Details:</b>",
-			},
-			{
-				'col1': "<b>Payment Desc:</b>",
-				'col2': "<b>Due Date:</b>",
-				'col3': "<b>Installment Amt:</b>",
-				'col4': "<b>Received Amt:</b>",
-				'col5': "<b>Outstanding Amt:</b>",
-			}
-		])
-		for installment in installments:
-			received_amount = installment.get('installment_amount') - installment.get('receivable_amount')
-			data.append({
-				'col1': installment.get('Installment'),
-				'col2': installment.get('date'),
-				'col3': installment.get('installment_amount'),
-				'col4': received_amount,
-				'col5': installment.get('receivable_amount'),
-			})
 
 	if payment_detail:
 		data.extend([
 			{
-				'col1': "",
-				"col2": ""
+				"col1": "<b>Payment Receiving Details:</b>",
+				"payment_table_head": 1,
 			},
 			{
-				'col1': "<b>Payment Receiving Details:</b>",
-			},
-			{
-				'col1': "<b>Receipt No:</b>",
-				'col2': "<b>Payment Mode:</b>",
-				'col3': "<b>Paid Date:</b>",
-				'col4': "<b>Paid Amt:</b>",
-				'col5': "<b>Cheque No:</b>",
-				'col6': "<b>Cheque Date:</b>",
+				"payment_table_head": 1,
+				"col1": "<b>Receipt No:</b>",
+				"col2": "<b>Payment Mode:</b>",
+				"col3": "<b>Paid Date:</b>",
+				"col4": "<b>Paid Amt:</b>",
+				"col5": "<b>Cheque No:</b>",
+				"col6": "<b>Cheque Date:</b>",
 			}
 		])
 		for payment in payment_detail:
+			
 			data.append({
-				'col1': payment.get('name'),
-				'col2': payment.get('mode_of_payment'),
-				'col3': payment.get('posting_date'),
-				'col4': payment.get('amount'),
-				'col5': payment.get('cheque_no'),
-				'col6': payment.get('cheque_date')
+				"payment_table_row": 1,
+				"col1": payment.get("name"),
+				"col2": payment.get("mode_of_payment"),
+				"col3": frappe.utils.formatdate(payment.get("posting_date")),
+				"col4": frappe.utils.fmt_money(payment.get("amount"), currency="PKR"),
+				"col5": payment.get("cheque_no"),
+				"col6": frappe.utils.formatdate(payment.get("cheque_date"))
 			})
-	
+
+	data.append({
+		"col1": "",
+		"col2": ""
+	})
+
+	if installments:
+		data.extend([
+			{
+				"col1": "<b>Installement Details:</b>",
+			},
+			{
+				"installement_table_head": 1,
+				"col1": "<b>Payment Desc:</b>",
+				"col2": "<b>Due Date:</b>",
+				"col3": "<b>Installment Amt:</b>",
+				"col4": "<b>Received Amt:</b>",
+				"col5": "<b>Outstanding Amt:</b>",
+			}
+		])
+		for installment in installments:
+			received_amount = installment.get("installment_amount") - installment.get("receivable_amount")
+			data.append({
+				"installement_table_row": 1,
+				"col1": installment.get("Installment"),
+				"col2": frappe.utils.formatdate(installment.get("date")),
+				"col3": frappe.utils.fmt_money(installment.get("installment_amount"), currency="PKR"),
+				"col4": frappe.utils.fmt_money(received_amount, currency="PKR"),
+				"col5": frappe.utils.fmt_money(installment.get("receivable_amount"), currency="PKR")
+			})
+
 	return data
 
 
 
 def get_payment_detail(date, doc_no):
-	condition = {'date': date, 'doc_no': doc_no}
+	condition = {"date": date, "doc_no": doc_no}
 	payment_detail = frappe.db.sql("""
 		SELECT tcp.posting_date , tcp.name , tpt.mode_of_payment , tpt.amount , tpt.cheque_no , tpt.cheque_date 
 		FROM `tabCustomer Payment` tcp INNER JOIN `tabPayment Type` tpt on tcp.name = tpt.parent 
