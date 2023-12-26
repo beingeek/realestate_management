@@ -110,11 +110,6 @@ def get_data(filters):
 		},
 		{
 			"ownership_details": 1,
-			"col1": "<b>Other Members :</b>",
-			"col2": plot_data.get("customer")
-		},
-		{
-			"ownership_details": 1,
 			"col1": "<b>F/O:</b>",
 			"col2": plot_data.get("father_name"),
 		},
@@ -125,7 +120,7 @@ def get_data(filters):
 		},
 		{
 			"ownership_details": 1,
-			"col1": "<b>Mobile ,Ph,Off/res:</b>",
+			"col1": "<b>Mobile No.</b>",
 			"col2": plot_data.get("contact_no")
 		},
 		{},
@@ -195,11 +190,11 @@ def get_data(filters):
 			{
 				"payment_table_head": 1,
 				"col1": "<b>Receipt No:</b>",
-				"col2": "<b>Payment Mode:</b>",
-				"col3": "<b>Paid Date:</b>",
-				"col4": "<b>Paid Amt:</b>",
-				"col5": "<b>Cheque No:</b>",
-				"col6": "<b>Cheque Date:</b>",
+				"col2": "<b>Book No.</b>",
+				"col3": "<b>Payment Mode</b>",
+				"col4": "<b>Paid Date</b>",
+				"col5": "<b>Paid Amount</b>",
+				"col6": "<b>Cheque No & Date:</b>",
 			}
 		])
 		for payment in payment_detail:
@@ -207,11 +202,11 @@ def get_data(filters):
 			data.append({
 				"payment_table_row": 1,
 				"col1": payment.get("name"),
-				"col2": payment.get("mode_of_payment"),
-				"col3": frappe.utils.formatdate(payment.get("posting_date")),
-				"col4": frappe.utils.fmt_money(payment.get("amount"), currency="PKR"),
-				"col5": payment.get("cheque_no"),
-				"col6": frappe.utils.formatdate(payment.get("cheque_date"))
+				"col2": payment.get("book_number"),
+				"col3": payment.get("mode_of_payment"),
+				"col4": frappe.utils.formatdate(payment.get("posting_date")),
+				"col5": frappe.utils.fmt_money(payment.get("amount"), currency="PKR"),
+				"col6": str(payment.get("cheque_no")) + ' Date- ' + frappe.utils.formatdate(payment.get("cheque_date")),
 			})
 
 	data.append({
@@ -251,9 +246,10 @@ def get_data(filters):
 def get_payment_detail(date, doc_no):
 	condition = {"date": date, "doc_no": doc_no}
 	payment_detail = frappe.db.sql("""
-		SELECT tcp.posting_date , tcp.name , tpt.mode_of_payment , tpt.amount , tpt.cheque_no , tpt.cheque_date 
+		SELECT tcp.posting_date , tcp.book_number, tcp.name , tpt.mode_of_payment , tpt.amount , tpt.cheque_no , tpt.cheque_date 
 		FROM `tabCustomer Payment` tcp INNER JOIN `tabPayment Type` tpt on tcp.name = tpt.parent 
 		WHERE tcp.posting_date <= %(date)s and tcp.docstatus  = 1 and document_number = %(doc_no)s
+		Order by tcp.posting_date DESC
 	""", condition, as_dict=1)
 
 	return payment_detail if payment_detail else []
