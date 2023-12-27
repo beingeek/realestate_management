@@ -206,7 +206,7 @@ def get_data(filters):
 				"col3": payment.get("mode_of_payment"),
 				"col4": frappe.utils.formatdate(payment.get("posting_date")),
 				"col5": frappe.utils.fmt_money(payment.get("amount"), currency="PKR"),
-				"col6": str(payment.get("cheque_no")) + ' Date- ' + frappe.utils.formatdate(payment.get("cheque_date")),
+				"col6": str(payment.get("cheque_no")) + ' ' + frappe.utils.formatdate(payment.get("cheque_date")),
 			})
 
 	data.append({
