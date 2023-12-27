@@ -249,7 +249,7 @@ def get_payment_detail(date, doc_no):
 		SELECT tcp.posting_date , tcp.book_number, tcp.name , tpt.mode_of_payment , tpt.amount , tpt.cheque_no , tpt.cheque_date 
 		FROM `tabCustomer Payment` tcp INNER JOIN `tabPayment Type` tpt on tcp.name = tpt.parent 
 		WHERE tcp.posting_date <= %(date)s and tcp.docstatus  = 1 and document_number = %(doc_no)s
-		Order by tcp.posting_date DESC
+		Order by tcp.posting_date ASC
 	""", condition, as_dict=1)
 
 	return payment_detail if payment_detail else []
