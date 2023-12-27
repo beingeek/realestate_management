@@ -6,7 +6,6 @@ from frappe import _
 from frappe.utils import cstr, flt, getdate
 from realestate_account.controllers.real_estate_controller import get_previous_document_detail, get_customer_partner
 
-
 def execute(filters=None):
 	if not filters.get("plot"):
 		frappe.throw(_("Please set Filter"))
@@ -15,7 +14,6 @@ def execute(filters=None):
 	columns = get_columns()
 	data = get_data(filters)
 	return columns, data
-
 
 def get_columns():
 	columns = [
@@ -189,10 +187,10 @@ def get_data(filters):
 			},
 			{
 				"payment_table_head": 1,
-				"col1": "<b>Receipt No:</b>",
+				"col1": "<b>Paid Date</b>",
 				"col2": "<b>Book No.</b>",
-				"col3": "<b>Payment Mode</b>",
-				"col4": "<b>Paid Date</b>",
+				"col3": "<b>Receipt No.</b>",
+				"col4": "<b>Payment Mode</b>",
 				"col5": "<b>Paid Amount</b>",
 				"col6": "<b>Cheque No & Date:</b>",
 			}
@@ -201,10 +199,10 @@ def get_data(filters):
 			
 			data.append({
 				"payment_table_row": 1,
-				"col1": payment.get("name"),
+				"col1": frappe.utils.formatdate(payment.get("posting_date")),
 				"col2": payment.get("book_number"),
-				"col3": payment.get("mode_of_payment"),
-				"col4": frappe.utils.formatdate(payment.get("posting_date")),
+				"col3": payment.get("name"), 
+				"col4": payment.get("mode_of_payment"),
 				"col5": frappe.utils.fmt_money(payment.get("amount"), currency="PKR"),
 				"col6": str(payment.get("cheque_no")) + ' ' + frappe.utils.formatdate(payment.get("cheque_date")),
 			})
@@ -241,8 +239,6 @@ def get_data(filters):
 
 	return data
 
-
-
 def get_payment_detail(date, doc_no):
 	condition = {"date": date, "doc_no": doc_no}
 	payment_detail = frappe.db.sql("""
@@ -253,7 +249,6 @@ def get_payment_detail(date, doc_no):
 	""", condition, as_dict=1)
 
 	return payment_detail if payment_detail else []
-	
 
 def get_installment_list_from_booking(doc_no):
 	sql_query = """
@@ -297,7 +292,6 @@ def get_installment_list_from_booking(doc_no):
 	"""
 	results = frappe.db.sql(sql_query, (doc_no), as_dict=True) or []
 	return results
-
 
 def get_installment_list_from_transfer(doc_no):
 	sql_query = """
