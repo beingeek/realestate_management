@@ -60,7 +60,27 @@ frappe.ui.form.on("Property Transfer", {
                     $.each(r.message || [], function(i, row) {
                         frm.add_child('payment_schedule', row);
                     })
-                    set_payment_plan_summary(frm);
+                        let plan_totals = {}
+                        let totalPaymentScheduleAmount = 0;
+                    
+                        $.each(frm.doc.payment_schedule || [], function(i, row) {
+                            if (!plan_totals[row.installment]) {
+                                plan_totals[row.installment] = flt(row.amount);
+                            } else {
+                                plan_totals[row.installment] += flt(row.amount);
+                            }
+                            totalPaymentScheduleAmount += flt(row.amount);
+                        })
+                    
+                        frm.set_value('difference', frm.doc.total_transfer_amount - totalPaymentScheduleAmount);
+                    
+                        $.each(frm.doc.payment_plan || [], function(i, row) {
+                            if (plan_totals[row.plan_type]) {
+                                row.total_amount = plan_totals[row.plan_type];
+                            }
+                        })
+                        frm.refresh_fields();
+                    
                 }
             }
         })
@@ -238,6 +258,17 @@ frappe.ui.form.on("Property Transfer", {
         });
     },
 
+
+frappe.ui.form.on("Installment Payment Plan", {
+    amount: function(frm, cdt, cdn) {
+        set_payment_plan_summary(frm);
+    },
+
+    payment_schedule_remove: function(frm, cdt, cdn) {
+        set_payment_plan_summary(frm);
+    }
+});
+
 function set_payment_plan_summary(frm) {
     let plan_totals = {}
     let totalPaymentScheduleAmount = 0;
@@ -260,16 +291,6 @@ function set_payment_plan_summary(frm) {
     })
     frm.refresh_fields();
 }
-
-frappe.ui.form.on("Installment Payment Plan", {
-    amount: function(frm, cdt, cdn) {
-        set_payment_plan_summary(frm);
-    },
-
-    payment_schedule_remove: function(frm, cdt, cdn) {
-        set_payment_plan_summary(frm);
-    }
-});
 
 frappe.ui.form.on("Payment Plan", {
     payment_plan_add: function(frm, cdt, cdn) {
