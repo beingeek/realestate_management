@@ -178,6 +178,8 @@ function set_payment_plan_summary(frm) {
     })
 
     frm.set_value('difference', (frm.doc.unit_cost + frm.doc.premium_discount - frm.doc.token_amount)- totalPaymentScheduleAmount);
+    frm.set_value('total_sales_amount', (frm.doc.unit_cost + frm.doc.premium_discount - frm.doc.token_amount));
+    
 
     $.each(frm.doc.payment_plan || [], function(i, row) {
         if (plan_totals[row.plan_type]) {

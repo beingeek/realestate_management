@@ -200,6 +200,7 @@
    "read_only": 1
   },
   {
+   "default": "0.00",
    "depends_on": "eval:(doc.unit_cost > 0)",
    "fieldname": "premium_discount",
    "fieldtype": "Currency",
@@ -266,7 +267,7 @@
    "fieldtype": "Column Break"
   },
   {
-   "fetch_from": ".total",
+   "fetch_from": "plot_no.total",
    "fetch_if_empty": 1,
    "fieldname": "total_sales_amount",
    "fieldtype": "Currency",
@@ -451,6 +452,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "default": "0.00",
    "depends_on": "eval: doc.token_amount != 0",
    "fetch_from": "token_number.token_amount",
    "fieldname": "token_amount",
@@ -498,7 +500,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-11-25 20:09:54.729555",
+ "modified": "2024-01-07 23:29:23.569259",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot Booking",
