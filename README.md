@@ -14,13 +14,13 @@ Realestate Account could be managed by an individual or an entity, and funds in 
 
 1. Add Realestate Account app to your bench.
   ```
-  bench get-app realestate_account https://github.com/beingeek/realestate_account.git --branch main
+  bench get-app realestate_account https://github.com/beingeek/realestate_management.git --branch main
   ```
 2. Install the app on the required site.
   ```
-  bench --site sitename install-app realestate_account
+  bench --site sitename install-app realestate_management
   ```
-  
+
 ### Update App
 1. Update your app in the app directory.
 
