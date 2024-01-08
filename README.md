@@ -1,6 +1,4 @@
 <div align="center" markdown="1">
-<img src="realestate_account_logo.jpeg" alt="Realestate Account logo" width="250" style="max-width: 100%;"/>
-
 Open source app specifically designated for investing in real estate assets.
 </div>
 
