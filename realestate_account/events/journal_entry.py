@@ -2,11 +2,10 @@ import frappe
 from frappe import _
 import re
 
-
 def check_plot_booking(doc, method=None):
     if doc.get('document_type') == 'Cancellation Property' and doc.get('document_number'):
         cacellation_propertry = frappe.get_doc('Cancellation Property', doc.get('document_number'))
-        if frappe.db.exists('Plot List', {'name': cacellation_propertry.plot_no, 'status':  ["in", ["Available", "Token"]]}):
+        if frappe.db.exists('Plot List', {'name': cacellation_propertry.plot_no, 'status':  ["in", ["Booked", "Token"]]}):
             frappe.throw('Plot not avaliable for booking')
 
 def check_document_status(doc, method=None):
