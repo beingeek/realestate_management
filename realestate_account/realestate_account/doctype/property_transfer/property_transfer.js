@@ -1,14 +1,28 @@
 frappe.ui.form.on("Property Transfer", {
-    refresh: function (frm) {
+    refresh: function(frm) {
         if (frm.doc.docstatus == 0) {
-            frm.add_custom_button(
-                __("Generate Installments"),
-                function () {
+            frm.add_custom_button(__('Generate Installments'), function(){
+                if (!frm.doc.plot_no) {
+                    frappe.throw({
+                        title: __("Mandatory"),
+                        message: __("Please Select a Plot No")
+                    });
+                } else {
                     frm.trigger("generate_installment");
-                },
-            ).addClass("btn-primary");
+                }
+            }, __("Action"));
+            frm.add_custom_button(__('Get Existing Schedule'), function(){
+                if (!frm.doc.plot_no) {
+                    frappe.throw({
+                        title: __("Mandatory"),
+                        message: __("Please Select a Plot No")
+                    });
+                } else {
+                    frm.trigger("get_existing_schedule");
+                }    
+            }, __("Action"));
         }
-    }
+    },
 });
 
 frappe.ui.form.on("Property Transfer", {
@@ -46,7 +60,17 @@ frappe.ui.form.on("Property Transfer", {
         };
     },
 
+    payment_schedule_type:function(frm) {
+        frm.clear_table('payment_schedule');
+        frm.clear_table('payment_plan');
+        frm.set_value('installment_starting_date', "");
+        frm.set_value('no_of_month_plan', 0);
+    },
+    
     generate_installment: function(frm) {
+        if (frm.doc.payment_schedule_type !== "Generate New Payment Schedule") {
+            frappe.throw(__("Please change the payment Schedule type."));
+        }
         frappe.call({
             method:"generate_installment",
             doc:frm.doc,
@@ -113,6 +137,49 @@ frappe.ui.form.on("Property Transfer", {
         
         }
     },  
+   
+    get_existing_schedule: function(frm) {
+        if (frm.doc.payment_schedule_type !== "Generate Existing Payment Schedule") {
+            frappe.throw(__("Please change the payment Schedule type."));
+        }
+        let docType = frm.doc.document_type;
+        let docNo = frm.doc.document_number;
+
+        let method;
+        if (docType === 'Plot Booking') {
+            method = 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.get_payment_list_from_booking_document';
+        } else if (docType === 'Property Transfer') {
+            method = 'realestate_account.realestate_account.doctype.property_transfer.property_transfer.get_payment_list_from_transfer_document';
+        } else {
+            frappe.msgprint(__('Invalid document type.'));
+            return;
+        }
+
+        frappe.call({
+            method: method,
+            args: {
+                doc_type: docType,
+                doc_no: docNo
+            },
+            callback: function(data) {
+                if (data.message) {
+                    console.log(data.message);
+                    frm.clear_table('payment_schedule');
+                    for (let i = 0; i < data.message.length; i++) {
+                        var row = frm.add_child('payment_schedule');
+                        row.date = data.message[i].date;
+                        row.amount = data.message[i].receivable_amount;
+                        row.installment = data.message[i].installment;
+                        row.installment_name = data.message[i].installment_name;
+                        row.remarks = data.message[i].remarks;
+                    }
+                    frm.refresh_fields('payment_schedule');        
+                } else {
+                    frappe.msgprint(__('Error: ') + data.exc);
+                }
+            }
+        });
+    },
 
     payment_plan_template: function(frm) {
         if (!frm.doc.payment_plan_template) {
@@ -147,6 +214,7 @@ frappe.ui.form.on("Property Transfer", {
             }
         });
     },
+
 
         installment_starting_date:function(frm){
         if (frm.doc.payment_plan && frm.doc.payment_plan.length > 0) {

@@ -10,7 +10,6 @@
   "property_information_tab",
   "section_break_sw5bd",
   "posting_date",
-  "payment_schedule_type",
   "column_break_b5ps8",
   "sales_amount",
   "project",
@@ -62,6 +61,7 @@
   "column_break_6il7m",
   "company",
   "payment_schedule_tab",
+  "payment_schedule_type",
   "payment_plan_data_input_section",
   "payment_plan_template",
   "column_break_fd3g8",
@@ -293,6 +293,7 @@
    "read_only": 1
   },
   {
+   "depends_on": "eval: doc.payment_schedule_type == \"Generate New Payment Schedule\"",
    "fieldname": "payment_plan_data_input_section",
    "fieldtype": "Section Break",
    "label": " Payment Plan Data Input"
@@ -301,13 +302,13 @@
    "fieldname": "installment_starting_date",
    "fieldtype": "Date",
    "label": "installment Starting Date",
-   "reqd": 1
+   "mandatory_depends_on": "eval: doc.payment_schedule_type == \"Generate New Payment Schedule\""
   },
   {
    "fieldname": "no_of_month_plan",
    "fieldtype": "Int",
    "label": " No. of Month Plan",
-   "reqd": 1
+   "mandatory_depends_on": "eval: doc.payment_schedule_type == \"Generate New Payment Schedule\""
   },
   {
    "fieldname": "installment_ending_date",
@@ -447,18 +448,18 @@
    "fieldtype": "Column Break"
   },
   {
+   "depends_on": "eval: doc.payment_schedule_type == \"Generate New Payment Schedule\"",
    "fieldname": "payment_plan",
    "fieldtype": "Table",
    "label": " Payment",
-   "options": "Payment Plan",
-   "reqd": 1
+   "options": "Payment Plan"
   },
   {
    "fieldname": "payment_plan_template",
    "fieldtype": "Link",
    "label": "Payment Plan Template",
-   "options": "Payment Plan Template",
-   "reqd": 1
+   "mandatory_depends_on": "eval: doc.payment_schedule_type == \"Generate New Payment Schedule\"",
+   "options": "Payment Plan Template"
   },
   {
    "fieldname": "section_break_fzgv",
@@ -517,12 +518,11 @@
    "read_only": 1
   },
   {
-   "default": "Generate new schedule",
+   "bold": 1,
    "fieldname": "payment_schedule_type",
    "fieldtype": "Select",
-   "hidden": 1,
    "label": "Payment Schedule Type",
-   "options": "Generate new schedule\nCopy existing schedule",
+   "options": "\nGenerate New Payment Schedule\nGenerate Existing Payment Schedule",
    "reqd": 1
   }
  ],
@@ -547,7 +547,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2023-11-27 14:26:01.275792",
+ "modified": "2024-02-12 01:55:30.925195",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Property Transfer",
@@ -582,10 +582,22 @@
    "share": 1,
    "submit": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Realestate User",
+   "share": 1,
+   "write": 1
   }
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "track_changes": 1
+ "track_changes": 1,
+ "track_seen": 1
 }
