@@ -1,0 +1,337 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:PPR-{#######}",
+ "creation": "2024-02-12 22:28:58.187304",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_zhz3",
+  "posting_date",
+  "column_break_srex",
+  "sales_amount",
+  "project",
+  "document_type",
+  "column_break_rsbt",
+  "received_amount",
+  "plot_no",
+  "column_break_fvhp",
+  "balance_transfer",
+  "document_number",
+  "customer_detail_section",
+  "customer",
+  "address",
+  "column_break_mlrf",
+  "father_name",
+  "column_break_vgxk",
+  "cnic",
+  "amended_from",
+  "section_break_wlqn",
+  "remarks",
+  "column_break_yvwv",
+  "company",
+  "payment_schedule_tab",
+  "payment_plan_data_input_section",
+  "payment_plan_template",
+  "column_break_pamz",
+  "installment_starting_date",
+  "column_break_vgci",
+  "no_of_month_plan",
+  "installment_ending_date",
+  "column_break_uqpu",
+  "reshedule_amount",
+  "column_break_fdeg",
+  "difference",
+  "hghhkjj",
+  "payment_plan",
+  "payment_schedule"
+ ],
+ "fields": [
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Payment Plan Reschedule",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_zhz3",
+   "fieldtype": "Section Break",
+   "label": "Property Details"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_srex",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sales_amount",
+   "fieldtype": "Currency",
+   "label": "Sales Amount",
+   "non_negative": 1,
+   "precision": "3",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Link",
+   "label": " Document ID",
+   "options": "DocType",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_rsbt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "received_amount",
+   "fieldtype": "Currency",
+   "label": "Received Amount",
+   "non_negative": 1,
+   "precision": "3",
+   "read_only": 1
+  },
+  {
+   "fieldname": "plot_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Plot No",
+   "options": "Plot List",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_fvhp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "balance_transfer",
+   "fieldtype": "Currency",
+   "label": "Reschedule Balance",
+   "non_negative": 1,
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "document_number",
+   "fieldtype": "Dynamic Link",
+   "label": " Document No",
+   "options": "document_type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_detail_section",
+   "fieldtype": "Section Break",
+   "label": "Customer Detail",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fetch_from": "customer.primary_address",
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_mlrf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "customer.father_name",
+   "fieldname": "father_name",
+   "fieldtype": "Data",
+   "label": "Father Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_vgxk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "customer.id_card_no",
+   "fieldname": "cnic",
+   "fieldtype": "Data",
+   "label": "CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_schedule_tab",
+   "fieldtype": "Tab Break",
+   "label": "Payment Schedule"
+  },
+  {
+   "fieldname": "payment_plan_data_input_section",
+   "fieldtype": "Section Break",
+   "label": " Payment Plan Data Input"
+  },
+  {
+   "fieldname": "payment_plan_template",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Payment Plan Template",
+   "options": "Payment Plan Template",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_pamz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "installment_starting_date",
+   "fieldtype": "Date",
+   "label": "installment Starting Date"
+  },
+  {
+   "fieldname": "column_break_vgci",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "no_of_month_plan",
+   "fieldtype": "Int",
+   "label": " No. of Month Plan"
+  },
+  {
+   "fieldname": "installment_ending_date",
+   "fieldtype": "Date",
+   "hidden": 1,
+   "label": " Installment Ending Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_uqpu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reshedule_amount",
+   "fieldtype": "Currency",
+   "label": "Reschedule Amount"
+  },
+  {
+   "fieldname": "column_break_fdeg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "difference",
+   "fieldtype": "Currency",
+   "label": "Difference (Reschedule - Schdule)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "hghhkjj",
+   "fieldtype": "Section Break",
+   "label": " Payment Schedule"
+  },
+  {
+   "fieldname": "payment_plan",
+   "fieldtype": "Table",
+   "label": " Payment Plan",
+   "options": "Payment Plan",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payment_schedule",
+   "fieldtype": "Table",
+   "options": "Installment Payment Plan - Transfer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_wlqn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_yvwv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "project.company",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1,
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-02-13 00:33:21.735623",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Payment Plan Reschedule",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Realestate Account Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Realestate User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1
+}

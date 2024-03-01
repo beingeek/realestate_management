@@ -56,6 +56,9 @@
   "column_break_spas",
   "amended_from",
   "payment_plan_detail_tab",
+  "payment_plan_reschedule",
+  "column_break_yxmk",
+  "ppr_active",
   "payment_plan_reconcilition_section",
   "payment_plan_template",
   "column_break_pbpt",
@@ -477,6 +480,27 @@
    "non_negative": 1,
    "precision": "2",
    "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "payment_plan_reschedule",
+   "fieldtype": "Link",
+   "label": "Payment Plan Reschedule",
+   "no_copy": 1,
+   "options": "Payment Plan Reschedule",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_yxmk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "ppr_active",
+   "fieldtype": "Check",
+   "label": "active",
+   "no_copy": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -500,7 +524,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2024-01-07 23:29:23.569259",
+ "modified": "2024-02-13 01:07:09.657475",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot Booking",
@@ -532,6 +556,18 @@
    "role": "Realestate Account Manager",
    "share": 1,
    "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Realestate User",
+   "share": 1,
    "write": 1
   }
  ],

@@ -72,24 +72,35 @@ frappe.ui.form.on('Customer Payment', {
     },
 
     get_insallment_information: function(frm) {
-        let docType = frm.doc.document_type;
-        let docNo = frm.doc.document_number;
-
+        let pprStatus = frm.doc.pprStatus;
+        let docNo;
+        
+        if (pprStatus === 0) {
+            docNo = frm.doc.document_number;
+        } else {
+            docNo = frm.doc.ppr_document_number;
+        }
+        
         let method;
-        if (docType === 'Plot Booking') {
+        let docType = frm.doc.doctype; 
+        
+        if (docType === 'Plot Booking' && pprStatus === 0) {
             method = 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.get_installment_list_from_booking';
-        } else if (docType === 'Property Transfer') {
-            method = 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.get_installment_list_from_transfer';
+        } else if (docType === 'Property Transfer' && pprStatus === 0) {
+            method = 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.list_from_transfer';
+        } else if (docType === 'Plot Booking' && pprStatus === 1) {
+            method = 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.get_installment_list_from_booking';
+        } else if (docType === 'Property Transfer' && pprStatus === 1) {
+            method = 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.installment_list_from_booking';
         } else {
             frappe.msgprint(__('Invalid document type.'));
             return;
         }
-
+    
         frappe.call({
             method: method,
             args: {
-                doc_type: docType,
-                doc_no: docNo
+                doc_no: docNo,
             },
             callback: function(data) {
                 frm.clear_table('installment');

@@ -11,8 +11,10 @@
   "base_doc_idx",
   "column_break_scxw",
   "installment",
+  "ppr_document_number",
   "column_break_bcsd",
   "receivable_amount",
+  "ppr_child_table",
   "column_break_cyxg",
   "paid_amount",
   "column_break_yqyn",
@@ -87,12 +89,23 @@
    "hidden": 1,
    "label": "installment_amount",
    "read_only": 1
+  },
+  {
+   "fieldname": "ppr_document_number",
+   "fieldtype": "Link",
+   "label": "PPR Document Number",
+   "options": "Payment Plan Reschedule"
+  },
+  {
+   "fieldname": "ppr_child_table",
+   "fieldtype": "Data",
+   "label": "ppr_child_table"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-11-03 00:52:02.091243",
+ "modified": "2024-02-13 01:01:20.530970",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Customer Payment Installment",
