@@ -68,20 +68,20 @@ class PaymentPlanReschedule(RealEstateController):
 
             if self.document_type == "Property Transfer":
                 trans_doc = frappe.get_doc("Property Transfer", self.document_number)
-                trans_doc.update({'payment_plan_reschedule' : self.name ,'ppr_active': 1})
+                trans_doc.update({'payment_plan_reschedule' : self.name ,'ppr_active': 1 })
                 trans_doc.save()
                 frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link("Property Transfer", trans_doc.name)))
                 
     def update_document_cancel(self):              
             if self.document_type == "Plot Booking":
                 booking_doc = frappe.get_doc("Plot Booking", self.document_number)
-                booking_doc.update({'payment_plan_reschedule' : ""})
+                booking_doc.update({'payment_plan_reschedule' : "", 'ppr_active': 0  })
                 booking_doc.save()
                 frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link("Plot Booking", booking_doc.name)))
 
             if self.document_type == "Property Transfer":
                 trans_doc = frappe.get_doc("Property Transfer", self.document_number)
-                booking_doc.update({'payment_plan_reschedule' : ""})
+                booking_doc.update({'payment_plan_reschedule' : "", 'ppr_active': 0 })
                 trans_doc.save()
                 frappe.msgprint(_('{0} successfully updated').format(frappe.get_desk_link("Property Transfer", booking_doc.name)))
 

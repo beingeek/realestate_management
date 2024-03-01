@@ -499,8 +499,10 @@
    "default": "0",
    "fieldname": "ppr_active",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "active",
-   "no_copy": 1
+   "no_copy": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -524,7 +526,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2024-02-13 01:07:09.657475",
+ "modified": "2024-03-01 17:01:07.233467",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot Booking",

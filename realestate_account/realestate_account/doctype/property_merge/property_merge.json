@@ -1,0 +1,376 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-03-01 18:33:03.608240",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_smu8",
+  "posting_date",
+  "amended_from",
+  "column_break_okla",
+  "project",
+  "plot_no",
+  "document_type",
+  "column_break_tnaz",
+  "document_number",
+  "payment_plan_reschedule",
+  "ppr_active",
+  "from_customer_section",
+  "from_customer",
+  "column_break_wtub",
+  "from_father_name",
+  "column_break_oegi",
+  "from_cnic",
+  "property_merge_detail_section",
+  "merge_project",
+  "customer",
+  "column_break_ieop",
+  "merge_plot_no",
+  "merge_fatther_name",
+  "customer_type",
+  "share_percentage",
+  "column_break_mbwc",
+  "merge_document_number",
+  "merge_document_type",
+  "merge_cnic",
+  "section_break_zcjx",
+  "company",
+  "column_break_gysp",
+  "remarks",
+  "payment_tab",
+  "sales_amount",
+  "merge_amount",
+  "column_break_wrmb",
+  "received_amount",
+  "deduction",
+  "column_break_hhah",
+  "balance_amount",
+  "net_amount_merge",
+  "section_break_jajt",
+  "installment",
+  "section_break_ynnu",
+  "installment_total",
+  "column_break_piyc",
+  "column_break_wlog"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_smu8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Property Merge",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date"
+  },
+  {
+   "fieldname": "column_break_okla",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "sales_amount",
+   "fieldtype": "Currency",
+   "label": "Sales Amount",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Link",
+   "label": " Document ID",
+   "options": "DocType",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_tnaz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fieldname": "document_number",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": " Document No",
+   "options": "document_type",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "default": "0.00",
+   "fieldname": "received_amount",
+   "fieldtype": "Currency",
+   "label": "Received Amount",
+   "precision": "3",
+   "read_only": 1
+  },
+  {
+   "fieldname": "plot_no",
+   "fieldtype": "Link",
+   "label": "Plot No.",
+   "options": "Plot List",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "from_customer_section",
+   "fieldtype": "Section Break",
+   "label": "From Customer"
+  },
+  {
+   "fieldname": "from_customer",
+   "fieldtype": "Link",
+   "label": "From Customer",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_wtub",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "from_customer.father_name",
+   "fieldname": "from_father_name",
+   "fieldtype": "Data",
+   "label": "Father Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_oegi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "from_customer.id_card_no",
+   "fieldname": "from_cnic",
+   "fieldtype": "Data",
+   "label": " CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "property_merge_detail_section",
+   "fieldtype": "Section Break",
+   "label": "Property Merge Detail"
+  },
+  {
+   "fieldname": "merge_project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_ieop",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "merge_plot_no",
+   "fieldtype": "Link",
+   "label": "Plot No.",
+   "options": "Plot List",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "customer.father_name",
+   "fieldname": "merge_fatther_name",
+   "fieldtype": "Data",
+   "label": "Father Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_mbwc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "customer.id_card_no",
+   "fieldname": "merge_cnic",
+   "fieldtype": "Data",
+   "label": " CNIC",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_tab",
+   "fieldtype": "Tab Break",
+   "label": "Payment "
+  },
+  {
+   "default": "0.0",
+   "fieldname": "merge_amount",
+   "fieldtype": "Currency",
+   "label": "Merge Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_hhah",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_wrmb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "balance_amount",
+   "fieldtype": "Currency",
+   "label": "Balance Amount",
+   "read_only": 1
+  },
+  {
+   "default": "0.0",
+   "fieldname": "net_amount_merge",
+   "fieldtype": "Currency",
+   "label": "Net Amount Merge",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_jajt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "installment",
+   "fieldtype": "Table",
+   "label": "Installment",
+   "options": "Property Merge Payment Installment"
+  },
+  {
+   "default": "0.0",
+   "fieldname": "deduction",
+   "fieldtype": "Currency",
+   "label": "Deduction"
+  },
+  {
+   "default": "0",
+   "fieldname": "ppr_active",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "ppr_active"
+  },
+  {
+   "fieldname": "payment_plan_reschedule",
+   "fieldtype": "Link",
+   "label": "Payment Plan Reschedule",
+   "options": "Payment Plan Reschedule",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_zcjx",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_gysp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks"
+  },
+  {
+   "default": "0.000",
+   "fieldname": "installment_total",
+   "fieldtype": "Currency",
+   "label": "Installment Total",
+   "non_negative": 1,
+   "precision": "3",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_ynnu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_piyc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_wlog",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "merge_document_number",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": " Merge Document No.",
+   "options": "merge_document_type",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "merge_document_type",
+   "fieldtype": "Link",
+   "label": "Merge Document ID",
+   "options": "DocType",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer_type",
+   "fieldtype": "Data",
+   "label": "customer_type"
+  },
+  {
+   "fieldname": "share_percentage",
+   "fieldtype": "Data",
+   "label": "share_percentage"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2024-03-02 03:25:40.098983",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Property Merge",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

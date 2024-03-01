@@ -1,0 +1,85 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-03-01 19:21:19.678391",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "installment",
+  "installment_amount",
+  "paid_amount",
+  "receivable_amount",
+  "remaining_amount",
+  "ppr_document_number",
+  "base_doc_idx",
+  "ppr_child_table"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "installment",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Installment"
+  },
+  {
+   "fieldname": "installment_amount",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "in_list_view": 1,
+   "label": "installment_amount"
+  },
+  {
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Paid Amount"
+  },
+  {
+   "fieldname": "receivable_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Receivable Amount"
+  },
+  {
+   "fieldname": "remaining_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Remaining Amount"
+  },
+  {
+   "fieldname": "ppr_document_number",
+   "fieldtype": "Link",
+   "label": "PPR Document Number",
+   "options": "Payment Plan Reschedule"
+  },
+  {
+   "fieldname": "base_doc_idx",
+   "fieldtype": "Data",
+   "label": "base_doc_idx"
+  },
+  {
+   "fieldname": "ppr_child_table",
+   "fieldtype": "Data",
+   "label": "ppr_child_table"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-03-01 19:29:51.573885",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Property Merge Payment Installment",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

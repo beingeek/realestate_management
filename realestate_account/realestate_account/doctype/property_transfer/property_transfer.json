@@ -61,9 +61,10 @@
   "column_break_6il7m",
   "company",
   "payment_schedule_tab",
+  "column_break_hbve",
+  "payment_plan_reschedule",
   "payment_schedule_type",
   "column_break_edvu",
-  "payment_plan_reschedule",
   "ppr_active",
   "payment_plan_data_input_section",
   "payment_plan_template",
@@ -521,14 +522,6 @@
    "read_only": 1
   },
   {
-   "bold": 1,
-   "fieldname": "payment_schedule_type",
-   "fieldtype": "Select",
-   "label": "Payment Schedule Type",
-   "options": "\nGenerate New Payment Schedule\nGenerate Existing Payment Schedule",
-   "reqd": 1
-  },
-  {
    "fieldname": "column_break_edvu",
    "fieldtype": "Column Break"
   },
@@ -546,10 +539,19 @@
    "default": "0",
    "fieldname": "ppr_active",
    "fieldtype": "Check",
-   "hidden": 1,
    "label": "Active",
    "no_copy": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_hbve",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_schedule_type",
+   "fieldtype": "Select",
+   "label": "Payment Schedule Type",
+   "options": "\nGenerate New Payment Schedule\nGenerate Existing Payment Schedule"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -573,7 +575,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2024-02-13 01:06:38.186245",
+ "modified": "2024-03-01 18:04:35.985193",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Property Transfer",
