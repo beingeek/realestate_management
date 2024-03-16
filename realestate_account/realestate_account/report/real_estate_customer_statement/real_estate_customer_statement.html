@@ -34,142 +34,119 @@
 			margin-left: 10px; 
 		}
 
-	body {
-			font-family: Arial, sans-serif; 
-			font-size: 14px;
-			line-height: 1.6;
-			color: #333;
-		}
-
-		.section-break {
-			margin-top: 20px;
-			margin-bottom: 20px;
-		}
-
-		.column-break {
-			column-break-inside: avoid;
-			page-break-inside: avoid;
-		}
-
-		label {
-			font-weight: bold;
-		}
-
-		.value {
-			font-style: italic;
-		}
-
-		hr {
-			border-top: 0.5px solid #ccc;
-			margin-top: 10px;
-			margin-bottom: 10px;
-		}
-
-	/* Common table class */
-	.custom-table {
-		width: 100%;
-		border-collapse: collapse;
-		margin-top: 5px;
-	}
-
-	/* Payment Schedule Table styles */
-	.custom-table th {
-		text-align: center;
-		width: auto;
-		page-break-inside: avoid; 
-		font-family: Arial, sans-serif; 
-		font-size: 12px; 
-		font-weight: normal; 
-		border: 1px solid #ccc; 
-		padding: 8px; 
-	}
-
-
-	.custom-table td {
-		font-weight: bold; 
-		text-align: center;
-		width: auto;
-		page-break-inside: avoid; 
-		font-family: Arial, sans-serif; 
-		font-size: 12px; 
-		font-weight: normal; 
-		border: 1px solid #ccc; 
-		padding: 8px; 
-	}
-
-	.bold-row {
-		font-weight: bold; 
-	}
-
 	.row1 {
-		display: flex; /* Use flexbox */
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
 	}
+
+	.row_heading {
+		font-weight: bold; 
+		text-align: center;
+		color: black;
+		background-color: lightgrey; 
+		font-weight: bold;
+		padding: 5px; 
+	}
+	.div_margin{
+		margin-left: 30px;
+		margin-right: 30px;
+		align-items: center;
+	}
+
 </style>
 
 <div>
-
 	<div class="print-heading">
-		<img src="/private/files/logo.png" alt="TBD">
+		<img src="/files/logo.png" alt="TBD">
 		<div class="text-container">
-			<h4 class="text-center">{%= __(report.report_name) %}</h4>
+			<h4  Style = "font-family: Arial, sans-serif;font-size: 16px;"> Talha Builders & Developers</h4>
+			<p   Style = "font-family: Arial, sans-serif;font-size: 12px;"> Customer Statement</p>
 		</div>
 	</div>
-	
-	
-	<div class="row1">
-		<div class="">
-			<table class="no-border">
+
+	<div class="div_margin">
+		<div class="row1">
+			<div>
+			<table>
 				<tbody> 
 					{% for(let j=0, k=ownershipDetailRows.length; j<k; j++) { %}
 						{%
 							var row = ownershipDetailRows[j];
 						%}
 						<tr>
-							{% for(let i=0, l=report_columns.length; i<l; i++) { %}
-								<td class="">
-									{% const fieldname = report_columns[i].fieldname; %}
-									{% if (!is_null(row[fieldname])) { %}
-										{%= frappe.format(row[fieldname], report_columns[i], {}, row) %}
-									{% } %}
-								</td>
-							{% } %}
+							<td class="">
+								{% if (!is_null(row.col1)) { %}
+									{%= frappe.format(row.col1) %}
+								{% } %}
+							</td>
+							<td class="">
+								{% if (!is_null(row.col2)) { %}
+									{%= frappe.format(row.col2) %}
+								{% } %}
+							</td>
 						</tr>
 					{% } %}
 				</tbody>
 			</table>
 		</div>
-
-
-		<div class="">
-			<table class="no-border">
+			<div>
+				<table>
 				<tbody> 
 					{% for(let j=0, k=registrationDetailRows.length; j<k; j++) { %}
 						{%
 							var row = registrationDetailRows[j];
 						%}
 						<tr>
-							{% for(let i=0, l=report_columns.length; i<l; i++) { %}
-								<td class="">
-									{% const fieldname = report_columns[i].fieldname; %}
-									{% if (!is_null(row[fieldname])) { %}
-										{%= frappe.format(row[fieldname], report_columns[i], {}, row) %}
-									{% } %}
-								</td>
-							{% } %}
+							<td class="">
+								{% if (!is_null(row.col1)) { %}
+									{%= frappe.format(row.col1) %}
+								{% } %}
+							</td>
+							<td class="">
+								{% if (!is_null(row.col2)) { %}
+									{%= frappe.format(row.col2) %}
+								{% } %}
+							</td>
+						</tr>
+					{% } %}
+				</tbody>
+			</table>
+		</div>
+		<div>
+			<table>
+				<tbody> 
+					{% for(let j=0, k=paymentDetailRows.length; j<k; j++) { %}
+						{%
+							var row = paymentDetailRows[j];
+						%}
+						<tr>
+							<td class="">
+								{% if (!is_null(row.col1)) { %}
+									{%= frappe.format(row.col1) %}
+								{% } %}
+							</td>
+							<td class="text-right">
+								{% if (!is_null(row.col2)) { %}
+									{%= frappe.format(row.col2) %}
+								{% } %}
+							</td>
 						</tr>
 					{% } %}
 				</tbody>
 			</table>
 		</div>
 	</div>
+</div>
 
-	<div class="row1">
-		<div class="">
-			<table class="no-border">
+	{% if (is_null(row[paymentTableRows])) { %}
+	<div class="div_margin"> <p class="row_heading" >Payment Receiving Detail:</p>
+		<div class="table-responsive">
+			<table class="table table-bordered">
 				<tbody> 
-					{% for(let j=0, k=paymentDetailRows.length; j<k; j++) { %}
+					{% for(let j=0, k=paymentTableRows.length; j<k; j++) { %}
 						{%
-							var row = paymentDetailRows[j];
+							var row = paymentTableRows[j];
 						%}
 						<tr>
 							{% for(let i=0, l=report_columns.length; i<l; i++) { %}
@@ -181,60 +158,64 @@
 								</td>
 							{% } %}
 						</tr>
+			
 					{% } %}
 				</tbody>
 			</table>
 		</div>
 	</div>
-	<hr>
-
-	{% if (is_null(row[paymentTableRows])) { %}
-		<b>Payment Receiving Details:</b>
-		<table class="table table-bordered">
-			<tbody> 
-				{% for(let j=0, k=paymentTableRows.length; j<k; j++) { %}
-					{%
-						var row = paymentTableRows[j];
-					%}
-					<tr>
-						{% for(let i=0, l=report_columns.length; i<l; i++) { %}
-							<td class="">
-								{% const fieldname = report_columns[i].fieldname; %}
-								{% if (!is_null(row[fieldname])) { %}
-									{%= frappe.format(row[fieldname], report_columns[i], {}, row) %}
-								{% } %}
-							</td>
-						{% } %}
-					</tr>
-		
-				{% } %}
-			</tbody>
-		</table>
 	{% } %}
+
 	{% if (is_null(row[installementTableRows])) { %}
-		<b>Installement Details:</b>
-		<table class="table table-bordered">
-			<tbody> 
-				{% for(let j=0, k=installementTableRows.length; j<k; j++) { %}
-					{%
-						var row = installementTableRows[j];
-					%}
-					<tr>
-						{% for(let i=0, l=report_columns.length; i<l; i++) { %}
-							<td class="">
-								{% const fieldname = report_columns[i].fieldname; %}
-								{% if (!is_null(row[fieldname])) { %}
-									{%= frappe.format(row[fieldname], report_columns[i], {}, row) %}
-								{% } %}
-							</td>
-						{% } %}
-					</tr>
-				{% } %}
-			</tbody>
-		</table>
-	{% } %}
+    <div class="div_margin" > <p class="row_heading">Installment Detail</p>
+		<div class="table-responsive">
+        <table class="table table-bordered"> 
+            <tbody> 
+                {% for(let j=0, k=installementTableRows.length; j<k; j++) { %}
+                    {%
+                        var row = installementTableRows[j];
+                    %}
+                    <tr>
+                        <td class="">
+                            {% if (!is_null(row.col1)) { %}
+                                {%= frappe.format(row.col1) %}
+                            {% } %}
+                        </td>
+                        <td class="text-center">
+                            {% if (!is_null(row.col2)) { %}
+                                {%= frappe.format(row.col2) %}
+                            {% } %}
+                        </td>
+                        <td class="text-right">
+                            {% if (!is_null(row.col3)) { %}
+                                {%= frappe.format(row.col3) %}
+                            {% } %}
+                        </td>
+                        <td class="text-right">
+                            {% if (!is_null(row.col4)) { %}
+                                {%= frappe.format(row.col4) %}
+                            {% } %}
+                        </td>
+                        <td class="text-right">
+                            {% if (!is_null(row.col5)) { %}
+                                {%= frappe.format(row.col5) %}
+                            {% } %}
+                        </td>
+                        <td class="text-center">
+                            {% if (!is_null(row.col6)) { %}
+                                {%= frappe.format(row.col6) %}
+                            {% } %}
+                        </td>
+                    </tr>
+                {% } %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-	<p class="text-right text-muted">
+{% } %}
+
+	<p class="text-right text-muted" style="margin-right: 30px;">
 		Printed On {%= frappe.datetime.str_to_user(frappe.datetime.get_datetime_as_string()) %}
 	</p>
 

@@ -57,7 +57,6 @@ def get_columns():
 
 	return columns
 
-
 def get_data(filters):
 
 	plot_data = frappe.db.sql("""select * from `tabPlot List` where name=%(plot)s """, filters, as_dict=1)
@@ -68,7 +67,7 @@ def get_data(filters):
 
 	plot_data = plot_data[0]
 	plot_payment_detail = get_previous_document_detail(filters.get("plot"))
-
+	
 	if not plot_payment_detail:
 		frappe.msgprint("No plot payment found")
 
@@ -77,19 +76,26 @@ def get_data(filters):
 	partners = get_customer_partner(plot_payment_detail.get("name"))
 	if partners:
 		partners = ", ".join([d.customer for d in partners])
-		frappe.msgprint(cstr(partners))
 
 	payment_detail = get_payment_detail(filters.get("to_date"), plot_payment_detail.get("name"))
 
-	installments = []
-	if plot_payment_detail.get("Doc_type") == "Plot Booking":
-		installments = get_installment_list_from_booking(plot_payment_detail.get("name"))
-	elif plot_payment_detail.get("Doc_type") == "Property Transfer":
-		installments = get_installment_list_from_transfer(plot_payment_detail.get("name"))
+	installments = [] 
+	if plot_payment_detail.get("ppr_active") == 0: 
+		if plot_payment_detail.get("Doc_type") == "Plot Booking":
+			installments = get_installment_list_from_booking(plot_payment_detail.get("name"))
+		elif plot_payment_detail.get("Doc_type") == "Property Transfer":
+			installments =  get_installment_list_from_transfer(plot_payment_detail.get("name"))
+	elif plot_payment_detail.get("ppr_active") == 1: 
+		if plot_payment_detail.get("Doc_type") == "Plot Booking":
+			installments = get_installment_list_reschedule_booking(plot_payment_detail.get("name"))
+		elif plot_payment_detail.get("Doc_type") == "Property Transfer":
+			installments = get_installment_list_reschedule_transfer(plot_payment_detail.get("name"))
 
 	overdue_amt = 0
+	outstanding_amt = 0
 	if installments:
 		for installment in installments:
+			outstanding_amt += installment.get("receivable_amount")
 			if installment.get("date") < getdate(filters.get("to_date")):
 				overdue_amt += installment.get("receivable_amount")
 
@@ -98,7 +104,7 @@ def get_data(filters):
 	data = [
 		{
 			"ownership_details": 1,
-			"col1": "<b>Current Ownership Detail :</b>",
+			"col1": "<b>Customer Detail</b>",
 			"col2": "",
 		},
 		{
@@ -108,7 +114,7 @@ def get_data(filters):
 		},
 		{
 			"ownership_details": 1,
-			"col1": "<b>F/O:</b>",
+			"col1": "<b>F/O or H/N:</b>",
 			"col2": plot_data.get("father_name"),
 		},
 		{
@@ -121,9 +127,8 @@ def get_data(filters):
 			"col1": "<b>Mobile No.</b>",
 			"col2": plot_data.get("contact_no")
 		},
-		{},
 		{
-			"registration_details": 1,
+			"ownership_details": 1,
 			"col1": "<b>Registration No:</b>",
 			"col2": """<a href="/app/{0}/{1}">{1}</a>""".format(frappe.scrub(plot_payment_detail.get("Doc_type")).replace("_", "-"), plot_payment_detail.get("name")),
 		},
@@ -148,42 +153,49 @@ def get_data(filters):
 		},
 		{
 			"registration_details": 1,
-			"col1": "<b>Plot Area/UOM :</b>",
-			"col2": "{0}/{1}".format(plot_data.get("land_area"), plot_data.get("uom"))
+			"col1": "<b>Plot Area:</b>",
+			"col2": "{0}".format(plot_data.get("land_area"))
 		},
-		{},
+		{
+			"registration_details": 1,
+			"col1": "<b>Plot UOM :</b>",
+			"col2": "{0}".format(plot_data.get("uom"))
+		},
 		{
 			"payment_details": 1,
-			"col1": "<b>Payment Details:</b>"
+			"col1": '<b>Payment Detail</b>'
 		},
 		{
 			"payment_details": 1,
 			"col1": "<b>Sales Amount:</b>",
-			"col2": frappe.utils.fmt_money(plot_payment_detail.get("sales_amount"), currency="PKR")
-		},
-		{
-			"payment_details": 1,
-			"col1": "<b>Overdue Amount:</b>",
-			"col2": frappe.utils.fmt_money(overdue_amt, currency="PKR")
+			"col2": frappe.utils.fmt_money(plot_payment_detail.get("sales_amount"), currency="Rs")
 		},
 		{
 			"payment_details": 1,
 			"col1": "<b>Received Amount:</b>",
-			"col2": frappe.utils.fmt_money(plot_payment_detail.get("received_amount"), currency="PKR"),
+			"col2": frappe.utils.fmt_money(plot_payment_detail.get("received_amount"), currency="Rs" ),
 		},
 		{
 			"payment_details": 1,
 			"col1": "<b>Received %age:</b>",
 			"col2": "{0} %".format(received_amount_perc),
 		},
-		{}
+		{
+			"payment_details": 1,
+			"col1": "<b>Outstanding </b>",
+			"col2": frappe.utils.fmt_money(outstanding_amt, currency="Rs")
+		},
+		{
+			"payment_details": 1,
+			"col1": "<b>Overdue Amount:</b>",
+			"col2": frappe.utils.fmt_money(overdue_amt, currency="Rs")
+		},
 	]
 
 	if payment_detail:
 		data.extend([
 			{
 				"col1": "<b>Payment Receiving Details:</b>",
-				"payment_table_head": 1,
 			},
 			{
 				"payment_table_head": 1,
@@ -219,11 +231,12 @@ def get_data(filters):
 			},
 			{
 				"installement_table_head": 1,
-				"col1": "<b>Payment Desc:</b>",
+				"col1": "<b>Installment Description:</b>",
 				"col2": "<b>Due Date:</b>",
 				"col3": "<b>Installment Amt:</b>",
 				"col4": "<b>Received Amt:</b>",
 				"col5": "<b>Outstanding Amt:</b>",
+				"col6": "<b>Remarks:</b>",
 			}
 		])
 		for installment in installments:
@@ -234,7 +247,8 @@ def get_data(filters):
 				"col2": frappe.utils.formatdate(installment.get("date")),
 				"col3": frappe.utils.fmt_money(installment.get("installment_amount"), currency="PKR"),
 				"col4": frappe.utils.fmt_money(received_amount, currency="PKR"),
-				"col5": frappe.utils.fmt_money(installment.get("receivable_amount"), currency="PKR")
+				"col5": frappe.utils.fmt_money(installment.get("receivable_amount"), currency="PKR"),
+				"col6": installment.get("plan_type")
 			})
 
 	return data
@@ -252,21 +266,11 @@ def get_payment_detail(date, doc_no):
 
 def get_installment_list_from_booking(doc_no):
 	sql_query = """
-		SELECT 
-			x.Installment,
-			x.date,
-			x.remarks,
-			x.idx,
-			x.name,
-			x.installment_amount,
-			x.receivable_amount
-		FROM (
-			SELECT
+		SELECT
 				c.name,
+				d.remarks as plan_type,
 				d.installment_name as Installment,
 				d.date,
-				d.remarks,
-				d.idx,
 				d.amount as installment_amount,
 				d.amount - IFNULL((
 						SELECT SUM(b.paid_amount) AS paid_amount
@@ -286,30 +290,18 @@ def get_installment_list_from_booking(doc_no):
 		WHERE
 			c.name = %s
 		ORDER BY 
-			d.date ASC ) x
-
-		ORDER BY x.idx
+			d.date ASC , d.idx
 	"""
 	results = frappe.db.sql(sql_query, (doc_no), as_dict=True) or []
 	return results
 
 def get_installment_list_from_transfer(doc_no):
 	sql_query = """
-		SELECT 
-			x.Installment,
-			x.date,
-			x.remarks,
-			x.idx,
-			x.receivable_amount,
-			x.name,
-			x.installment_amount
-		FROM (
 			SELECT
 				c.name,
+				d.remarks as plan_type,
 				d.installment_name as Installment,
 				d.date,
-				d.remarks,
-				d.idx,
 				d.amount as installment_amount,
 				d.amount - IFNULL((
 						SELECT SUM(b.paid_amount) AS paid_amount
@@ -323,13 +315,147 @@ def get_installment_list_from_transfer(doc_no):
 			FROM
 				`tabProperty Transfer` AS c
 			INNER JOIN
-				`tabInstallment Payment Plan - Transfer` AS d
+				`tabPayment Plan Reschedule Installment` AS d
 			ON
 				c.name = d.parent
 			WHERE
 				c.name = %s
 			ORDER BY 
-				d.date ASC ) x 
-		ORDER BY x.idx
+				d.date ASC , d.idx
 	"""
 	return frappe.db.sql(sql_query, (doc_no), as_dict=True) or []
+
+def get_installment_list_reschedule_booking(doc_no):
+	sql_query = """
+		WITH paid_installment AS (
+		SELECT
+			b.date, 
+			b.base_doc_idx, 
+			b.installment, 
+			SUM(b.paid_amount) AS paid_amount, 
+			b.ppr_child_table, 
+			a.document_number,
+			IFNULL(
+				(
+					CASE 
+						WHEN a.document_type = 'Plot Booking' THEN c.payment_plan_reschedule 
+						ELSE d.payment_plan_reschedule 
+					END
+				),
+				0
+			) AS payment_schedule
+		FROM 
+			`tabCustomer Payment` a
+			INNER JOIN `tabCustomer Payment Installment` AS b ON a.name = b.parent 
+			LEFT OUTER JOIN `tabPlot Booking` AS c ON a.payment_plan_reschedule = c.payment_plan_reschedule 
+			LEFT OUTER JOIN `tabProperty Transfer` AS d ON a.payment_plan_reschedule = d.payment_plan_reschedule 
+		WHERE 
+			a.docstatus = 1 AND a.document_number = %s
+		GROUP BY 
+			b.date, b.base_doc_idx, b.installment, b.ppr_child_table, c.payment_plan_reschedule
+	),
+	unpaid_installment AS (
+		SELECT 
+			x.document_number, 
+			'Initial Plan' as plan_type,
+			x.installment AS Installment,  
+			x.date, 
+			x.paid_amount AS installment_amount, 
+			0 AS receivable_amount
+		FROM 
+			paid_installment AS x 
+		WHERE 
+			payment_schedule = '0' 
+		UNION ALL   
+		SELECT 
+			c.name,
+			'Plan Reschedule' as plan_type,
+			e.installment_name AS Installment,
+			e.date,
+			e.amount AS installment_amount,
+			e.amount - IFNULL(
+				(
+					SELECT SUM(b.paid_amount) AS paid_amount
+					FROM `tabCustomer Payment` AS a
+					INNER JOIN `tabCustomer Payment Installment` AS b ON a.name = b.parent
+					WHERE a.docstatus = 1
+					AND a.document_number = c.name
+					AND b.ppr_child_table = e.name
+					AND a.plot_no = c.plot_no
+				), 
+				0
+			) AS receivable_amount
+		FROM
+			`tabPlot Booking` AS c
+			INNER JOIN `tabPayment Plan Reschedule` AS d ON d.name = c.payment_plan_reschedule
+			INNER JOIN `tabPayment Plan Reschedule Installment` AS e ON d.name = e.parent
+		WHERE
+			c.name = %s 
+			AND c.ppr_active = 1)
+	SELECT * FROM unpaid_installment as x Order by x.date ;
+	"""
+	return frappe.db.sql(sql_query, (doc_no, doc_no), as_dict=True) or []
+
+def get_installment_list_reschedule_transfer(doc_no):
+	sql_query = """
+		WITH paid_installment AS (
+		SELECT 
+			b.date, 
+			b.base_doc_idx, 
+			b.installment, 
+			SUM(b.paid_amount) AS paid_amount, 
+			b.ppr_child_table, 
+			a.document_number,
+			IFNULL(( d.payment_plan_reschedule ),0 ) AS payment_schedule
+		FROM 
+			`tabCustomer Payment` a
+			INNER JOIN `tabCustomer Payment Installment` AS b ON a.name = b.parent 
+			LEFT OUTER JOIN `tabProperty Transfer` AS d ON a.payment_plan_reschedule = d.payment_plan_reschedule 
+		WHERE 
+			a.docstatus = 1 AND a.document_number = %s 
+		GROUP BY 
+			b.date, b.base_doc_idx, b.installment, b.ppr_child_table, d.payment_plan_reschedule
+	),
+	unpaid_installment AS (
+		SELECT 
+			x.document_number, 
+			'Initial Plan' as plan_type,
+			x.installment AS Installment,  
+			x.date,
+			0 as idx,
+			x.paid_amount AS installment_amount, 
+			0 AS receivable_amount
+		FROM 
+			paid_installment AS x 
+		WHERE 
+			payment_schedule = '0' 
+		UNION ALL   
+		SELECT 
+			c.name,
+			'Plan Reschedule' as plan_type,
+			e.installment_name AS Installment,
+			e.date,
+			e.idx,
+			e.amount AS installment_amount,
+			e.amount - IFNULL(
+				(
+					SELECT SUM(b.paid_amount) AS paid_amount
+					FROM `tabCustomer Payment` AS a
+					INNER JOIN `tabCustomer Payment Installment` AS b ON a.name = b.parent
+					WHERE a.docstatus = 1
+					AND a.document_number = c.name
+					AND b.ppr_child_table = e.name
+					AND a.plot_no = c.plot_no
+				), 
+				0
+			) AS receivable_amount
+		FROM
+			`tabProperty Transfer` AS c
+			INNER JOIN `tabPayment Plan Reschedule` AS d ON d.name = c.payment_plan_reschedule
+			INNER JOIN `tabPayment Plan Reschedule Installment` AS e ON d.name = e.parent
+		WHERE
+			c.name = %s 
+			AND c.ppr_active = 1)
+	SELECT * FROM unpaid_installment as x Order by x.date, x.idx ;
+	"""
+	return frappe.db.sql(sql_query, (doc_no, doc_no), as_dict=True) or []

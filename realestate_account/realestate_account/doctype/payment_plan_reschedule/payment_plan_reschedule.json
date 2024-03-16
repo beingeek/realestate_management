@@ -28,8 +28,8 @@
   "amended_from",
   "section_break_wlqn",
   "remarks",
-  "column_break_yvwv",
   "company",
+  "column_break_yvwv",
   "payment_schedule_tab",
   "payment_plan_data_input_section",
   "payment_plan_template",
@@ -84,6 +84,7 @@
    "fieldname": "project",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Project",
    "options": "Project",
    "reqd": 1
@@ -91,6 +92,7 @@
   {
    "fieldname": "document_type",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": " Document ID",
    "options": "DocType",
    "read_only": 1
@@ -111,6 +113,7 @@
    "fieldname": "plot_no",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Plot No",
    "options": "Plot List",
    "read_only": 1,
@@ -131,9 +134,12 @@
   {
    "fieldname": "document_number",
    "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": " Document No",
    "options": "document_type",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "customer_detail_section",
@@ -144,6 +150,7 @@
   {
    "fieldname": "customer",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Customer",
    "options": "Customer",
    "read_only": 1,
@@ -255,7 +262,7 @@
   {
    "fieldname": "payment_schedule",
    "fieldtype": "Table",
-   "options": "Installment Payment Plan - Transfer",
+   "options": "Payment Plan Reschedule Installment",
    "reqd": 1
   },
   {
@@ -284,7 +291,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-02-13 00:33:21.735623",
+ "modified": "2024-03-05 00:47:49.117381",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Payment Plan Reschedule",

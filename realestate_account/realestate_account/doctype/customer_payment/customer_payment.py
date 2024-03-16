@@ -1,7 +1,7 @@
 
 import frappe
 from frappe import _
-from frappe.utils import flt
+from frappe.utils import flt , cstr
 from realestate_account.controllers.real_estate_controller import RealEstateController, validate_accounting_period_open
 
 class CustomerPayment(RealEstateController):
@@ -14,12 +14,13 @@ class CustomerPayment(RealEstateController):
         self.remove_unpaid_installments()
         self.check_parent_document_status()
         self.Check_customer_plot_master_data()
+        self.validate_payment_reschedule_status()
         validate_accounting_period_open(self)
 
     def on_submit(self):
         self.make_gl_entries()
     
-    def on_cancel(self):
+    def before_cancel(self):
         self.check_parent_document_status()
        
     def validate_check_duplicate_book_number(self):
@@ -39,11 +40,15 @@ class CustomerPayment(RealEstateController):
 
     def validate_row_paid_amount(self):
         for installment in self.installment:
-            total_paid_amount = self.check_total_paid_amount(installment.base_doc_idx)
-            if total_paid_amount is not None:
-                previous_paid_amount = total_paid_amount + installment.paid_amount
-                if previous_paid_amount > installment.installment_amount:
+            if self.ppr_active == 0:
+                total_paid_amount = self.check_total_paid_amount(installment.base_doc_idx)
+                if total_paid_amount is not None and total_paid_amount + installment.paid_amount > installment.installment_amount:
                     frappe.throw(f'Total paid amount cannot exceed the installment amount. Check row: {installment.idx}')
+            else:
+                total_amount = self.check_paid_amount_payment_reschedule(installment.ppr_child_table)
+                if total_amount is not None and total_amount + installment.paid_amount > installment.installment_amount:
+                    frappe.throw(f'Total paid amount cannot exceed the installment amount. Check row: {installment.idx}')
+
 
     def check_total_paid_amount(self, doc_child_idx):
         sql_query = """
@@ -56,8 +61,21 @@ class CustomerPayment(RealEstateController):
                 AND b.base_doc_idx = %s
         """
         result = frappe.db.sql(sql_query, (self.document_number, doc_child_idx), as_dict=True)
-
         return result[0]['total_paid_amount'] if result else 0
+
+    def check_paid_amount_payment_reschedule(self, doc_child_idx):
+        sql_query = """
+            SELECT Sum(b.paid_amount) as total_paid_amount
+                FROM `tabCustomer Payment` AS a
+                INNER JOIN `tabCustomer Payment Installment` AS b
+                ON a.name = b.parent
+                WHERE a.docstatus = 1
+                AND a.payment_plan_reschedule = %s 
+                AND b.ppr_child_table = %s
+        """
+        result = frappe.db.sql(sql_query, (self.document_number, doc_child_idx), as_dict=True)
+        return result[0]['total_paid_amount'] if result else 0
+
 
     def validate_check_paid_amount_installment_amount(self):
         if self.installment_total != self.payment_type_total_amount:
@@ -77,6 +95,17 @@ class CustomerPayment(RealEstateController):
             doc_status = frappe.get_value(doc_type, {'name': doc_number}, 'status')
             if doc_status != 'Active':
                 frappe.throw(f'The parent document {doc_type} with name {doc_number} is not Active')
+        if doc_type == 'Property Merge':
+            doc_status = frappe.get_value(doc_type, {'name': doc_number}, 'docstatus')
+            if doc_status == 1 :
+                frappe.throw(f'The parent document {doc_type} with name {doc_number} is Active, Cancel the parent document first')
+
+
+    def validate_payment_reschedule_status(self):
+        if self.ppr_active == 1:
+            pmt_reschedule = frappe.get_value("Payment Plan Reschedule", self.payment_plan_reschedule, "docstatus")
+            if pmt_reschedule != 1:
+                frappe.throw(_('The Payment schedule {0} is Cancelled').format(frappe.get_desk_link("Payment Plan Reschedule", self.payment_plan_reschedule.name)))
 
     def remove_unpaid_installments(self):
         for i in reversed(range(len(self.installment))):

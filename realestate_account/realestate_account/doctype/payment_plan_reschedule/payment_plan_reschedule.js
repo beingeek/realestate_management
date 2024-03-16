@@ -1,14 +1,13 @@
-
 frappe.ui.form.on("Payment Plan Reschedule", {
     refresh: function (frm) {
-        if (frm.doc.docstatus == 0) {
+        if (frm.doc.docstatus === 0) {
            frm.add_custom_button(
                    __("Generate Installments"),
                    function () {
                        frm.trigger("generate_installment");
                    },
                ).addClass("btn-primary");
-        }
+            }
        },
 });
 
@@ -192,7 +191,6 @@ frappe.ui.form.on("Payment Plan Reschedule", {
             
         });
     },
-
 
     frappe.ui.form.on("Installment Payment Plan", {
         amount: function(frm, cdt, cdn) {

@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "field:plot_name",
  "creation": "2023-10-17 21:46:44.170771",
@@ -30,6 +31,7 @@
   "reason_for_hold",
   "column_break_7g6t7",
   "block",
+  "title",
   "current_owner_detail_tab",
   "customer",
   "address",
@@ -45,9 +47,7 @@
   "document_number",
   "section_break_xuau",
   "customer_partnership",
-  "connection",
-  "amended_from",
-  "title"
+  "connection"
  ],
  "fields": [
   {
@@ -196,15 +196,6 @@
    "show_dashboard": 1
   },
   {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Plot List",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
    "fieldname": "column_break_7g6t7",
    "fieldtype": "Column Break"
   },
@@ -348,9 +339,15 @@
    "group": "Purchase",
    "link_doctype": "Purchase Invoice",
    "link_fieldname": "bill_no"
+  },
+  {
+   "group": "Realestate",
+   "link_doctype": "Property Merge",
+   "link_fieldname": "merge_plot_no",
+   "table_fieldname": "merge_plot_no"
   }
  ],
- "modified": "2023-11-28 15:27:41.173018",
+ "modified": "2024-03-02 14:41:30.442677",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot List",
@@ -378,6 +375,17 @@
    "read": 1,
    "report": 1,
    "role": "Realestate Account Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Realestate User",
    "share": 1,
    "write": 1
   }

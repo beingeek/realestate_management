@@ -262,7 +262,7 @@
    "in_standard_filter": 1,
    "label": "Status",
    "no_copy": 1,
-   "options": "Active\nFurther Transferred\nCancel",
+   "options": "Active\nFurther Transferred\nCancel\nMerge",
    "read_only": 1
   },
   {
@@ -529,7 +529,7 @@
    "allow_on_submit": 1,
    "fieldname": "payment_plan_reschedule",
    "fieldtype": "Link",
-   "label": "Payment Plan reschedule",
+   "label": "Payment Plan Reschedule",
    "no_copy": 1,
    "options": "Payment Plan Reschedule",
    "read_only": 1
@@ -539,6 +539,7 @@
    "default": "0",
    "fieldname": "ppr_active",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Active",
    "no_copy": 1,
    "read_only": 1
@@ -575,7 +576,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2024-03-01 18:04:35.985193",
+ "modified": "2024-03-05 00:39:12.650254",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Property Transfer",

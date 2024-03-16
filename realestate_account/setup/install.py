@@ -45,9 +45,16 @@ def get_custom_fields():
             "insert_after": "default_deduction_revenue_account",
         },
         {
+            "label": "Default Merge Clearing Account",
+            "fieldname": "default_merge_clearing_account",
+            "fieldtype": "Link",
+            "options": "Account",
+            "insert_after": "default_transfer_revenue_account",
+        },
+        {
             "fieldname": "col_break_real_estate",
             "fieldtype": "Column Break",
-            "insert_after": "default_transfer_revenue_account",
+            "insert_after": "default_merge_clearing_account",
         },
         {
             "label": "Default Real Estate Cost Center",

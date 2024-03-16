@@ -40,11 +40,12 @@ class RealEstateController(Document):
             frappe.throw(_('Amount of Total Payment Schedule and Total Sales Amout is not matched'))
 
     def Check_customer_plot_master_data(self):
-        if self.customer:
-            customer = frappe.get_value('Plot List', {'name': self.plot_no}, 'customer')
-            if customer != self.customer:
-                frappe.msgprint('The master data customer does not match the payment customer')
-                frappe.throw('Validation Error: Customer mismatch')
+        pass
+    #     if self.customer:
+    #         customer = frappe.get_value('Plot List', {'name': self.plot_no}, 'customer')
+    #         if customer != self.customer:
+    #             frappe.msgprint('The master data customer does not match the payment customer')
+    #             frappe.throw('Validation Error: Customer mismatch')
 
 def generate_payment_schedule(payment_plan):
     payment_schedule = []
@@ -327,6 +328,46 @@ def get_installment_list_from_transfer(doc_no):
                 x.receivable_amount <> 0
             ORDER BY x.idx;
         """
+        results = frappe.db.sql(sql_query, (doc_no), as_dict=True)
+        if not results:
+            return []
+        return results
+    except Exception as e:
+        frappe.throw(f"Error in get_available_plots: {str(e)}")
+        return []
+
+@frappe.whitelist()
+def get_installment_list_from_payment_reschedule(doc_no):
+    try:
+        sql_query = """
+                   SELECT
+                    c.name,
+                    d.installment_name as Installment,
+                    d.date,
+                    d.remarks,
+                    d.idx,
+                    d.amount as installment_amount,
+                    d.name as child_name,
+                    d.amount - IFNULL((
+                            SELECT SUM(b.paid_amount) AS paid_amount
+                            FROM `tabCustomer Payment` AS a
+                            INNER JOIN `tabCustomer Payment Installment` AS b
+                            ON a.name = b.parent
+                            WHERE a.docstatus = 1
+                            AND a.payment_plan_reschedule = c.name
+                            AND b.ppr_child_table = d.name
+                            AND a.plot_no = c.plot_no), 0 ) AS receivable_amount
+                FROM
+                    `tabPayment Plan Reschedule` AS c
+                INNER JOIN
+                    `tabPayment Plan Reschedule Installment` AS d
+                ON
+                    c.name = d.parent
+                WHERE
+                    c.name = %s
+                ORDER BY 
+                    d.idx                
+                """
         results = frappe.db.sql(sql_query, (doc_no), as_dict=True)
         if not results:
             return []

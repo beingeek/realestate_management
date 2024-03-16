@@ -1,0 +1,90 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-03-02 22:42:27.929349",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "column_break_wsdg",
+  "installment_name",
+  "column_break_pwga",
+  "installment",
+  "column_break_zims",
+  "amount",
+  "column_break_vpfn",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_wsdg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "installment_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Installment Name",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_pwga",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "installment",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Installment",
+   "options": "Payment Plan Type",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_zims",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "options": "Payment Plan Type",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_vpfn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Remarks",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-03-04 13:40:43.363460",
+ "modified_by": "Administrator",
+ "module": "Realestate Account",
+ "name": "Payment Plan Reschedule Installment",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

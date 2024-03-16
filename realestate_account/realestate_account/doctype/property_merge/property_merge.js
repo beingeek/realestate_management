@@ -1,37 +1,32 @@
 frappe.ui.form.on("Property Merge", {
     refresh: function (frm) {
-        // if (frm.doc.status === 1) {
+        if (frm.doc.docstatus == 0) {
             frm.add_custom_button(
                 __("Get Installment list"),
                 function () {
                     frm.trigger("get_insallment_information");
                 },
             ).addClass("btn-primary");
-        // }
+        }
     },
     get_insallment_information: function(frm) {
-        let pprStatus = frm.doc.ppr_active;
         let docNo;
-        
-        if (pprStatus === 0) {
+        let method;
+
+        if (frm.doc.ppr_active === 0) {
             docNo = frm.doc.document_number;
+
+            if (frm.doc.document_type === 'Plot Booking') {
+                method = 'realestate_account.controllers.real_estate_controller.get_installment_list_from_booking';
+            } else if (frm.doc.document_type === 'Property Transfer') {
+                method = 'realestate_account.controllers.real_estate_controller.get_installment_list_from_transfer';
+            } else {
+                frappe.msgprint(__('Invalid document type.'));
+                return;
+            }
         } else {
             docNo = frm.doc.payment_plan_reschedule;
-        }
-        let method;
-        let docType = frm.doc.document_type; 
-        
-        if (docType === 'Plot Booking' && pprStatus === 0) {
-            method = 'realestate_account.controllers.real_estate_controller.get_installment_list_from_booking';
-        } else if (docType === 'Property Transfer' && pprStatus === 0) {
-            method = 'realestate_account.controllers.real_estate_controller.get_installment_list_from_transfer';
-        // } else if (docType === 'Plot Booking' && pprStatus === 1) {
-        //     method = 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.get_installment_list_from_booking';
-        // } else if (docType === 'Property Transfer' && pprStatus === 1) {
-        //     method = 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.installment_list_from_booking';
-        } else {
-            frappe.msgprint(__('Invalid document type.'));
-            return;
+            method = 'realestate_account.controllers.real_estate_controller.get_installment_list_from_payment_reschedule';
         }
     
         frappe.call({
@@ -44,7 +39,7 @@ frappe.ui.form.on("Property Merge", {
                 frm.set_value("installment_total", 0);
                 let receivable_total = 0;
                 data.message.sort((a, b) => new Date(a.date) - new Date(b.date));
-                for (let i = 0; i < Math.min(data.message.length, 10); i++) {
+                for (let i = 0; i < (data.message.length); i++) {
                     if (data.message[i].receivable_amount > 0) {
                         var row = frm.add_child("installment");
                         row.installment = data.message[i].Installment;
@@ -63,7 +58,34 @@ frappe.ui.form.on("Property Merge", {
             }
         });
     },
-
+    merge_document_number : function(frm) {
+        if(frm.doc.document_number) {
+            frappe.call({
+                method: 'realestate_account.controllers.real_estate_controller.get_customer_partner',
+                args: {
+                    document_number: frm.doc.document_number,
+                },
+                callback: function(data) {
+                    if (data.message) {
+                        frm.clear_table('customer_partnership');
+                        for (let i = 0; i < data.message.length; i++) {
+                            var row = frm.add_child('customer_partnership');
+                            row.customer = data.message[i].customer;
+                            row.father_name = data.message[i].father_name;
+                            row.id_card_no = data.message[i].id_card_no;
+                            row.mobile_no = data.message[i].mobile_no;
+                            row.address = data.message[i].address;
+                            row.share_percentage = data.message[i].share_percentage;
+                        }
+                        frm.refresh_fields('customer_partnership');        
+                    } else {
+                        frappe.msgprint(__('Error: ') + data.exc);
+                    }
+                }
+            });
+        
+        }
+    },
 
 	project: function(frm) {
         var project = frm.doc.project;
@@ -110,6 +132,7 @@ frappe.ui.form.on("Property Merge", {
                         var name = r.message[0].name;
                         var Customer = r.message[0].customer;
                         var docType = r.message[0].Doc_type;
+                        var share_percentage = r.message[0].share_percentage;
                         var pprActive = r.message[0].ppr_active;
                         var ppRechedule = r.message[0].payment_plan_reschedule;
                         var salesAmount = r.message[0].sales_amount;
@@ -123,12 +146,13 @@ frappe.ui.form.on("Property Merge", {
                         cur_frm.set_value("balance_amount", balanceAmount);
                         cur_frm.set_value("payment_plan_reschedule", ppRechedule);
                         cur_frm.set_value("ppr_active", pprActive);
-                        cur_frm.set_value("from_customer", Customer);			  
+                        cur_frm.set_value("from_customer", Customer);	 
                     }
                 }
             }
         });
     },
+    
 
 frappe.ui.form.on("Property Merge", {
     deduction:function(frm) {
@@ -140,7 +164,6 @@ frappe.ui.form.on("Property Merge", {
     balance_amount:function(frm) {
         calc_net_amount(frm);
     },
-
     merge_project: function(frm) {
         var merge_project = frm.doc.merge_project;
         if (!frm.doc.merge_project) {
@@ -187,12 +210,17 @@ frappe.ui.form.on("Property Merge", {
                     var Customer = r.message[0].customer;
                     var name = r.message[0].name;    
                     var docType = r.message[0].Doc_type;
+                    var share_percentage = r.message[0].share_percentage;
+                    var customer_type = r.message[0].customer_type;
+                    var sales_broker = r.message[0].sales_broker;
 
+                    cur_frm.set_value('merge_sales_broker', sales_broker);
                     cur_frm.set_value('merge_document_type', docType);
                     cur_frm.set_value('merge_document_number', name);
                     cur_frm.set_value("merge_amount", receivedAmount);
-                    cur_frm.set_value("customer", Customer);
-                    
+                    cur_frm.set_value("merge_customer", Customer);
+                    cur_frm.set_value("merge_share_percentage", share_percentage);
+                    cur_frm.set_value("merge_customer_type", customer_type);
                 }
             }
         }

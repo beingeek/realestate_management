@@ -62,24 +62,6 @@
   },
   {
    "hidden": 0,
-   "is_query_report": 0,
-   "label": "Real Estate Report",
-   "link_count": 1,
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 1,
-   "label": "Project Payment Datail",
-   "link_count": 0,
-   "link_to": "Project Payment Detail",
-   "link_type": "Report",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
    "is_query_report": 1,
    "label": "Project wise Installment Detail",
    "link_count": 0,
@@ -129,8 +111,67 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Data Entry Form",
+   "label": "Real Estate Report",
    "link_count": 5,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Project Payment Datail",
+   "link_count": 0,
+   "link_to": "Project Payment Detail",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Project wise Installment Detail",
+   "link_count": 0,
+   "link_to": "Project wise Installment Detail",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Project Wise Detail",
+   "link_count": 0,
+   "link_to": "Remaining Amount Project Wise",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Active Token Report",
+   "link_count": 0,
+   "link_to": "Active Token Report",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Real Estate Customer Statement",
+   "link_count": 0,
+   "link_to": "Real Estate Customer Statement",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Data Entry Form",
+   "link_count": 7,
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
   },
@@ -183,9 +224,29 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Payment Plan Reschedule",
+   "link_count": 0,
+   "link_to": "Payment Plan Reschedule",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Property Merge",
+   "link_count": 0,
+   "link_to": "Property Merge",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2023-11-25 00:34:54.007096",
+ "modified": "2024-03-02 23:08:04.290314",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Real Estate",

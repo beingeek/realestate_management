@@ -1,15 +1,16 @@
 {
  "actions": [],
- "allow_rename": 1,
+ "allow_import": 1,
+ "autoname": "format:PM-{#######}",
  "creation": "2024-03-01 18:33:03.608240",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "section_break_smu8",
   "posting_date",
+  "project",
   "amended_from",
   "column_break_okla",
-  "project",
   "plot_no",
   "document_type",
   "column_break_tnaz",
@@ -20,24 +21,34 @@
   "from_customer",
   "column_break_wtub",
   "from_father_name",
-  "column_break_oegi",
   "from_cnic",
+  "column_break_oegi",
+  "from_address",
   "property_merge_detail_section",
   "merge_project",
-  "customer",
   "column_break_ieop",
   "merge_plot_no",
-  "merge_fatther_name",
-  "customer_type",
-  "share_percentage",
   "column_break_mbwc",
   "merge_document_number",
   "merge_document_type",
+  "section_break_aeaj",
+  "merge_customer",
+  "merge_customer_type",
+  "merge_share_percentage",
+  "merge_sales_broker",
+  "column_break_niqd",
+  "merge_fatther_name",
   "merge_cnic",
+  "mobile_no",
+  "column_break_xkbz",
+  "merge_address",
+  "section_break_wjgf",
+  "customer_partnership",
   "section_break_zcjx",
+  "remarks",
   "company",
   "column_break_gysp",
-  "remarks",
+  "column_break_gmkt",
   "payment_tab",
   "sales_amount",
   "merge_amount",
@@ -52,7 +63,8 @@
   "section_break_ynnu",
   "installment_total",
   "column_break_piyc",
-  "column_break_wlog"
+  "column_break_wlog",
+  "connection"
  ],
  "fields": [
   {
@@ -89,6 +101,7 @@
   {
    "fieldname": "document_type",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": " Document ID",
    "options": "DocType",
    "read_only": 1
@@ -101,6 +114,7 @@
    "fieldname": "project",
    "fieldtype": "Link",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Project",
    "options": "Project",
    "reqd": 1
@@ -125,6 +139,8 @@
   {
    "fieldname": "plot_no",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Plot No.",
    "options": "Plot List",
    "read_only": 1,
@@ -138,6 +154,7 @@
   {
    "fieldname": "from_customer",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "From Customer",
    "options": "Customer",
    "read_only": 1
@@ -172,7 +189,9 @@
   {
    "fieldname": "merge_project",
    "fieldtype": "Link",
-   "label": "Project",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Merge Project",
    "options": "Project",
    "reqd": 1
   },
@@ -183,20 +202,15 @@
   {
    "fieldname": "merge_plot_no",
    "fieldtype": "Link",
-   "label": "Plot No.",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Merge Plot No.",
    "options": "Plot List",
    "read_only": 1,
    "reqd": 1
   },
   {
-   "fieldname": "customer",
-   "fieldtype": "Link",
-   "label": "Customer",
-   "options": "Customer",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "customer.father_name",
+   "fetch_from": "merge_customer.father_name",
    "fieldname": "merge_fatther_name",
    "fieldtype": "Data",
    "label": "Father Name",
@@ -207,7 +221,7 @@
    "fieldtype": "Column Break"
   },
   {
-   "fetch_from": "customer.id_card_no",
+   "fetch_from": "merge_customer.id_card_no",
    "fieldname": "merge_cnic",
    "fieldtype": "Data",
    "label": " CNIC",
@@ -332,28 +346,115 @@
   {
    "fieldname": "merge_document_type",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Merge Document ID",
    "options": "DocType",
    "read_only": 1
   },
   {
-   "fieldname": "customer_type",
-   "fieldtype": "Data",
-   "label": "customer_type"
+   "fieldname": "section_break_wjgf",
+   "fieldtype": "Section Break"
   },
   {
-   "fieldname": "share_percentage",
+   "fieldname": "customer_partnership",
+   "fieldtype": "Table",
+   "label": "Customer Partnership",
+   "options": "Property Merge Customer Partnership",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_gmkt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_aeaj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_niqd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_xkbz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "merge_customer.primary_address",
+   "fieldname": "merge_address",
+   "fieldtype": "Small Text",
+   "label": "Address",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval: doc.merge_customer_type == 'Partnership'",
+   "fieldname": "merge_customer_type",
    "fieldtype": "Data",
-   "label": "share_percentage"
+   "label": "Customer Type",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval: doc.merge_customer_type == 'Partnership'",
+   "fieldname": "merge_share_percentage",
+   "fieldtype": "Data",
+   "label": "Share Percentage",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "from_customer.primary_address",
+   "fieldname": "from_address",
+   "fieldtype": "Small Text",
+   "label": "Address",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "merge_customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Merge Customer",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "connection",
+   "fieldtype": "Tab Break",
+   "label": "Connection",
+   "show_dashboard": 1
+  },
+  {
+   "fetch_from": ".id_card_no",
+   "fieldname": "merge_sales_broker",
+   "fieldtype": "Data",
+   "label": "Sales Broker",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "merge_customer.mobile_no",
+   "fieldname": "mobile_no",
+   "fieldtype": "Data",
+   "label": "Mobile No",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2024-03-02 03:25:40.098983",
+ "links": [
+  {
+   "group": "Account",
+   "link_doctype": "Journal Entry",
+   "link_fieldname": "document_number"
+  },
+  {
+   "group": "Real Estate",
+   "link_doctype": "Customer Payment",
+   "link_fieldname": "property_merge"
+  }
+ ],
+ "modified": "2024-03-05 15:40:57.002891",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Property Merge",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -368,9 +469,36 @@
    "share": 1,
    "submit": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Realestate Account Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Realestate User",
+   "share": 1,
+   "write": 1
   }
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1
 }

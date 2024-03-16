@@ -245,7 +245,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": " Status",
-   "options": "Active\nProperty Transfer\nCancel",
+   "options": "Active\nProperty Transfer\nCancel\nMerge",
    "read_only": 1
   },
   {
@@ -280,6 +280,7 @@
    "reqd": 1
   },
   {
+   "depends_on": "eval:doc.ppr_active === 0",
    "fieldname": "payment_schedule_section",
    "fieldtype": "Section Break",
    "label": " Payment Schedule"
@@ -292,6 +293,7 @@
    "reqd": 1
   },
   {
+   "depends_on": "eval:doc.ppr_active === 0",
    "fieldname": "payment_plan_reconcilition_section",
    "fieldtype": "Section Break",
    "label": "Payment Plan Reconcilition"
@@ -501,8 +503,7 @@
    "fieldtype": "Check",
    "hidden": 1,
    "label": "active",
-   "no_copy": 1,
-   "read_only": 1
+   "no_copy": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -526,7 +527,7 @@
    "link_fieldname": "document_number"
   }
  ],
- "modified": "2024-03-01 17:01:07.233467",
+ "modified": "2024-03-05 00:41:53.308747",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Plot Booking",

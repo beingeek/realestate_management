@@ -20,10 +20,12 @@
   "column_break_yzarc",
   "customer",
   "address",
+  "ppr_active",
   "column_break_grwe5",
   "sales_amount",
   "received_amount",
   "remaining_amount",
+  "payment_plan_reschedule",
   "installment_division_section",
   "installment",
   "section_break_dxx3v",
@@ -32,6 +34,7 @@
   "remarks",
   "amended_from",
   "property_merge",
+  "property_merge_adjustment",
   "column_break_i1bgb",
   "company",
   "payment_type_total_amount",
@@ -274,12 +277,34 @@
    "fieldtype": "Data",
    "label": "Property Merge",
    "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "ppr_active",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "ppr_active"
+  },
+  {
+   "fieldname": "payment_plan_reschedule",
+   "fieldtype": "Link",
+   "label": "Payment Plan Reschedule",
+   "options": "Payment Plan Reschedule",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "property_merge_adjustment",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Property Merge Adjustment",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-03-02 03:11:14.433645",
+ "modified": "2024-03-05 00:44:34.104434",
  "modified_by": "Administrator",
  "module": "Realestate Account",
  "name": "Customer Payment",

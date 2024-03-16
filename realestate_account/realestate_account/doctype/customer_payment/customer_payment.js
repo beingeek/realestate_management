@@ -1,12 +1,14 @@
 frappe.ui.form.on('Customer Payment', {
-    onload: function (frm) {
-         if (frm.doc.docstatus == 0) {
-            frm.toggle_display('Get Installment list', false);
-        } else {
-            frm.toggle_display('Get Installment list', true);
+    refresh: function (frm) {
+        if (frm.doc.docstatus == 0) {
+            frm.add_custom_button(
+                __("Get Installment list"),
+                function () {
+                    frm.trigger("get_insallment_information");
+                },
+            ).addClass("btn-primary");
         }
     },
-
     refresh: function(frm) {
         frm.fields_dict['payment_type'].grid.get_field('ledger').get_query = function(doc, cdt, cdn) {
             var child = locals[cdt][cdn];
@@ -28,7 +30,7 @@ frappe.ui.form.on('Customer Payment', {
             };
         };
     },
-
+    
     project: function(frm) {
         var project_n = frm.doc.project;
         if (!frm.doc.project) {
@@ -61,7 +63,7 @@ frappe.ui.form.on('Customer Payment', {
         }, __('Select Available Plot'));
     },
     refresh: function (frm) {
-        if (frm.doc.status !== 'Submitted') {
+        if (frm.doc.docstatus == 0) {
             frm.add_custom_button(
                 __("Get Installment list"),
                 function () {
@@ -72,29 +74,23 @@ frappe.ui.form.on('Customer Payment', {
     },
 
     get_insallment_information: function(frm) {
-        let pprStatus = frm.doc.pprStatus;
         let docNo;
-        
-        if (pprStatus === 0) {
-            docNo = frm.doc.document_number;
-        } else {
-            docNo = frm.doc.ppr_document_number;
-        }
-        
         let method;
-        let docType = frm.doc.doctype; 
-        
-        if (docType === 'Plot Booking' && pprStatus === 0) {
-            method = 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.get_installment_list_from_booking';
-        } else if (docType === 'Property Transfer' && pprStatus === 0) {
-            method = 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.list_from_transfer';
-        } else if (docType === 'Plot Booking' && pprStatus === 1) {
-            method = 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.get_installment_list_from_booking';
-        } else if (docType === 'Property Transfer' && pprStatus === 1) {
-            method = 'realestate_account.realestate_account.doctype.customer_payment.customer_payment.installment_list_from_booking';
+
+        if (frm.doc.ppr_active === 0) {
+            docNo = frm.doc.document_number;
+
+            if (frm.doc.document_type === 'Plot Booking') {
+                method = 'realestate_account.controllers.real_estate_controller.get_installment_list_from_booking';
+            } else if (frm.doc.document_type === 'Property Transfer') {
+                method = 'realestate_account.controllers.real_estate_controller.get_installment_list_from_transfer';
+            } else {
+                frappe.msgprint(__('Invalid document type.'));
+                return;
+            }
         } else {
-            frappe.msgprint(__('Invalid document type.'));
-            return;
+            docNo = frm.doc.payment_plan_reschedule;
+            method = 'realestate_account.controllers.real_estate_controller.get_installment_list_from_payment_reschedule';
         }
     
         frappe.call({
@@ -103,9 +99,10 @@ frappe.ui.form.on('Customer Payment', {
                 doc_no: docNo,
             },
             callback: function(data) {
+                console.log();
                 frm.clear_table('installment');
                 let receivable_total = 0;
-                for (let i = 0; i < data.message.length; i++) {
+                for (let i = 0; i < Math.min(data.message.length, 10); i++) {
                     if (data.message[i].receivable_amount > 0) {
                         var row = frm.add_child("installment");
                         row.installment = data.message[i].Installment;
@@ -113,6 +110,7 @@ frappe.ui.form.on('Customer Payment', {
                         row.receivable_amount = data.message[i].receivable_amount;
                         row.base_doc_idx = data.message[i].idx;
                         row.date = data.message[i].date;
+                        row.ppr_child_table = data.message[i].child_name;
                         row.base_doc_no = data.message[i].name;
                         row.remaining_amount = data.message[i].receivable_amount;
                         receivable_total = receivable_total + data.message[i].receivable_amount;
@@ -157,6 +155,8 @@ frappe.ui.form.on('Customer Payment', {
                     var name = r.message[0].name;
                     var docType = r.message[0].Doc_type; 
                     var customer = r.message[0].customer;
+                    var pprActive = r.message[0].ppr_active;
+                    var ppReschedule = r.message[0].payment_plan_reschedule;
                     var address = r.message[0].address;
                     var share_percentage = r.message[0].share_percentage;
                     var customer_type = r.message[0].customer_type;
@@ -174,8 +174,11 @@ frappe.ui.form.on('Customer Payment', {
                     cur_frm.set_value("address", address);
                     cur_frm.set_value("share_percentage", share_percentage);
                     cur_frm.set_value("customer_type", customer_type);
-                    cur_frm.refresh_fields(['document_type','document_number',"total_paid_amount","sales_amount","received_amount","remaining_amount",
-                    "customer","address","share_percentage","customer_type"]);
+                    cur_frm.set_value("payment_plan_reschedule", ppReschedule);
+                    cur_frm.set_value("ppr_active", pprActive);
+                    cur_frm.refresh_fields(['document_type','document_number',"total_paid_amount",
+                    "sales_amount","received_amount","remaining_amount","payment_plan_reschedule",
+                    "customer","address","share_percentage","customer_type", "ppr_active"]);
                 }
             }
         });
@@ -207,6 +210,9 @@ frappe.ui.form.on('Customer Payment', {
             });
         
         }
+    },
+    document_number : function(frm) {
+        frm.clear_table('installment');
     }
 });
 
